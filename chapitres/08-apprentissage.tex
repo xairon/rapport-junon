@@ -65,9 +65,11 @@ entraînement au lieu d'attendre un résultat opaque, et peut l'interrompre s'il
 
 La comparaison d'architectures n'a de sens que si chacune est évaluée dans une configuration
 raisonnable ; comparer un modèle réglé à un modèle laissé aux valeurs par défaut ne renseigne
-que sur le réglage. Optuna~\cite{optuna} est donc intégré pour la recherche automatisée d'hyperparamètres,
-avec élagage des essais non prometteurs pour concentrer le budget de calcul sur les
-configurations viables.
+que sur le réglage. Optuna~\cite{optuna} est donc intégré pour la recherche automatisée d'hyperparamètres, avec un
+échantillonnage guidé par les essais déjà évalués. Chaque essai est par ailleurs interrompu dès
+que sa perte de validation cesse de progresser. L'élagage entre essais, qui abandonnerait une
+configuration en cours au vu des premières époques, n'est pas activé : ce serait le premier
+réglage à ajouter pour réduire le coût d'une campagne.
 
 \section{Rendre l'outil utilisable par des non-spécialistes}
 

@@ -153,8 +153,8 @@ pour la comparaison : elle optimise directement la perturbation brute, avec cont
 sans couplage physique, soit un nombre de paramètres libres égal à trois fois la longueur de la
 fenêtre, contre sept pour l'approche contrainte.
 
-Cette comparaison met à l'épreuve une hypothèse précise. Avec deux à trois ordres de grandeur de
-paramètres libres en plus, la référence non contrainte atteindra presque toujours la cible plus
+Cette comparaison met à l'épreuve une hypothèse précise. Avec plusieurs dizaines à quelques centaines de fois plus de
+paramètres libres, la référence non contrainte atteindra presque toujours la cible plus
 facilement. La question n'est donc pas laquelle des deux optimise mieux, ce qui est réglé
 d'avance, mais si \textbf{davantage de degrés de liberté produit une meilleure explication}. Le
 dispositif permet d'en discuter sur pièces plutôt que de le supposer.
@@ -185,9 +185,10 @@ elle-même : l'annotation automatique des piézomètres selon leur caractère in
 influencé figure parmi les cas d'usage identifiés avec le BRGM.
 
 Le problème est difficile car \textbf{non supervisé} : on ne dispose pas d'un historique
-étiqueté des prélèvements. La démarche retenue croise trois regards indépendants, à savoir l'analyse des
-résidus d'un modèle métier calibré, une détection de ruptures accompagnée d'une analyse d'écart
-par apprentissage, et une lecture par représentation apprise, puis fusionne leurs verdicts. La couche
+étiqueté des prélèvements. La démarche procède en deux temps. Un modèle métier calibré fournit d'abord ses résidus et une
+détection de ruptures, dont on tire les périodes que l'on peut tenir pour non perturbées.
+Deux lectures indépendantes l'une de l'autre s'appuient ensuite sur cette base, l'une par analyse
+d'écart après apprentissage, l'autre par représentation apprise, et leurs verdicts sont fusionnés. La couche
 d'explicabilité y joue un rôle inhabituel : elle ne sert pas à justifier une prédiction mais à
 détecter une \textbf{dérive dans les attributions}, un changement de ce sur quoi le modèle
 s'appuie, qui signale que le régime du système a changé.

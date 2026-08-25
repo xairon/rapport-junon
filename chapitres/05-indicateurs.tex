@@ -16,7 +16,8 @@ référence} : décider s'il faut restreindre les prélèvements, comparer deux 
 C'est l'objet des indices standardisés. Leur principe est constant : ajuster une loi de
 probabilité sur la série de référence, puis transformer la valeur observée en un score exprimé
 en écarts-types d'une loi normale centrée réduite. Un score de $-2$ signifie alors la même chose
-partout : une situation dont la rareté correspond au seuil de sécheresse sévère.
+partout : une situation d'une rareté que les échelles usuelles rangent parmi les sécheresses les
+plus marquées.
 
 Deux familles ont été produites : les indices \emph{par station}, calculés sur les niveaux de
 nappe et les débits, et les indices \emph{sur grille}, calculés sur les variables climatiques
@@ -212,7 +213,8 @@ c'est-à-dire le symptôme d'une entrée mal dimensionnée.
 
 La portée de cette mesure doit être précisée : elle porte sur une seule station et sur une
 période de \num{385} jours, seule profondeur disponible dans la base au moment de la
-vérification. Elle établit que l'écart a un effet, non son ampleur générale. Une évaluation sur
+vérification. Le protocole et les valeurs obtenues sont consignés dans le dépôt de la plateforme,
+afin que la mesure puisse être rejouée plutôt que crue sur parole. Elle établit que l'écart a un effet, non son ampleur générale. Une évaluation sur
 un historique long et un échantillon de stations reste à conduire.
 
 Pourquoi cette incohérence n'a-t-elle pas été corrigée ? Parce que la correction n'est pas un
@@ -236,7 +238,9 @@ l'indice pourra être calculé.
 
 L'article fondateur du SPEI~\cite{vicenteserrano2010spei} emploie une loi log-logistique, et
 c'est elle qui avait été retenue au départ. Appliquée à la grille française, elle ne s'ajuste que
-sur \SI{74,6}{\percent} des cas, laissant un quart du territoire sans valeur. L'instrumentation
+sur \SI{74,6}{\percent} des combinaisons de maille, de mois et de fenêtre. Le manque n'est pas
+uniforme : selon la fenêtre d'agrégation, la couverture va d'environ deux tiers à un peu moins de
+neuf dixièmes, ce qui laisse des trous mouvants dans la carte nationale. L'instrumentation
 des rejets a montré que la cause était unique et structurelle : cette loi ne représente qu'un
 sens d'asymétrie, et environ \SI{27}{\percent} des mailles françaises présentent l'autre. Aucune
 quantité de données supplémentaire n'y aurait changé quoi que ce soit.
@@ -248,8 +252,7 @@ elle qui a été retenue. Le choix n'a donc rien d'original : il consiste à sui
 
 Le remplacement est par ailleurs sans effet sur l'existant. Les deux lois étant équivalentes par
 reparamétrage, les valeurs restent inchangées partout où la première fonctionnait, ce qui a été
-vérifié à un écart maximal de \num{0,000} sur \num{35614} mailles. La carte gagne le quart de
-territoire qui lui manquait, sans que rien d'autre ne bouge.
+vérifié à un écart maximal de \num{0,000} sur \num{35614} ajustements. La carte se complète là où elle était trouée, sans que rien d'autre ne bouge.
 
 \section{La vérification des indices produits}
 

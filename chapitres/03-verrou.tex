@@ -14,8 +14,9 @@ d'information sur l'eau~\cite{hubeau}. Elle expose par interfaces web les chroni
 \emph{piézométriques}, c'est-à-dire les niveaux de nappe mesurés aux ouvrages de
 surveillance, et les données
 \emph{hydrométriques} de débit des cours d'eau, organisées en sites, stations et observations
-élaborées. Le parc compte \num{23333} ouvrages piézométriques et \num{6468} stations
-hydrométriques réparties sur \num{9283} sites.
+élaborées. Le parc compte \num{23333} ouvrages piézométriques, \num{6468} stations
+hydrométriques et \num{9283} sites de référence, ces derniers ne portant pas tous une station en
+service.
 
 \textbf{ERA5-Land}, produit par le Centre européen pour les prévisions météorologiques à moyen
 terme et diffusé par le \emph{Climate Data Store} de Copernicus~\cite{cds}, fournit une
@@ -64,8 +65,8 @@ expérience.
 
 Le cas d'ERA5 illustre l'écart entre l'accès théorique et le coût pratique. Le produit dérivé
 de statistiques journalières proposé par le \emph{Climate Data Store} est calculé côté serveur,
-sur une file d'attente saturée : environ \textbf{43 heures par année demandée}, soit près de six
-semaines pour reconstituer l'historique complet. La même information, recalculée localement à
+sur une file d'attente saturée : environ \textbf{43 heures par année demandée}. À ce rythme,
+reconstituer sept décennies se compte en mois. La même information, recalculée localement à
 partir de l'archive horaire brute, demande environ \textbf{vingt-cinq minutes par année}.
 L'équivalence des deux voies a été vérifiée maille par maille et jour par jour, à
 \SI{0.0000}{\celsius} sur les extrêmes journaliers et \SI{0.01}{\celsius} sur la moyenne.
