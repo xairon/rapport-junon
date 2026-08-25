@@ -159,9 +159,54 @@ comme un signal climatique alors qu'elle n'aurait été qu'une erreur de défini
 précisément le genre d'erreur qu'aucun test logiciel ne détecte : le calcul était juste, c'est
 la grandeur qui n'était pas la bonne.
 
-En conséquence, l'évapotranspiration de référence est recalculée par la formule de Hargreaves à
-partir des températures journalières vraies. La variable ERA5 d'origine reste exposée pour la
-traçabilité, assortie d'une consigne explicite de non-consommation.
+\subsection{Où cela se joue dans l'entrepôt}
+
+Une précision s'impose, car la correction ne consiste pas à remplacer une valeur en cours de
+route. Les deux grandeurs coexistent, et leurs trajectoires diffèrent.
+
+La variable brute d'ERA5 est \textbf{ingérée telle quelle} en couche Bronze, avec pour seule
+opération la conversion des mètres en millimètres. La couche Silver se contente de la typer :
+aucun calcul n'y est fait, conformément au principe énoncé au chapitre~\ref{ch:entrepot}.
+
+C'est en couche Gold, dans le modèle de grille mensuelle, que tout se joue. L'évapotranspiration
+de référence n'y est pas dérivée de la variable brute : elle est \textbf{calculée à partir d'une
+autre source}, les statistiques journalières de température issues du second chemin d'ingestion.
+La formule de Hargreaves est appliquée jour par jour, puis cumulée sur le mois. La variable
+brute, elle, est conservée dans une colonne distincte de la même table.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Couche} & \textbf{Colonne} & \textbf{Contenu} \\
+\midrule
+Bronze & \code{potential\_evaporation} & Variable ERA5 brute, convertie en millimètres. Aucune
+interprétation. \\
+Silver & \code{potential\_evaporation} & La même, typée. Toujours aucun calcul. \\
+Gold & \code{etp\_totale} & \textbf{Évapotranspiration de référence}, calculée par Hargreaves
+depuis les températures journalières. C'est cette colonne qui est consommée. \\
+Gold & \code{bilan\_hydrique} & Précipitation moins \code{etp\_totale}. Le SPEI en découle. \\
+Gold & \code{etp\_pev\_era5} & La variable brute cumulée, conservée pour la traçabilité et la
+comparaison. À ne pas consommer. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Conserver les deux colonnes côte à côte a un intérêt qui dépasse la traçabilité : c'est ce qui a
+rendu la mesure possible. Les valeurs de \num{818} et \num{1756} millimètres par an comparées
+plus haut sont issues d'une simple requête sur cette table, et non d'un calcul externe. Quiconque
+doute de l'arbitrage peut le refaire.
+
+\subsection{Une réserve à connaître}
+
+Cette correction ne vaut que pour la chaîne climatique sur grille. La chaîne des stations
+expose encore, sous le nom \code{potential\_evaporation}, la variable brute d'origine. Le motif
+est assumé : cette colonne est l'entrée de forçage des modèles métier déjà calibrés
+(chapitre~\ref{ch:metier}), et la modifier invaliderait ces calibrations.
+
+Il en résulte qu'une évapotranspiration lue sur la carte climatique et une évapotranspiration
+lue sur la fiche d'une station \textbf{ne désignent pas la même grandeur}, et diffèrent d'un
+facteur voisin de deux. L'incohérence est documentée dans le dépôt ; sa résolution suppose de
+recalibrer l'ensemble des modèles existants.
 
 \section{Deuxième résultat : le choix de la loi statistique du SPEI}
 \label{sec:glo}
@@ -285,7 +330,6 @@ méthodologiques structurantes sont documentées avec les chiffres qui les étab
 indicateurs sont utilisables tels quels par les hydrogéologues et constituent des variables
 candidates pour la modélisation.
 
-Une incohérence connue subsiste néanmoins entre la chaîne climatique et la chaîne des stations
-sur l'évapotranspiration. La seconde expose encore la variable d'origine, car elle constitue
-l'entrée de forçage des modèles métier déjà calibrés et sa modification les invaliderait.
-L'arbitrage est explicite et documenté ; sa résolution suppose une recalibration d'ensemble.
+Reste l'incohérence signalée plus haut entre la chaîne climatique et la chaîne des stations sur
+l'évapotranspiration, seule zone d'ombre de ce chapitre. Elle est documentée et son motif est
+assumé, mais elle demeure un piège pour qui comparerait les deux sans le savoir.
