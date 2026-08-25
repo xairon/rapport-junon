@@ -175,6 +175,14 @@ séparent l'état actuel d'un environnement d'outils partagé. Aucun n'est un ve
 tous sont des décisions d'investissement.
 
 \begin{enumerate}
+  \item \textbf{L'alignement de l'évapotranspiration sur la chaîne des stations.} C'est le seul
+  chantier de la liste qui conditionne la validité de résultats à venir, et non seulement le
+  confort de travail. Tant qu'il n'est pas traité, les modèles métier sont calibrés sur un
+  forçage deux fois trop élevé, dont le chapitre~\ref{ch:indicateurs} montre qu'il n'est pas
+  absorbé par la calibration. Il suppose d'ajouter les températures extrêmes à la chaîne
+  station, d'y calculer l'évapotranspiration de référence au pas journalier, de reconstruire
+  deux tables partitionnées, puis de recalibrer.
+
   \item \textbf{L'automatisation des vérifications.} La suite de tests de la plateforme n'est pas
   exécutée automatiquement (chapitre~\ref{ch:apprentissage}). Tant que les vérifications
   dépendent d'une initiative humaine, la confiance dans les évolutions décroît avec le temps.
@@ -230,6 +238,6 @@ sont effectivement tenues : interface stable, cœur indépendant, indicateurs ce
 contrats exécutables, reproductibilité, documentation écrite pour la reprise. Le patron mis en
 œuvre se transpose à d'autres compartiments environnementaux.
 
-Cinq chantiers séparent néanmoins ce socle d'un environnement d'outils réellement partagé, et
+Six chantiers séparent néanmoins ce socle d'un environnement d'outils réellement partagé, et
 aucun d'eux n'est un verrou de recherche. La démonstration la plus convaincante resterait
 d'ailleurs qu'il ait servi à établir un résultat scientifique, ce qui n'a pas encore eu lieu.

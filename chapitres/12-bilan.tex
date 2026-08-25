@@ -73,11 +73,13 @@ rapport qui n'en comporterait aucune ne serait pas crédible.
   d'entraînement ont validé le dispositif, non classé les méthodes. Les jeux préparés et les
   points de sauvegarde ont été purgés lors de la passation.
 
-  \item \textbf{Une incohérence connue subsiste sur l'évapotranspiration} entre la chaîne
-  « grille » et la chaîne « station ». La seconde conserve la variable d'origine parce qu'elle
-  constitue l'entrée de forçage des modèles métier déjà calibrés, et que sa modification les
-  invaliderait. L'arbitrage est explicite, documenté, et sa résolution suppose une recalibration
-  d'ensemble.
+  \item \textbf{Les modèles métier sont calibrés sur une évapotranspiration inadaptée.} La
+  chaîne des stations transporte encore la variable brute, environ deux fois supérieure à
+  l'évapotranspiration de référence employée par la chaîne climatique. La mesure présentée au
+  chapitre~\ref{ch:indicateurs} montre que le modèle n'absorbe pas cet écart : le paramètre qui
+  pondère l'évaporation sature à sa borne, et l'ajustement en dépend. Les prévisions restent
+  exploitables, mais les paramètres calibrés n'ont pas d'interprétation physique directe. C'est
+  le premier chantier à reprendre, avant toute campagne de calibration.
 
   \item \textbf{Les tests ne sont pas exécutés automatiquement} sur la plateforme, la chaîne
   d'intégration de la forge hébergeante ne comportant qu'une étape de construction. Quatre des

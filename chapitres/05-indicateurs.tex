@@ -177,72 +177,71 @@ comparative présentée plus haut : les valeurs de \num{818} et \num{1756} milli
 s'obtiennent par une simple requête, et quiconque doute de l'arbitrage peut le refaire.
 L'annexe~\ref{ann:etp} donne le détail des colonnes concernées, couche par couche.
 
-\subsection{Une réserve à connaître}
+\subsection{Une incohérence connue, et ce qu'elle coûte}
 
-Cette correction ne vaut que pour la chaîne climatique sur grille. La chaîne des stations
-expose encore, sous le nom \code{potential\_evaporation}, la variable brute d'origine. Le motif
-est assumé : cette colonne est l'entrée de forçage des modèles métier déjà calibrés
-(chapitre~\ref{ch:metier}), et la modifier invaliderait ces calibrations.
+Cet arbitrage ne vaut que pour la chaîne climatique sur grille. La chaîne des stations expose
+encore, sous le nom \code{potential\_evaporation}, la variable brute d'origine. C'est elle qui
+alimente les modèles métier du chapitre~\ref{ch:metier}, et il faut le dire sans détour :
+\textbf{les modèles calibrés sur les stations ne reçoivent pas l'évapotranspiration de
+référence}, mais une grandeur environ deux fois plus élevée. Mesuré sur les données en base, le
+forçage station vaut \SI{1839}{\milli\metre\per\an} là où l'ET0 de référence se situe autour de
+\SI{818}{\milli\metre\per\an}.
 
-Il en résulte qu'une évapotranspiration lue sur la carte climatique et une évapotranspiration
-lue sur la fiche d'une station \textbf{ne désignent pas la même grandeur}, et diffèrent d'un
-facteur voisin de deux. L'incohérence est documentée dans le dépôt ; sa résolution suppose de
-recalibrer l'ensemble des modèles existants.
+L'effet de cet écart a été mesuré plutôt que supposé. Sur une station de contrôle, un même
+modèle a été calibré deux fois, avec la variable brute puis avec une évaporation ramenée à
+l'ordre de grandeur de référence. Deux enseignements en ressortent.
+
+D'abord, \textbf{le modèle n'absorbe pas l'erreur d'échelle}. On pouvait espérer que le
+paramètre qui pondère l'évaporation dans la recharge s'ajuste et compense, laissant la prévision
+inchangée. Il n'en est rien : ce paramètre est borné, et la calibration le pousse à sa borne
+dans les deux cas. Il ne lui reste aucune marge pour corriger quoi que ce soit.
+
+Ensuite, l'ajustement en dépend réellement : la variance expliquée passe de \SI{72,2}{\percent}
+à \SI{68,5}{\percent} entre les deux jeux de forçage. Le fait que la variable brute donne le
+meilleur ajustement ne signifie pas qu'elle soit la bonne. Un paramètre collé à sa borne indique
+au contraire un modèle qui réclame davantage d'évaporation que son forçage ne lui en fournit,
+c'est-à-dire le symptôme d'une entrée mal dimensionnée.
+
+La portée de cette mesure doit être précisée : elle porte sur une seule station et sur une
+période de \num{385} jours, seule profondeur disponible dans la base au moment de la
+vérification. Elle établit que l'écart a un effet, non son ampleur générale. Une évaluation sur
+un historique long et un échantillon de stations reste à conduire.
+
+Pourquoi cette incohérence n'a-t-elle pas été corrigée ? Parce que la correction n'est pas un
+changement de colonne. La chaîne station ne transporte que la température moyenne, alors que la
+formule de Hargreaves exige aussi les extrêmes journaliers. Il faudrait donc les ajouter, y
+calculer l'évapotranspiration au pas journalier, puis propager le résultat dans deux tables
+partitionnées, ce qui impose une reconstruction complète, et enfin recalibrer les modèles
+existants. Engager cette chaîne d'opérations sans pouvoir la valider sur un historique complet
+aurait remplacé une incohérence documentée par une incertitude non mesurée.
+
+C'est donc le premier chantier que ces travaux laissent à leur suite, et il est prioritaire sur
+toute campagne de calibration : tant qu'il n'est pas traité, les paramètres des modèles métier
+n'ont pas d'interprétation physique directe, même si leur pouvoir prédictif reste utilisable.
 
 \section{Deuxième arbitrage : quelle loi ajuster pour le SPEI}
 \label{sec:glo}
 
-\subsection{De quoi il est question}
+Un indice standardisé transforme une valeur en score de rareté, ce qui suppose d'ajuster une loi
+de probabilité sur la série de référence. Le choix de cette loi détermine sur quelles mailles
+l'indice pourra être calculé.
 
-Dire qu'un mois est « sec » n'a de sens que par comparaison avec les mois de même saison des
-décennies précédentes. Un indice standardisé effectue cette comparaison automatiquement : il
-transforme une valeur en un score de rareté, où $0$ signifie « exactement normal » et $-2$
-« aussi sec qu'une année sur quarante environ ».
+L'article fondateur du SPEI~\cite{vicenteserrano2010spei} emploie une loi log-logistique, et
+c'est elle qui avait été retenue au départ. Appliquée à la grille française, elle ne s'ajuste que
+sur \SI{74,6}{\percent} des cas, laissant un quart du territoire sans valeur. L'instrumentation
+des rejets a montré que la cause était unique et structurelle : cette loi ne représente qu'un
+sens d'asymétrie, et environ \SI{27}{\percent} des mailles françaises présentent l'autre. Aucune
+quantité de données supplémentaire n'y aurait changé quoi que ce soit.
 
-Pour effectuer cette transformation, il faut d'abord décrire la forme de la distribution des
-valeurs passées, au moyen d'une loi de probabilité. C'est un choix technique, et il détermine
-sur quelles mailles l'indice pourra être calculé.
+L'implémentation de référence du SPEI~\cite{begueria_spei_package}, distribuée par les auteurs de
+la méthode, emploie quant à elle la logistique généralisée, qui accepte les deux sens. C'est
+elle qui a été retenue. Le choix n'a donc rien d'original : il consiste à suivre la pratique
+établie plutôt que la seule formulation de l'article. La couverture passe à \SI{100}{\percent}.
 
-\subsection{Ce qui s'est passé}
-
-L'article fondateur du SPEI~\cite{vicenteserrano2010spei} emploie une loi dite log-logistique,
-et c'est elle qui avait été retenue au départ. Appliquée à la grille française, elle ne parvient
-à s'ajuster que sur \SI{74,6}{\percent} des cas. Autrement dit, un quart du territoire restait sans valeur, ce qui
-laisse un trou dans la carte nationale.
-
-Plutôt que de constater le taux d'échec, les rejets ont été instrumentés pour en identifier la
-cause. Le résultat est net : \textbf{la totalité des rejets} provient d'une seule et même
-condition mathématique, et \textbf{aucun} d'un manque de données.
-
-\subsection{Pourquoi}
-
-Une distribution peut pencher d'un côté ou de l'autre. Sur certaines mailles, les valeurs de
-bilan hydrique s'étalent vers le haut, avec quelques mois exceptionnellement humides qui tirent
-la queue de la distribution ; sur d'autres, elles s'étalent vers le bas. Cette inclinaison porte
-un nom, l'\emph{asymétrie}, et elle se mesure~\cite{hosking1990lmoments}.
-
-La loi log-logistique ne sait représenter que le premier cas, celui d'une distribution penchée
-vers le haut. Or environ \SI{27}{\percent} des mailles françaises penchent dans l'autre sens.
-Sur celles-là, l'ajustement ne pouvait pas aboutir, et augmenter la quantité de données n'y
-aurait rien changé : ce n'est pas un problème d'échantillon, c'est une forme que la loi ne sait
-pas décrire.
-
-La logistique généralisée est une version élargie de la même loi, qui accepte les deux
-inclinaisons. Il ne s'agit donc pas d'une invention ni d'un correctif : c'est la loi
-qu'emploie l'implémentation de référence du SPEI~\cite{begueria_spei_package}, distribuée par
-les auteurs de la méthode. Le passage à cette loi revient à s'aligner sur la pratique établie
-plutôt qu'à s'en écarter, et la couverture passe à \SI{100}{\percent}.
-
-\subsection{Ce que cela change}
-
-La carte de sécheresse couvre désormais tout le territoire, au lieu d'en laisser un quart en
-blanc. Et comme le montre la vérification ci-dessous, cette extension ne s'est pas payée d'une
-modification des valeurs déjà calculées.
-
-Le remplacement est purement additif. La log-logistique est exactement la logistique généralisée
-reparamétrée : les valeurs restent donc inchangées partout où la loi d'origine convergeait,
-vérifié à un écart maximal de \num{0,000} sur \num{35614} mailles, et le changement ne fait
-qu'ajouter les valeurs qui manquaient.
+Le remplacement est par ailleurs sans effet sur l'existant. Les deux lois étant équivalentes par
+reparamétrage, les valeurs restent inchangées partout où la première fonctionnait, ce qui a été
+vérifié à un écart maximal de \num{0,000} sur \num{35614} mailles. La carte gagne le quart de
+territoire qui lui manquait, sans que rien d'autre ne bouge.
 
 \section{La vérification des indices produits}
 
