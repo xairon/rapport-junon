@@ -154,27 +154,6 @@ pas est une protection absente, avec en plus la croyance qu'elle existe. La cons
 point d'entrée unique vaut donc moins pour sa simplicité que pour la disparition de cet écart
 entre l'intention et le déploiement.
 
-\section{Accès, sécurité et données personnelles}
-
-La plateforme héberge des comptes nominatifs et les travaux de leurs titulaires, ce qui impose
-des exigences distinctes de celles de l'entrepôt.
-
-L'accès est provisionné par un administrateur : il n'existe ni inscription libre ni
-authentification déléguée. Les mots de passe sont hachés par un algorithme à coût mémoire
-paramétrable et ne sont détenus en clair par personne, administrateur compris. La session
-repose sur un jeton en cookie non accessible au script, révocable côté serveur par
-désactivation du compte ou incrément d'un compteur de version relu à chaque requête. Deux rôles
-existent, l'administration et l'usage courant, ce dernier ne donnant accès qu'aux objets dont
-l'utilisateur est propriétaire.
-
-Un garde-fou mérite mention : la suppression du dernier administrateur actif est refusée. En
-l'absence d'inscription libre, elle rendrait l'application définitivement inaccessible par
-l'interface. La contrainte est portée par le code plutôt que par une consigne.
-
-Enfin, les journaux d'authentification sont conservés trois cent soixante-cinq jours puis
-supprimés automatiquement, et l'utilisateur peut effacer son compte et les données associées
-depuis son espace personnel.
-
 \section{Environnements et déploiement}
 
 Deux environnements complètement séparés coexistent sur le serveur de calcul, l'un suivant la

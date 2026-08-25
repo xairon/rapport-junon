@@ -78,6 +78,44 @@ Les licences des développements couvrent le code produit, non les données cons
 source conserve ses propres conditions d'usage.
 \end{encadre}
 
+\section{Le cheminement de l'évapotranspiration dans l'entrepôt}
+\label{ann:etp}
+
+Une précision s'impose, car la correction ne consiste pas à remplacer une valeur en cours de
+route. Les deux grandeurs coexistent, et leurs trajectoires diffèrent.
+
+La variable brute d'ERA5 est \textbf{ingérée telle quelle} en couche Bronze, avec pour seule
+opération la conversion des mètres en millimètres. La couche Silver se contente de la typer :
+aucun calcul n'y est fait, conformément au principe énoncé au chapitre~\ref{ch:entrepot}.
+
+C'est en couche Gold, dans le modèle de grille mensuelle, que tout se joue. L'évapotranspiration
+de référence n'y est pas dérivée de la variable brute : elle est \textbf{calculée à partir d'une
+autre source}, les statistiques journalières de température issues du second chemin d'ingestion.
+La formule de Hargreaves est appliquée jour par jour, puis cumulée sur le mois. La variable
+brute, elle, est conservée dans une colonne distincte de la même table.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Couche} & \textbf{Colonne} & \textbf{Contenu} \\
+\midrule
+Bronze & \code{potential\_evaporation} & Variable ERA5 brute, convertie en millimètres. Aucune
+interprétation. \\
+Silver & \code{potential\_evaporation} & La même, typée. Toujours aucun calcul. \\
+Gold & \code{etp\_totale} & \textbf{Évapotranspiration de référence}, calculée par Hargreaves
+depuis les températures journalières. C'est cette colonne qui est consommée. \\
+Gold & \code{bilan\_hydrique} & Précipitation moins \code{etp\_totale}. Le SPEI en découle. \\
+Gold & \code{etp\_pev\_era5} & La variable brute cumulée, conservée pour la traçabilité et la
+comparaison. À ne pas consommer. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Conserver les deux colonnes côte à côte a un intérêt qui dépasse la traçabilité : c'est ce qui a
+rendu la mesure possible. Les valeurs de \num{818} et \num{1756} millimètres par an comparées
+plus haut sont issues d'une simple requête sur cette table, et non d'un calcul externe. Quiconque
+doute de l'arbitrage peut le refaire.
+
 \section{Volumétrie des indicateurs climatiques}
 
 \begin{center}
