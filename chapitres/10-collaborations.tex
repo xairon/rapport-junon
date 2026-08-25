@@ -110,6 +110,81 @@ utilisable ; seule la confrontation de ses valeurs aux ordres de grandeur connus
 révélé qu'elle ne désignait pas la grandeur attendue. Aucune vérification interne au code ne
 pouvait détecter cette erreur, car il ne s'agissait pas d'une erreur de calcul.
 
+\section{Les cas d'usage identifiés avec le BRGM}
+
+Les échanges n'ont pas seulement produit des décisions techniques. Ils ont fait émerger une
+liste de besoins concrets, qui a servi à orienter les développements et qui reste disponible
+pour la suite. Elle mérite d'être consignée, car elle constitue à elle seule un livrable : un
+socle sans usage identifié n'est qu'une infrastructure en attente.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Besoin exprimé} & \textbf{Ce qu'il recouvre} & \textbf{État} \\
+\midrule
+Qualifier les piézomètres & Distinguer automatiquement les ouvrages inertiels, réactifs et
+influencés par des prélèvements, pour savoir lesquels sont exploitables & outillé \\
+Prévoir les niveaux & Anticiper l'évolution d'une nappe à partir du climat & outillé \\
+Expliquer les prévisions & Identifier les facteurs déterminants d'une prévision donnée &
+outillé \\
+Comparer les approches & Confronter méthodes statistiques, modèles métier et apprentissage
+profond sur les mêmes données & possible, non fait \\
+Explorer les données & Permettre aux experts de parcourir et de comparer les chroniques sans
+écrire de requête & outillé \\
+Scénariser la sécheresse & Répondre à des questions du type « quelle pluie faudrait-il pour
+sortir de cet état ? », en appui des comités sécheresse & outillé, non éprouvé \\
+Étudier les échanges nappe-rivière & Détecter et caractériser les relations entre une nappe et
+le cours d'eau voisin, notamment le soutien d'étiage & non traité \\
+Caractériser la double porosité & Distinguer, au sein d'une même formation, les écoulements
+rapides des écoulements lents, que les méthodes actuelles peinent à séparer & non traité \\
+Couvrir les nappes captives & Disposer d'un indicateur de situation pour les nappes qui n'en ont
+pas, l'indicateur existant ne valant que pour les nappes libres & non traité \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Deux remarques sur ce tableau. La colonne d'état est délibérément sévère : « outillé » signifie
+que les moyens existent, pas qu'un résultat a été produit. Et les trois dernières lignes sont
+assumées comme telles : ce sont des sujets à part entière, identifiés comme prometteurs au cours
+des échanges, mais qui dépassaient le périmètre et le temps disponibles. Ils sont consignés ici
+parce qu'ils constituent des points d'entrée pour la suite, et parce qu'ils viennent des experts
+du domaine plutôt que d'une projection d'informaticien.
+
+Un point mérite d'être souligné à propos de la scénarisation. Les équipes du BRGM travaillant
+sur la situation des nappes emploient déjà les indicateurs standardisés que produit désormais
+l'entrepôt. Coupler ces indicateurs à des scénarios prospectifs, c'est-à-dire répondre non
+seulement « où en est-on » mais « que faudrait-il pour en sortir », est le prolongement naturel
+de leur pratique actuelle. C'est cette continuité qui rend le socle mobilisable par eux sans
+changement de méthode.
+
+\section{L'articulation avec les travaux de recherche en cours}
+
+Les développements présentés au chapitre~\ref{ch:xai} ne sont pas isolés. Des travaux menés au
+LIFAT sous la direction de Nicolas Labroche portent sur les explications contrefactuelles et sur
+la mesure de leur qualité en tant qu'explications, question ouverte que les métriques usuelles ne
+tranchent pas.
+
+La contribution de ce postdoctorat à cette thématique est \textbf{d'ordre technique}, et c'est
+délibéré : fournir les données, les modèles, les méthodes comparables et les moyens de
+validation sans lesquels cette recherche resterait cantonnée à des jeux d'essai génériques. La
+répartition est claire, et il vaut mieux l'écrire que la laisser deviner.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Relève de ces travaux} & Le socle de données, les modèles à expliquer, l'implémentation
+des méthodes, la référence de comparaison, le moyen de validation indépendant, et la
+qualification des cas d'étude \\
+\textbf{Relève des travaux en cours} & La définition de ce qu'est une bonne explication, les
+métriques qui la mesurent, et l'évaluation comparative des approches \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+C'est aussi ce qui explique qu'aucune conclusion méthodologique ne figure dans ce rapport sur la
+qualité des contrefactuels produits. Elle n'aurait pas eu de sens : la question relève d'un
+travail en cours, et l'anticiper reviendrait à préjuger de son résultat.
+
 \section{Des besoins distincts, un outil commun}
 
 Les deux communautés visées n'attendent pas la même chose, et l'architecture a dû accommoder les
