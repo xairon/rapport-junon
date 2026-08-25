@@ -104,18 +104,26 @@ composants est un choix courant dans ce patron plutôt qu'une préférence perso
 \subsection{Ingestion : dlt}
 
 Interroger une interface web publique paraît trivial jusqu'à ce qu'on le fasse sérieusement. Il
-faut paginer, réessayer sur erreur serveur avec une temporisation croissante, découvrir le
-schéma des colonnes, insérer par lots, et surtout savoir où l'on s'était arrêté pour ne pas tout
-recharger. \textbf{dlt}~\cite{dlt} fournit ces mécanismes : on déclare la source et la clé
-primaire, la bibliothèque se charge du reste, y compris de la déduplication par fusion et du
-suivi de l'état incrémental.
+faut paginer, réessayer sur erreur serveur avec une temporisation croissante, découvrir le schéma
+des colonnes, créer les tables, insérer par lots et suivre l'état des chargements.
+\textbf{dlt}~\cite{dlt} prend en charge la seconde moitié de cette liste : on déclare une
+ressource, la bibliothèque crée et fait évoluer les tables, charge par lots et tient l'historique
+des chargements.
 
-Deux familles d'alternatives ont été écartées. Écrire les clients à la main aurait représenté
-plusieurs centaines de lignes sans intérêt propre, et autant d'occasions de se tromper
-silencieusement. Déployer une plateforme d'intégration complète, du type de celles qui
-s'administrent par interface graphique, aurait imposé un service supplémentaire à maintenir et
-une configuration hors du dépôt, donc non versionnée, pour quatre sources seulement. dlt occupe
-exactement l'espace intermédiaire : une bibliothèque, dans le code, versionnée avec lui.
+La première moitié a dû être écrite. Les particularités des interfaces Hub'Eau décrites au
+chapitre~\ref{ch:verrou}, pagination par en-tête de lien, plafonds non documentés, conventions
+qui changent d'un point d'accès à l'autre, ne se laissent pas absorber par un mécanisme
+générique. Un client dédié d'environ quatre cents lignes porte donc la pagination, les tentatives
+successives avec temporisation exponentielle et bruitage, et les garde-fous contre les boucles
+infinies. C'est un enseignement en soi : l'outil a économisé le travail répétitif de chargement,
+pas l'adaptation aux caprices de la source.
+
+Deux familles d'alternatives ont été écartées. Tout écrire, chargement et gestion des schémas
+compris, aurait doublé ce volume sans intérêt propre. Déployer une plateforme d'intégration
+complète, du type de celles qui s'administrent par interface graphique, aurait imposé un service
+supplémentaire à maintenir et une configuration hors du dépôt, donc non versionnée, pour quatre
+sources seulement. dlt occupe l'espace intermédiaire : une bibliothèque, dans le code, versionnée
+avec lui.
 
 \subsection{Transformation : dbt}
 
@@ -144,8 +152,8 @@ qu'à heure fixe, et de voir d'un coup d'œil quelles tables sont fraîches et l
 sont pas. Airflow, l'ordonnanceur historique du domaine, aurait imposé de décrire ces
 dépendances à la main et de maintenir un second graphe en parallèle de celui de dbt, alors que
 l'intégration est ici native. Un simple ordonnanceur système, quant à lui, n'offre ni reprise
-partielle, ni traçabilité, ni limitation de concurrence, trois besoins dont le
-chapitre~\ref{ch:entrepot} montre qu'ils se sont révélés indispensables.
+partielle, ni traçabilité, ni limitation de concurrence, trois besoins dont
+la suite de ce chapitre montre qu'ils se sont révélés indispensables.
 
 \subsection{Stockage : PostgreSQL, TimescaleDB et PostGIS}
 
@@ -213,7 +221,7 @@ qu'une installation de test se retrouve exposée par inadvertance.
 \toprule
 \textbf{Rôle} & \textbf{Retenu} & \textbf{Écarté, et pourquoi} \\
 \midrule
-Ingestion & dlt & Clients écrits à la main (code sans valeur propre) ; plateforme d'intégration
+Ingestion & dlt & Tout écrire, chargement et schémas compris ; plateforme d'intégration
 administrée (service en plus, configuration hors dépôt) \\
 Transformation & dbt & Scripts Python (ne passent pas à l'échelle, illisibles pour les métiers) \\
 Orchestration & Dagster & Airflow (dépendances à décrire à la main, second graphe à maintenir) ;
@@ -237,9 +245,8 @@ le travail sans apprendre un outil que personne n'utilise.
 
 \section{Bronze : ingérer sans interpréter}
 
-Chaque source est ingérée par dlt, qui prend en charge la pagination des interfaces web, les tentatives successives avec temporisation
-exponentielle sur les erreurs serveur, l'inférence de schéma et la déduplication par fusion sur
-la clé primaire. Les séries temporelles sont partitionnées par année, ce qui rend chaque tranche
+Chaque source est ingérée par dlt, assisté du client dédié décrit plus haut pour la pagination
+et la reprise sur erreur. dlt infère le schéma, crée les tables et charge par lots. Les séries temporelles sont partitionnées par année, ce qui rend chaque tranche
 rechargeable indépendamment. Les partitions couvrent 1967 à aujourd'hui pour la piézométrie
 comme pour l'hydrométrie, la profondeur effectivement disponible variant d'une station à
 l'autre selon sa date de mise en service.
@@ -334,9 +341,10 @@ au lieu de plusieurs décennies. Rien ne signalait l'anomalie, sinon l'échec de
 aval, faute d'un recouvrement suffisant entre le niveau observé et son forçage.
 
 Le correctif consiste à arrondir les coordonnées au pas natif de la grille, \ang{0.1}, ce qui est
-sans perte puisque c'est la résolution réelle du produit, et à le faire à trois endroits : à la
-déduplication en couche intermédiaire, à la construction des points de grille, et à la lecture
-lors du rattachement. Sur une station de contrôle, la couverture est passée d'une centaine de
+sans perte puisque c'est la résolution réelle du produit, et à l'appliquer partout où les
+coordonnées servent de clé : au nettoyage, à la construction des points de grille, et à chaque
+lecture qui rapproche une station de sa maille. Un test automatique garde désormais cet
+invariant. Sur une station de contrôle, la couverture est passée d'une centaine de
 jours à près de \num{28000}, et la calibration qui échouait a retrouvé une efficience de
 Nash-Sutcliffe de \num{0,875}.
 
@@ -393,8 +401,10 @@ accorder à un jeu de données partagé.
 
 \begin{itemize}
   \item \textbf{L'idempotence} : relancer une ingestion sur une période déjà chargée ne duplique
-  rien. Elle est obtenue par fusion sur clé primaire à l'ingestion, et par remplacement de la
-  plage concernée pour les chargements historiques.
+  rien. Le mécanisme est explicite plutôt que délégué. Avant chaque chargement, les lignes de la
+  plage visée sont supprimées, puis les nouvelles sont ajoutées. Ce choix, plus verbeux qu'une
+  fusion sur clé, fonctionne sur des tables dont les colonnes sont encore textuelles à ce stade,
+  et rend la suppression visible dans le code plutôt qu'implicite dans une configuration.
   \item \textbf{La reprise} : le chargement initial complet, qui se compte en jours, est
   interruptible et redémarrable, son avancement étant persisté en base.
   \item \textbf{La maîtrise de la concurrence} : les exécutions ne sont pas globalement
@@ -449,7 +459,7 @@ Couche Gold & 18 modèles de transformation, complétés par des tables d'indica
 Python \\
 Orchestration & 8 traitements planifiés, 3 capteurs événementiels \\
 Infrastructure & 7 services conteneurisés, séparation du code métier et de l'orchestrateur \\
-Volume de code & $\approx$ \num{7000} lignes Python, $\approx$ \num{1200} lignes SQL de
+Volume de code & $\approx$ \num{7000} lignes Python, $\approx$ \num{2600} lignes SQL de
 transformation \\
 \bottomrule
 \end{tabularx}

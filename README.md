@@ -1,4 +1,4 @@
-# Rapport de clôture — Programme JUNON
+# Rapport de clôture, programme JUNON
 
 Rapport de clôture des travaux postdoctoraux menés au LIFAT (Université de Tours) du
 15 septembre 2025 au 30 juin 2026, dans le cadre du programme ARD JUNON de la Région

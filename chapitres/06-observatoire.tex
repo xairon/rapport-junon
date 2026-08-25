@@ -130,15 +130,19 @@ apparente et évite une erreur d'interprétation systématique.
 
 \section{Trois choix techniques}
 
-\paragraph{L'Observatoire ne recalcule rien.} Ses points d'accès sont des lectures directes des
-tables analytiques de l'entrepôt. Aucune statistique n'est calculée à la volée. La conséquence
-est double : les temps de réponse sont ceux d'une base de données correctement indexée, et
-surtout \textbf{la valeur affichée est exactement celle qui a été validée} au
-chapitre~\ref{ch:indicateurs}. Il n'existe pas de second calcul susceptible de diverger.
+\paragraph{L'Observatoire recalcule le moins possible.} La règle est que ses points d'accès
+lisent les tables analytiques de l'entrepôt plutôt que de refaire le calcul. La carte, la
+situation courante et les exports lisent ainsi les indicateurs déjà produits, de sorte que
+\textbf{la valeur affichée est exactement celle qui a été validée} au
+chapitre~\ref{ch:indicateurs}. Deux points d'accès font exception, ceux qui servent la série
+historique d'une station : ils lisent la grille de référence dans l'entrepôt, mais appliquent la
+standardisation à la requête. Le calcul reste le même, et un test croisé garde la cohérence des
+classes entre les deux dépôts.
 
 \paragraph{Les réponses sont mises en cache.} Les vues cartographiques nationales portent sur
 des volumes importants et changent peu ; leur mise en cache pour vingt-quatre heures réduit la
-charge sans affecter la fraîcheur perçue. Cette optimisation a un corollaire opérationnel
+charge sans affecter la fraîcheur perçue. Les couches qui bougent plus vite ont des durées plus
+courtes, de quelques heures pour le fond de carte des stations à une heure pour les alertes. Cette optimisation a un corollaire opérationnel
 documenté : tout déploiement qui modifie la forme ou la valeur des réponses doit purger le
 cache, sous peine de servir des valeurs périmées pendant une journée.
 

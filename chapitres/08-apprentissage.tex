@@ -117,9 +117,10 @@ d'aquifères, reste donc à conduire, et l'outillage nécessaire est en place po
 \num{552} tests, dont \num{547} passent (mesuré le 24 août 2026). Aucun ne s'exécute
 automatiquement : le dépôt est hébergé sur une forge dont la chaîne d'intégration continue ne
 comporte qu'une étape de construction d'image, tandis que la définition de tests existante cible
-une autre forge. Parmi les quatre échecs, deux exigent un entrepôt peuplé et relèvent en réalité
-de l'intégration, un lit un fichier absent de tout autre poste, et le dernier est mis en défaut
-par la base en mémoire employée pour les tests, qui ne conserve pas le fuseau horaire. Aucun ne
+une autre forge. Parmi les cinq cas non passants, deux exigent un entrepôt peuplé et relèvent
+en réalité de l'intégration, un lit un fichier absent de tout autre poste, un est mis en défaut
+par la base en mémoire employée pour les tests, qui ne conserve pas le fuseau horaire, et le
+dernier est ignoré. Aucun ne
 signale un défaut applicatif, mais la purge des journaux se trouve de fait non testée. C'est le
 premier correctif à apporter par toute personne reprenant ces travaux.
 
