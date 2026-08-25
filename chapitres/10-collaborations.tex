@@ -26,6 +26,58 @@ sur l'ensemble des questions de domaine. C'est de ces échanges que procèdent l
 ancrent la plateforme dans la pratique hydrogéologique plutôt que dans une transposition
 générique de méthodes d'apprentissage.
 
+\section{La conduite du projet}
+
+Une part du travail n'apparaît ni dans les dépôts ni dans les mesures, et il serait pourtant
+trompeur de la passer sous silence : ces développements n'ont pas été commandés, ils ont été
+proposés, puis portés jusqu'à leur adoption.
+
+\paragraph{Identifier le besoin et le faire reconnaître.} L'absence de jeu de données
+exploitable aurait pu être traitée comme une contrainte personnelle, contournée par une
+extraction de circonstance suffisante pour produire un résultat. Le parti inverse a été pris :
+formuler le manque, le documenter, et le soumettre aux partenaires pour vérifier s'il était
+partagé. Il l'était. Cette vérification a transformé un obstacle individuel en objet de travail
+légitime, et c'est elle qui a rendu possible l'investissement de plusieurs mois que représente
+un entrepôt de données.
+
+\paragraph{Aller chercher les interlocuteurs.} Les contacts n'ont pas été hérités d'un
+dispositif préexistant. Ils ont été pris directement, auprès des interlocuteurs techniques comme
+des experts métier, en préparant chaque échange autour des questions dont la réponse
+conditionnait un choix de conception. La section suivante en donne l'exemple le plus net.
+
+\paragraph{Tenir le suivi dans la durée.} Un échange ponctuel ne produit pas d'effet. Le suivi
+avec le BRGM a été maintenu tout au long de la période, ce qui explique que les décisions métier
+ne soient pas restées au stade de la discussion mais se retrouvent inscrites dans le code, comme
+le montre la section~\ref{sec:apport-metier}.
+
+\paragraph{Ouvrir le socle au-delà de son périmètre.} Enfin, les travaux ont été présentés aux
+équipes du projet ANR \textsc{Aida}, dont le domaine d'expérimentation recouvre en partie celui
+traité ici. L'intention n'était pas de revendiquer un périmètre, mais l'inverse : signaler
+l'existence d'une infrastructure disponible, afin que ceux qui en auraient l'usage n'aient pas à
+la reconstruire. Une infrastructure dont personne ne connaît l'existence ne vaut pas mieux
+qu'une infrastructure inexistante.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Nature du travail} & \textbf{Ce qu'il a produit} \\
+\midrule
+Identification et formulation du besoin & Un constat vérifié auprès des partenaires, et non une
+hypothèse personnelle \\
+Prise de contact et préparation des échanges & Des décisions de conception fondées sur
+l'expertise du domaine plutôt que sur des conventions d'informaticien \\
+Suivi dans la durée & Des orientations métier effectivement traduites dans le code \\
+Ouverture à d'autres équipes & Un socle connu au-delà de son projet d'origine \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Cette dimension mérite d'être signalée pour une raison qui dépasse le compte rendu d'activité.
+Un entrepôt de données mutualisé n'est pas un objet technique : c'est un objet d'organisation.
+Sa valeur tient à ce que plusieurs équipes acceptent de s'y référer, ce qui relève de la
+conviction et non de la programmation. Le chapitre~\ref{ch:socle} montre que les obstacles
+restants à son élargissement sont eux aussi de cette nature.
+
 \section{Une réunion de cadrage qui a orienté les travaux}
 
 La rencontre du 13 février 2026 entre le BRGM et l'Université de Tours mérite d'être décrite,
@@ -65,6 +117,7 @@ les consolider et de les qualifier, ce que l'entrepôt rend possible en fourniss
 commune sur laquelle chacun peut être resitué.
 
 \section{Ce que la collaboration métier a produit}
+\label{sec:apport-metier}
 
 L'apport d'expertise n'est pas resté au stade de la discussion : il est inscrit dans le code, et
 identifiable. Quatre exemples le montrent.

@@ -13,10 +13,14 @@ Le travail s'est heurté d'emblée à un obstacle matériel. La donnée hydrolog
 publique, mais elle est éparpillée entre des services qui s'ignorent : les niveaux de nappe d'un
 côté, les débits des rivières d'un autre, le climat ailleurs encore, sans lien entre eux et sans
 indicateurs comparables d'une station à l'autre. Or on ne peut pas expliquer un modèle qu'on n'a
-pas pu entraîner. \textbf{Construire ce jeu de données est donc devenu le premier travail.} Les
-échanges menés avec le BRGM au début de l'année 2026 ont d'ailleurs montré que ce manque n'était
-pas propre à ces travaux : le besoin d'un entrepôt consolidé et d'outils d'analyse était partagé
-par les équipes du BRGM comme par les autres projets du programme.
+pas pu entraîner.
+
+Plutôt que de contourner cet obstacle par un jeu de données de circonstance, le parti a été pris
+d'en faire l'objet du travail. Le constat a été porté auprès des équipes du BRGM, qui l'ont
+confirmé : le besoin d'un entrepôt consolidé et d'outils d'analyse ne concernait pas seulement
+ce postdoctorat, il était partagé par leurs propres équipes comme par d'autres projets, chacun
+butant sur la même difficulté de son côté. \textbf{Construire ce socle est ainsi devenu le premier
+travail}, non par défaut mais par décision assumée.
 
 Deux réalisations en découlent.
 
@@ -24,7 +28,9 @@ Deux réalisations en découlent.
 sources publiques : les niveaux de nappe et les débits de rivière relevés par le réseau national,
 la reconstitution du climat français depuis 1950, et le référentiel qui décrit les aquifères. Il
 les met en cohérence, rattache chaque station de mesure au climat de son secteur, et se met à
-jour chaque jour. Ce qui demandait plusieurs semaines de préparation à chaque équipe s'obtient
+jour chaque jour. Il en tire des indicateurs de sécheresse normalisés, calculés de la même
+manière sur tout le territoire et dont la conformité a été vérifiée sur près de \num{42} millions
+de valeurs. Ce qui demandait plusieurs semaines de préparation à chaque équipe s'obtient
 désormais par une simple requête.
 
 \paragraph{Une plateforme d'exploration et de prévision.} Elle donne accès à trois usages. Un
@@ -54,16 +60,6 @@ directement mobilisable pour les jumeaux numériques de la ressource en eau. \\
 
 Trois résultats méritent d'être signalés.
 
-\paragraph{Des indicateurs de sécheresse produits à l'échelle nationale, et vérifiés.} Ils
-situent chaque mois par rapport à la normale de saison, de la même manière sur tout le
-territoire. Leur mise en œuvre a demandé deux arbitrages qui ne vont pas de soi : identifier
-parmi les variables climatiques disponibles celle qui correspond réellement à la grandeur
-attendue, et retenir la formulation statistique qui couvre l'ensemble des régions françaises.
-Ni l'un ni l'autre ne relève de la correction d'une erreur : ce sont des choix de mise en œuvre,
-dont le chapitre~\ref{ch:indicateurs} montre qu'ils décident de la justesse du résultat. Leur
-conformité a été vérifiée sur près de \num{42} millions de valeurs, contre un critère fixé avant
-la mesure.
-
 \paragraph{Une méthode d'explication qui ne propose que des situations possibles.} Expliquer une
 prévision, c'est souvent répondre à « qu'aurait-il fallu pour que la nappe ne descende pas si
 bas ». Les méthodes existantes répondent parfois par des combinaisons absurdes, comme un
@@ -71,6 +67,14 @@ réchauffement sans augmentation de l'évaporation. La méthode développée ici
 à rester physiquement cohérente, et à s'exprimer dans les termes du métier : \emph{un hiver vingt
 pour cent plus sec et un degré plus chaud}. C'est la condition pour qu'une explication serve à
 décider.
+
+\paragraph{Un projet conduit et ouvert.} La dimension d'animation n'a pas été moindre que la
+part technique. Le besoin a été identifié puis porté auprès des parties prenantes, les contacts
+noués directement avec les interlocuteurs techniques et les experts métier du BRGM, et le suivi
+tenu avec eux tout au long de la période. Le socle a par ailleurs été présenté aux équipes du
+projet ANR \textsc{Aida}, sur un périmètre voisin, afin qu'elles puissent s'en servir si elles y
+trouvent leur compte. Cet effort de mise en relation explique que le résultat ne soit pas resté
+l'outil d'une seule personne.
 
 \paragraph{Une infrastructure éprouvée.} La chaîne traite plusieurs centaines de millions de
 mesures, se relance sans rien dupliquer, conserve la trace de toute donnée écartée et reprend
