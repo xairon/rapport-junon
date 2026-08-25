@@ -59,8 +59,10 @@ fragile, ce qui est en soi une information utile, et qu'une méthode unique aura
 \section{Que se passerait-il si : les contrefactuels sous contrainte physique}
 \label{sec:physcf}
 
-C'est l'apport le plus original de ces travaux, et il répond à un problème formulé avec les
-hydrogéologues avant d'être traité.
+C'est le développement le plus spécifique de ce chapitre. Il répond à un problème formulé avec
+les hydrogéologues avant d'être traité, et il faut préciser d'emblée son statut : une
+implémentation opérationnelle, dont la valeur méthodologique reste à établir par l'évaluation
+décrite en fin de chapitre.
 
 \subsection{Le problème du contrefactuel naïf}
 
@@ -168,15 +170,18 @@ s'appuie, qui signale que le régime du système a changé.
 Le résultat est confronté, quand elle existe, à l'information publique sur les ouvrages de
 prélèvement déclarés.
 
-Le dispositif d'explicabilité est ainsi complet et surtout confrontable, articulant attribution,
-contrefactuels et détection d'influence. Sa contribution la plus originale porte sur les
-contrefactuels sous contrainte physique. En réduisant l'espace de perturbation à sept paramètres
-interprétables couplés par une relation thermodynamique, la méthode ne produit que des scénarios
-formulables dans le langage du domaine, au lieu de perturbations sans signification physique.
-Elle met en œuvre les deux critères formulés par les hydrogéologues, sa validité est éprouvée
-par un modèle indépendant, et sa qualité peut être mise en regard d'une référence non
-contrainte.
+Le dispositif d'explicabilité est ainsi outillé de bout en bout, articulant attribution,
+contrefactuels et détection d'influence, et surtout organisé pour que ses composants puissent
+être confrontés entre eux. Le développement le plus spécifique porte sur les contrefactuels sous
+contrainte physique : en réduisant l'espace de perturbation à sept paramètres interprétables
+couplés par une relation thermodynamique, l'implémentation ne produit que des scénarios
+formulables dans le langage du domaine, là où une optimisation libre en produirait sans
+signification physique.
 
-Reste à conduire l'évaluation quantitative comparée des deux approches, sur un échantillon large
-et selon des métriques de qualité d'explication établies. C'est la suite immédiate de ces
-travaux, et probablement leur débouché publiable.
+Il faut être net sur ce que cela vaut à ce stade. Ces développements sont \textbf{préliminaires}.
+L'implémentation fonctionne, elle met en œuvre les deux critères formulés par les
+hydrogéologues, et le dispositif prévoit de quoi la comparer à une référence non contrainte et
+de quoi vérifier ses résultats sur un modèle indépendant. Mais aucune évaluation quantitative
+n'a été conduite, sur aucun échantillon, selon aucune métrique de qualité d'explication établie.
+Ce chapitre décrit donc un point de départ, pas une conclusion : il livre à qui reprendra ces
+travaux un banc complet et une hypothèse à éprouver, non un résultat acquis.
