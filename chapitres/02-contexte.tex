@@ -1,96 +1,114 @@
-\chapter{Contexte et mission}
+\chapter{Contexte et positionnement}
 \label{ch:contexte}
 
-\questionchapitre{Dans quel dispositif ces travaux s'inscrivent-ils, et quelle mission leur
-avait été confiée ?}
+\questionchapitre{Dans quel dispositif de recherche ces travaux s'inscrivent-ils, et quelle
+mission leur avait été assignée au départ ?}
 
 \section{Le programme JUNON}
 
-\textsc{Junon} est l'un des programmes \emph{Ambition Recherche et Développement} financés par
-la Région Centre-Val de Loire. Le BRGM le coordonne. Sur cinq ans, il mobilise plus de
-\SI{12,3}{\mega\euro}, dont \SI{6}{\mega\euro} apportés par la Région, et réunit dix-neuf
-partenaires : universités d'Orléans et de Tours, CNRS, INRAE, INSA Centre-Val de Loire, pôle de
-compétitivité DREAM Eau et Milieux, collectivités et entreprises du
-territoire~\cite{brgm_junon_programme,brgm_junon_lancement}.
+\textsc{Junon} est l'un des programmes \emph{Ambition Recherche \& Développement} (ARD)
+financés par la Région Centre-Val de Loire. Coordonné par le BRGM, il mobilise sur cinq ans un
+budget supérieur à \SI{12,3}{\mega\euro}, dont \SI{6}{\mega\euro} apportés par la Région,
+complétés par des financements CPER. Le consortium réunit dix-neuf partenaires et une vingtaine
+d'équipes de recherche : BRGM, universités d'Orléans et de Tours, CNRS, INRAE, INSA
+Centre-Val de Loire, le pôle de compétitivité DREAM Eau \& Milieux, des collectivités et des
+entreprises du territoire~\cite{brgm_junon_programme,brgm_junon_lancement}.
 
-Son objectif est de construire des jumeaux numériques des milieux naturels continentaux, l'eau,
-le sol et l'air, et les services qui vont avec. Le programme se décline en projets
-collaboratifs. Trois portent sur un compartiment : \textsc{Juneau} pour les eaux souterraines,
-\textsc{PrevizO} pour les eaux de surface, \textsc{Januss} pour l'air et les zones humides.
-Trois autres fournissent les moyens communs : \textsc{Data} pour la gestion des observations,
-\textsc{Prediction} pour la modélisation, et le volet qui assemble les jumeaux.
+L'objectif du programme est de développer des \textbf{jumeaux numériques} appliqués aux milieux
+naturels continentaux — eau, sol, air — et de concevoir les services numériques associés. Un
+jumeau numérique ne se réduit pas à une visualisation : il vise à reproduire les structures et
+les processus réels tout au long de leur évolution, en s'appuyant notamment sur des approches
+d'apprentissage automatique. Cette ambition se décline en projets collaboratifs, dont trois
+portent sur des compartiments environnementaux — \textsc{Juneau} pour la quantité et la qualité
+des eaux souterraines, \textsc{PrevizO} pour les eaux de surface, \textsc{Januss} pour la
+qualité de l'air et les zones humides — et trois structurent les moyens transversaux :
 
-Le LIFAT participe à ces trois volets transversaux sur 2022--2026~\cite{lifat_junon}. Le volet
-\textsc{Prediction}, dont Nicolas Labroche a la responsabilité, traite la prédiction sur séries
-temporelles environnementales. C'est là que s'inscrit ce postdoctorat.
+\begin{itemize}
+  \item \textbf{DATA} — la gestion des observations environnementales, des séries de mesures et
+  des données satellitaires, leur partage et leur réutilisation au sein du programme ;
+  \item \textbf{PREDICTION} — la modélisation et la prédiction à partir de ces données, pour
+  représenter des systèmes naturels complexes ;
+  \item \textbf{JUMEAUX NUMÉRIQUES} — l'assemblage des données, des modèles et des expertises en
+  prototypes opérationnels.
+\end{itemize}
 
-\section{Le sujet, et ce qu'il supposait}
+Le LIFAT participe à ces trois volets transversaux sur la période 2022--2026~\cite{lifat_junon}.
+Le volet PREDICTION, sous la responsabilité de Nicolas Labroche, porte les questions de
+modélisation prédictive des séries temporelles environnementales : comment apprendre le
+comportement d'un système naturel à partir d'observations éparses, bruitées et déséquilibrées,
+et comment qualifier la confiance que l'on peut accorder à la prédiction obtenue.
 
-Le sujet portait sur l'explicabilité des modèles de prévision appliqués aux nappes. La question
-est bien posée. Un réseau de neurones qui prévoit un niveau piézométrique produit un nombre, et
-ce nombre ne vaut rien tant qu'on ne sait pas répondre à trois questions que tout hydrogéologue
-posera : sur quoi le modèle s'appuie-t-il, que se passerait-il dans d'autres conditions, et
-jusqu'où peut-on lui faire confiance en dehors de ce qu'il a vu.
+C'est dans ce volet que s'inscrit le présent postdoctorat, mené sous la supervision de Nicolas
+Labroche du 15 septembre 2025 au 30 juin 2026.
 
-Ces questions ne sont pas théoriques. Les niveaux de nappe déclenchent des arrêtés de
-restriction, conditionnent des autorisations de prélèvement, dimensionnent des ouvrages
-d'alimentation en eau potable. Une prévision qu'on ne sait pas justifier ne sera pas utilisée, et
-elle ne devrait pas l'être.
+\section{La mission initiale : l'explicabilité}
 
-Mais l'explicabilité s'applique à un modèle, et un modèle s'entraîne sur des données. Au
-démarrage des travaux, aucun jeu de données n'associait les chroniques piézométriques françaises
-à leur forçage climatique. Le chapitre~\ref{ch:verrou} décrit ce manque en détail. Il a
-déterminé toute la trajectoire de l'année.
+Le sujet assigné portait sur \textbf{l'explicabilité des modèles de prévision appliqués aux
+nappes d'eau souterraine}. La question est pertinente et bien posée. Un modèle d'apprentissage
+profond qui prévoit un niveau piézométrique produit un nombre ; ce nombre n'a de valeur
+opérationnelle que si l'on peut répondre à trois questions que tout hydrogéologue posera :
+sur quoi le modèle s'appuie-t-il, que se passerait-il dans d'autres conditions, et jusqu'où
+peut-on lui faire confiance hors du régime observé.
 
-\section{Une mission d'ingénierie, assumée et actée}
+Ces questions ne sont pas académiques. Les niveaux de nappe conditionnent des décisions
+publiques — arrêtés de restriction d'usage, autorisations de prélèvement, planification de
+l'alimentation en eau potable. Une prédiction que l'on ne sait pas justifier ne sera pas
+mobilisée, et ne devrait pas l'être.
 
-Le travail a donc pris une forme que le sujet initial ne laissait pas prévoir : identifier et
-qualifier les sources, construire l'entrepôt, produire et valider les indicateurs, puis
-seulement outiller la modélisation et l'explicabilité.
+\section{Le glissement de mission, et pourquoi il était nécessaire}
 
-Ce n'est pas une reconstruction après coup. La réunion de cadrage du 13 février 2026 entre le
-BRGM et l'université de Tours inscrit parmi ses prochaines étapes la « mise en place d'une stack
-pérenne pour stocker et harmoniser les données communes », et en attribue nommément le pilotage
-à l'auteur de ce rapport~\cite{reunion_aida}.
+L'explicabilité s'applique à un modèle ; un modèle s'entraîne sur des données. Or, au démarrage
+des travaux, \textbf{aucun jeu de données exploitable n'existait} pour les nappes françaises
+associées à leur forçage climatique. Ce constat, développé au chapitre~\ref{ch:verrou}, a
+déterminé la trajectoire de l'année.
 
-L'ordre choisi n'est pas un détour. C'est le seul dans lequel les résultats obtenus en bout de
-chaîne restent comparables et rejouables. Un modèle entraîné sur une extraction faite pour
-l'occasion produit un chiffre que personne ne pourra confronter à un autre.
+Le travail a donc pris la forme d'une \textbf{ingénierie de recherche assumée} : identifier les
+sources, construire l'entrepôt, produire les indicateurs, vérifier leur validité, puis seulement
+outiller la modélisation et l'explicabilité. Cette réorientation n'a pas dilué le sujet initial,
+elle en a conditionné la possibilité — et, en pratique, elle a produit un résultat plus durable
+qu'une étude d'explicabilité menée sur un jeu de données jetable : \textbf{l'infrastructure
+survit à l'expérience}.
 
-\begin{remarque}[title={Le fil de ce rapport}]
-Le document suit l'ordre dans lequel les obstacles se sont présentés, de la donnée dispersée
-jusqu'à la prévision explicable, et non l'ordre des dépôts logiciels. Chaque chapitre s'ouvre
-sur la question qu'il traite et se referme sur ce qui est acquis et ce qui reste ouvert.
-\end{remarque}
+Ce n'est pas non plus une reconstruction a posteriori. La réunion de cadrage du 13 février 2026
+entre le BRGM et l'Université de Tours inscrit parmi ses prochaines étapes la « mise en place
+d'une stack pérenne pour stocker et harmoniser les données communes », et en attribue nommément
+le pilotage à l'auteur de ce rapport~\cite{reunion_cadrage}.
 
-\section{Périmètre}
+\begin{encadre}[title={Le fil conducteur de ce rapport}]
+Ce rapport suit l'ordre dans lequel les obstacles se sont présentés — de la donnée dispersée
+jusqu'à la prévision explicable — plutôt que l'ordre des dépôts logiciels. Chaque chapitre
+s'ouvre sur la question à laquelle il répond et se referme sur ce qui est acquis et ce qui
+demeure ouvert.
+\end{encadre}
 
-Deux réalisations logicielles sont couvertes, développées intégralement pendant la période.
+\section{Périmètre du rapport}
+
+Deux réalisations logicielles sont couvertes, développées intégralement au cours de la période :
 
 \begin{center}
 \begin{tabularx}{\textwidth}{@{}lX@{}}
 \toprule
 \textbf{Dépôt} & \textbf{Objet} \\
 \midrule
-\hubeau{}~\cite{depot_entrepot} & L'entrepôt : ingestion, transformation et exposition des
-données piézométriques, hydrométriques, climatiques et hydrogéologiques. Premier commit le
+\hubeau{}~\cite{depot_entrepot} & Entrepôt de données hydro-climatiques. Ingestion, transformation et exposition
+des données piézométriques, hydrométriques, climatiques et hydrogéologiques. Premier commit :
 23 septembre 2025. \\
-\junonrepo{}~\cite{depot_plateforme} & La plateforme : observatoire cartographique, laboratoire
-de modèles métier, laboratoire d'apprentissage, explicabilité. Premier commit le 6 novembre
-2025. \\
+\junon{}~\cite{depot_plateforme} & Plateforme d'exploration, de modélisation et de prévision. Observatoire spatial,
+laboratoire de modèles métier, laboratoire d'apprentissage automatique, explicabilité. Premier
+commit : 6 novembre 2025. \\
 \bottomrule
 \end{tabularx}
 \end{center}
 
-Les deux dépôts totalisent environ \num{1400} contributions. Le contrat s'est achevé le 30 juin
-2026. La documentation, la neutralisation des éléments sensibles et la passation se sont
-poursuivies jusqu'au 24 août 2026, pour que ces réalisations restent exploitables une fois leur
-auteur parti.
+Les deux dépôts totalisent environ \num{1400} contributions. Le contrat postdoctoral s'est achevé
+le 30 juin 2026 ; les travaux de documentation, de neutralisation des éléments sensibles et de
+passation se sont poursuivis jusqu'au 24 août 2026, afin que les réalisations restent
+exploitables après le départ de leur auteur.
 
 \begin{acquisouvert}
-\textbf{Acquis.} La mission est claire et sourcée : construire l'infrastructure de données et
-d'expérimentation qui manquait, avant de pouvoir traiter le sujet d'explicabilité.
+\textbf{Acquis} — Le positionnement est clair : ces travaux relèvent des volets DATA et
+PREDICTION du programme, et adressent le compartiment des eaux souterraines.
 
-\textbf{Ouvert.} Les travaux d'explicabilité eux-mêmes se poursuivront au-delà de cette période.
-Le chapitre~\ref{ch:socle} précise ce qui leur est transmis.
+\textbf{Ouvert} — L'articulation avec le volet JUMEAUX NUMÉRIQUES reste à instruire ; le
+chapitre~\ref{ch:socle} propose une trajectoire.
 \end{acquisouvert}

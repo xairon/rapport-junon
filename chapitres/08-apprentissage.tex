@@ -2,20 +2,20 @@
 \label{ch:apprentissage}
 
 \questionchapitre{Quel dispositif faut-il pour que des expériences d'apprentissage profond sur
-séries hydrologiques soient comparables, reproductibles, et conduites par des chercheurs qui ne
-sont pas tous spécialistes de l'apprentissage ?}
+des séries hydrologiques soient comparables, reproductibles, et conduites par des chercheurs qui
+ne sont pas tous spécialistes de l'apprentissage ?}
 
 \section{Le problème posé}
 
 Prévoir un niveau de nappe est un problème de série temporelle multivariée avec covariables
 exogènes : la cible est le niveau, les entrées sont la précipitation, la température et
-l'évapotranspiration. Les difficultés propres au domaine sont connues, à savoir une inertie
-très variable d'un aquifère à l'autre, une non-stationnarité liée aux prélèvements, des lacunes
-d'observation, et des événements extrêmes rares donc sous-représentés dans l'apprentissage.
+l'évapotranspiration. Les difficultés propres au domaine sont connues — inertie très variable
+d'un aquifère à l'autre, non-stationnarité liée aux prélèvements, lacunes d'observation,
+événements extrêmes rares donc sous-représentés dans l'apprentissage.
 
-La littérature propose de nombreuses architectures et aucune ne s'impose a priori. La question
-pratique n'est donc pas de choisir un modèle mais de mettre en place un dispositif permettant
-de trancher, et de rejouer la comparaison quand les données changent.
+La littérature propose de nombreuses architectures ; aucune ne s'impose a priori. La question
+pratique n'est donc pas « quel modèle choisir » mais « comment mettre en place un dispositif
+qui permette de trancher, et de rejouer la comparaison quand les données changent ».
 
 \section{Un catalogue d'architectures sous interface unique}
 
@@ -23,22 +23,21 @@ La plateforme donne accès à une douzaine d'architectures de prévision profond
 bibliothèque Darts~\cite{darts}, couvrant les grandes familles de l'état de l'art :
 
 \begin{itemize}
-  \item à mécanisme d'attention, avec le \emph{temporal fusion transformer}~\cite{lim2021tft}
-  et le transformeur classique ;
-  \item à décomposition par blocs, avec N-BEATS et N-HiTS ;
-  \item récurrentes, avec LSTM, GRU et réseaux récurrents par blocs ;
-  \item convolutives, avec les réseaux convolutifs temporels ;
-  \item récentes et peu coûteuses, avec TiDE, TSMixer, DLinear et NLinear.
+  \item \textbf{à mécanisme d'attention} — \emph{temporal fusion transformer}~\cite{lim2021tft},
+  transformeur classique ;
+  \item \textbf{à décomposition par blocs} — N-BEATS, N-HiTS ;
+  \item \textbf{récurrentes} — LSTM, GRU, réseaux récurrents par blocs ;
+  \item \textbf{convolutives} — réseaux convolutifs temporels ;
+  \item \textbf{récentes à faible coût} — TiDE, TSMixer, DLinear, NLinear.
 \end{itemize}
 
-L'inclusion des dernières est délibérée. Les modèles linéaires ou quasi linéaires constituent
+L'inclusion des dernières est délibérée : les modèles linéaires ou quasi linéaires constituent
 des références exigeantes sur les séries temporelles, et une architecture lourde qui ne les
 dépasse pas doit être écartée. Disposer de la référence faible dans le même outil que le modèle
 sophistiqué évite la comparaison biaisée par des conditions expérimentales différentes.
 
 Une fabrique de modèles instancie dynamiquement l'architecture demandée en validant ses
-hyperparamètres, ce qui permet d'ajouter une architecture sans modifier l'interface ni le
-service applicatif.
+hyperparamètres, ce qui permet d'ajouter une architecture sans modifier l'interface ni l'API.
 
 \section{Le protocole expérimental}
 
@@ -51,76 +50,78 @@ résultat puisse être rattaché sans ambiguïté au couple exact qui l'a produi
 une comparaison entre deux expériences menées à quelques semaines d'intervalle n'est pas
 défendable.
 
-\paragraph{La séparation entre l'entraînement et l'interface.} Le code d'entraînement n'a
-aucune connaissance de l'interface qui l'observe. Il écrit son avancement dans un fichier
-d'état, que la couche de présentation lit indépendamment et retransmet au navigateur par un flux
-d'événements. Cette séparation, décrite au chapitre~\ref{ch:plateforme}, permet au même code de
-s'exécuter depuis l'application, un script ou un carnet de calcul.
+\paragraph{La séparation entre l'entraînement et l'interface.} Le code d'entraînement n'a aucune
+connaissance de l'interface qui l'observe : il écrit son avancement dans un fichier d'état, que
+la couche de présentation lit indépendamment et retransmet au navigateur par un flux
+d'événements. Cette séparation, visible sur la figure~\ref{fig:archi-plateforme}, a une
+conséquence pratique importante : \textbf{le même code d'entraînement s'exécute depuis
+l'application, depuis un script ou depuis un carnet de calcul}, sans modification.
 
 \paragraph{La conduite d'expériences longues.} L'entraînement s'effectue sur processeur
-graphique lorsqu'il est disponible~\cite{pytorch_lightning}, avec arrêt anticipé et suivi de
+graphique lorsque disponible~\cite{pytorch_lightning}, avec arrêt anticipé et suivi de
 l'évolution des pertes en apprentissage et en validation. L'utilisateur voit progresser son
 entraînement au lieu d'attendre un résultat opaque, et peut l'interrompre s'il diverge.
 
 \section{Optimisation d'hyperparamètres}
 
 La comparaison d'architectures n'a de sens que si chacune est évaluée dans une configuration
-raisonnable. Comparer un modèle réglé à un modèle laissé aux valeurs par défaut ne renseigne que
-sur le réglage. Une recherche automatisée d'hyperparamètres~\cite{optuna} est donc intégrée,
+raisonnable ; comparer un modèle réglé à un modèle laissé aux valeurs par défaut ne renseigne
+que sur le réglage. Une recherche automatisée d'hyperparamètres~\cite{optuna} est donc intégrée,
 avec élagage des essais non prometteurs pour concentrer le budget de calcul sur les
 configurations viables.
 
 \section{Rendre l'outil utilisable par des non-spécialistes}
 
-Un dispositif d'expérimentation complet est exigeant par nature : longueur de fenêtre d'entrée,
-taille de lot, nombre d'époques, patience d'arrêt anticipé. Ces réglages constituent un obstacle
-réel pour un hydrogéologue souhaitant simplement obtenir une prévision.
+Un dispositif d'expérimentation complet est, par nature, exigeant : longueur de fenêtre
+d'entrée, taille de lot, nombre d'époques, patience d'arrêt anticipé. Ces réglages sont un
+obstacle réel pour un hydrogéologue qui souhaite simplement obtenir une prévision.
 
-Des configurations prêtes à l'emploi ont donc été définies par cas d'usage métier plutôt que par
-architecture : prévision piézométrique à sept jours, à trente jours, à quatre-vingt-dix jours,
-et prévision de débit à quatorze jours. Chacune fixe une architecture et un jeu
-d'hyperparamètres cohérents, choisis à partir des recommandations de la bibliothèque et des
-références publiées sur séries piézométriques.
+Des \textbf{configurations prêtes à l'emploi} ont donc été définies par cas d'usage métier
+plutôt que par architecture : prévision piézométrique à court terme (sept jours), à moyen terme
+(trente jours), à long terme (quatre-vingt-dix jours), et prévision de débit à quatorze jours.
+Chacune fixe une architecture et un jeu d'hyperparamètres cohérents, choisis à partir des
+recommandations de la bibliothèque et des références publiées sur séries piézométriques.
 
-\begin{remarque}[title={Une distinction assumée}]
-Ces configurations sont des points de départ raisonnables, non des réglages optimisés pour une
-station donnée. La documentation le dit explicitement et oriente vers la recherche automatisée
-pour aller plus loin. Il aurait été facile, et trompeur, de les présenter comme optimales.
-\end{remarque}
+\begin{encadre}[title={Une distinction assumée}]
+Ces configurations sont des \emph{points de départ raisonnables}, non des réglages optimisés
+pour une station donnée. La documentation le dit explicitement, et oriente vers la recherche
+automatisée d'hyperparamètres pour aller plus loin. Il aurait été facile — et trompeur — de les
+présenter comme optimales.
+\end{encadre}
 
 \section{Ce qui est établi, et ce qui ne l'est pas}
 
 Il importe d'être précis sur le statut de ce chapitre.
 
-Ce qui est acquis est le dispositif : un banc d'expérimentation instrumenté et traçable, qui
-rend les comparaisons possibles et rejouables, accessible à des utilisateurs de niveaux
-d'expertise différents, et dont le c\oe ur est réutilisable hors de l'application.
+\textbf{Ce qui est acquis} est le dispositif : un banc d'expérimentation instrumenté, traçable,
+qui rend les comparaisons possibles et rejouables, accessible à des utilisateurs de niveaux
+d'expertise différents, et dont le cœur est réutilisable hors de l'application.
 
-Ce qui n'est pas établi dans ce rapport est le classement des architectures sur le cas
-hydrogéologique. Les campagnes d'entraînement conduites au cours des travaux ont servi à valider
-le dispositif et à orienter les développements ; les jeux préparés et les points de sauvegarde
-ont été purgés des dépôts lors de la passation. Reconstituer a posteriori un tableau de
-performances à partir de souvenirs ne serait pas un résultat. La campagne d'évaluation
-comparative, opposant modèles appris et modèles métier du chapitre~\ref{ch:metier} sur un
-échantillon représentatif de stations et de familles d'aquifères, reste donc à conduire, et
-l'outillage nécessaire est en place pour la mener.
+\textbf{Ce qui n'est pas établi dans ce rapport} est le classement des architectures sur le cas
+hydrogéologique. Les campagnes d'entraînement conduites au cours des travaux ont servi à
+valider le dispositif et à orienter les développements ; les jeux de données préparés et les
+points de sauvegarde ont été purgés des dépôts lors de la passation. Reconstituer a posteriori
+un tableau de performances à partir de souvenirs ne serait pas un résultat scientifique. La
+campagne d'évaluation comparative — modèles appris contre modèles métier du
+chapitre~\ref{ch:metier}, sur un échantillon représentatif de stations et de familles
+d'aquifères — reste donc à conduire, et l'outillage nécessaire est en place pour la mener.
 
-\begin{remarque}[title={Une limite d'ingénierie à corriger}]
-La suite de tests de la plateforme compte \num{552} tests, dont \num{547} passent, mesuré le
-24 août 2026. Aucun ne s'exécute automatiquement : le dépôt est hébergé sur une forge dont la
-chaîne d'intégration ne comporte qu'une étape de construction d'image, tandis que la définition
-de tests existante cible une autre forge. Parmi les quatre échecs, deux tests exigent un
+\begin{limite}[title={Une limite d'ingénierie à corriger}]
+La suite de tests de la plateforme compte \num{552} tests, dont \num{547} passent (mesuré le
+24 août 2026). Aucun ne s'exécute automatiquement : le dépôt est hébergé sur une forge dont la
+chaîne d'intégration continue ne comporte qu'une étape de construction d'image, tandis que la
+définition de tests existante cible une autre forge. Parmi les quatre échecs, deux exigent un
 entrepôt peuplé et relèvent en réalité de l'intégration, un lit un fichier absent de tout autre
 poste, et le dernier est mis en défaut par la base en mémoire employée pour les tests, qui ne
 conserve pas le fuseau horaire. Aucun ne signale un défaut applicatif, mais la purge des
-journaux se trouve de fait non testée. Le premier correctif à apporter est le rattachement de
-la suite à la chaîne d'intégration.
-\end{remarque}
+journaux se trouve de fait non testée. C'est le premier correctif à apporter par toute personne
+reprenant ces travaux.
+\end{limite}
 
 \begin{acquisouvert}
-\textbf{Acquis.} Un laboratoire d'expérimentation opérationnel, traçable et accessible, dont le
-c\oe ur de calcul est indépendant de l'interface et donc réutilisable.
+\textbf{Acquis} — Un laboratoire d'expérimentation opérationnel, traçable et accessible, dont le
+cœur de calcul est indépendant de l'interface et donc réutilisable.
 
-\textbf{Ouvert.} L'évaluation comparative systématique, et l'automatisation de la suite de
+\textbf{Ouvert} — L'évaluation comparative systématique, et l'automatisation de la suite de
 tests.
 \end{acquisouvert}

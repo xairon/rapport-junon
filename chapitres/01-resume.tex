@@ -1,66 +1,100 @@
-\chapter*{Résumé}
-\addcontentsline{toc}{chapter}{Résumé}
-\markboth{Résumé}{Résumé}
+\chapter*{Résumé exécutif}
+\addcontentsline{toc}{chapter}{Résumé exécutif}
+\markboth{Résumé exécutif}{Résumé exécutif}
 
 \noindent
-Ce postdoctorat s'est déroulé au LIFAT (université de Tours) du 15 septembre 2025 au 30 juin
-2026, dans le cadre du programme \textsc{Junon} de la Région Centre-Val de
-Loire~\cite{brgm_junon_programme}. Le sujet portait sur l'explicabilité des modèles de prévision
-appliqués aux nappes. Il s'est heurté d'emblée à un obstacle qui n'avait rien de
-méthodologique : le terrain expérimental n'existait pas.
+Ce postdoctorat, mené au LIFAT (Université de Tours) du 15 septembre 2025 au 30 juin 2026 dans
+le cadre du programme \textsc{Junon}, portait initialement sur \textbf{l'explicabilité des
+modèles de prévision appliqués aux eaux souterraines}. Il s'est heurté d'emblée à un obstacle
+qui n'était pas de nature méthodologique : \textbf{le terrain expérimental n'existait pas}.
 
-La donnée hydrologique française est pourtant publique. Hub'Eau diffuse les chroniques
-piézométriques et hydrométriques~\cite{hubeau}, Copernicus la réanalyse climatique
-ERA5-Land~\cite{cds}, le BRGM le référentiel hydrogéologique BDLISA~\cite{bdlisa}. Mais elle est
-éparpillée entre des services qui s'ignorent, jamais jointe au climat, sans historique
-consolidé ni indicateurs normalisés. Or on n'explique pas un modèle qu'on n'a pas pu entraîner,
-et on n'entraîne rien sans jeu de données. Construire ce jeu de données est devenu le premier
-travail, et une réunion de cadrage entre le BRGM et l'université de Tours en a confié le
-pilotage à l'auteur de ce rapport~\cite{reunion_aida}.
+La donnée hydrologique française est ouverte — Hub'Eau expose les chroniques piézométriques et
+hydrométriques, Copernicus diffuse la réanalyse climatique ERA5-Land, le BRGM publie le
+référentiel hydrogéologique BDLISA — mais elle est dispersée entre des services hétérogènes,
+jamais jointe au forçage climatique, dépourvue d'historique consolidé et d'indicateurs
+normalisés. Expliquer un modèle suppose d'abord qu'un modèle puisse être entraîné, donc qu'un
+jeu de données existe. Construire ce jeu de données est devenu le premier travail, et une
+réunion de cadrage entre le BRGM et l'Université de Tours en a explicitement confié le
+pilotage.
 
-\section*{Ce qui a été construit}
+\vspace{0.6em}
+\noindent\textbf{Deux réalisations logicielles en découlent, conçues comme une chaîne unique.}
 
-\textbf{Un entrepôt de données hydro-climatiques}~\cite{depot_entrepot} ingère, transforme et
-expose quatre jeux de données publics. Trois couches de qualité croissante sur
-PostgreSQL~\cite{postgresql}, étendu au temporel~\cite{timescaledb} et au
-géospatial~\cite{postgis} ; ingestion déclarative~\cite{dlt}, transformation versionnée en
-SQL~\cite{dbt}, orchestration par actifs~\cite{dagster}. Chaque station est rattachée à sa maille
-climatique et enrichie du référentiel hydrogéologique. Les tables finales se lisent en SQL, sans
-rien connaître de ce qui précède.
+\vspace{0.4em}
+\noindent
+\textbf{Un entrepôt de données hydro-climatiques} (\hubeau{}) organise l'ingestion automatisée
+de quatre jeux de données publics — piézométrie et hydrométrie depuis 1967, réanalyse ERA5-Land
+depuis 1950, référentiel hydrogéologique — selon une architecture médaillon (Bronze, Silver,
+Gold) sur PostgreSQL, TimescaleDB et PostGIS, orchestrée par Dagster. Les stations sont
+rattachées à leur maille climatique par jointure spatiale et enrichies du référentiel
+hydrogéologique. Les tables analytiques finales sont directement interrogeables en SQL, ce qui
+rend la donnée exploitable par n'importe quel consommateur sans réimplémenter la chaîne
+d'extraction.
 
-\textbf{Une plateforme d'exploration et de prévision}~\cite{depot_plateforme} exploite cet
-entrepôt. Un observatoire cartographique donne l'état des nappes, des rivières et du climat. Un
-laboratoire de modèles métier calibre des modèles à fonction de transfert~\cite{pastas}, évalués
-selon un standard reconnu~\cite{stowa2012} et paramétrés par famille d'aquifère. Un laboratoire
-d'apprentissage donne accès à douze architectures de prévision profonde~\cite{darts}, avec
-optimisation d'hyperparamètres~\cite{optuna} et traçabilité des expériences~\cite{mlflow}.
-L'explicabilité y tient une place centrale : attributions par gradients~\cite{sundararajan2017ig},
-valeurs de Shapley adaptées aux séries temporelles~\cite{bento2021timeshap}, poids d'attention,
-et des explications contrefactuelles qui refusent les scénarios physiquement absurdes.
+\vspace{0.4em}
+\noindent
+\textbf{Une plateforme d'expérimentation} (\junon{}) exploite cet entrepôt selon trois usages
+articulés : un \emph{observatoire} d'exploration spatiale et climatique, un \emph{laboratoire de
+modélisation métier} fondé sur les modèles à fonction de transfert (Pastas) avec évaluation
+selon les critères STOWA et scénarios prospectifs de pompage, et un \emph{laboratoire
+d'apprentissage automatique} donnant accès à une douzaine d'architectures de prévision
+profonde, avec optimisation d'hyperparamètres et traçabilité des expériences. L'explicabilité y
+occupe une place structurante et non accessoire : attributions par gradients, valeurs de
+Shapley adaptées aux séries temporelles, poids d'attention, et surtout des \textbf{explications
+contrefactuelles sous contrainte physique} qui refusent de proposer un scénario alternatif
+thermodynamiquement incohérent.
 
-\section*{Ce que ça donne}
+\vspace{0.6em}
+\noindent\textbf{Le résultat principal est architectural.} La chaîne absorbe environ
+\num{658} millions de lignes en couche brute, ne duplique rien lorsqu'on la relance, conserve
+les lignes écartées au nettoyage avec le motif de leur exclusion, empêche deux traitements de se
+recouvrir, et reprend après interruption sans perte. Ces propriétés déterminent si un jeu de
+données peut servir de référence commune à plusieurs équipes, ou seulement à l'expérience qui
+l'a produit.
 
-Le résultat principal est une architecture. La chaîne absorbe \num{658} millions de lignes en
-couche brute, ne duplique rien quand on la relance, conserve les lignes qu'elle écarte avec le
-motif de leur exclusion, empêche deux traitements de se marcher dessus, et redémarre où elle
-s'était arrêtée. Ces propriétés décident si un jeu de données peut servir de référence commune à
-plusieurs équipes, ou seulement à l'expérience qui l'a produit.
+\vspace{0.6em}
+\noindent\textbf{Trois résultats méthodologiques sont établis et mesurés.}
 
-Trois décisions ont été tranchées par la mesure plutôt que par convention.
-L'évapotranspiration de référence est recalculée par la formule de
-Hargreaves~\cite{hargreaves1985,allen1998fao56} : celle que fournit la réanalyse vaut deux fois
-trop, et mettait la France entière en déficit hydrique permanent. L'indice de bilan hydrique est
-ajusté par une logistique généralisée, seule loi qui couvre tout le territoire, comme le fait
-l'implémentation de référence~\cite{begueria_spei_package}. Enfin, la conformité des indices
-produits a été vérifiée sur \num{41960400} valeurs, contre un critère fixé avant la mesure.
+\begin{itemize}
+  \item \textbf{L'évapotranspiration potentielle de référence a dû être recalculée.} La variable
+  d'évaporation potentielle fournie par ERA5-Land ne désigne pas la même grandeur que
+  l'évapotranspiration de référence au sens de la FAO : employée telle quelle, elle produit
+  \SI{1756}{\milli\metre\per\an} contre \SI{818}{\milli\metre\per\an} par la formule de
+  Hargreaves (FAO-56), un facteur \num{2,15} qui plaçait l'intégralité du territoire en déficit
+  hydrique permanent. Seule la seconde valeur est compatible avec les références publiées pour
+  la France.
 
-\section*{Portée de ce rapport}
+  \item \textbf{L'ajustement statistique de l'indice de bilan hydrique standardisé a été
+  corrigé.} La loi log-logistique de la formulation d'origine ne converge que sur
+  \SI{74,6}{\percent} du domaine. L'instrumentation des rejets a montré qu'ils proviennent tous
+  d'une asymétrie négative que cette loi ne peut structurellement pas représenter. La logistique
+  généralisée, retenue par l'implémentation de référence du SPEI, atteint \SI{100}{\percent} de
+  couverture sans modifier aucune valeur là où la première fonctionnait.
 
-Les expériences d'apprentissage sont décrites par leurs protocoles et leurs choix de conception.
-Les jeux préparés et les modèles entraînés ont été purgés des dépôts à la passation : aucun
-tableau de performances n'est donc avancé, et rien n'a été reconstitué de mémoire. Tous les
-chiffres cités proviennent de mesures consignées dans les dépôts.
+  \item \textbf{Les indices standardisés produits sont conformes à leur définition.} Vérifié sur
+  \num{41960400} valeurs couvrant \num{11496} mailles, selon un critère d'acceptation fixé avant
+  la mesure.
+\end{itemize}
 
-Ce qui a été construit dépasse le cadre de ce postdoctorat. Le chapitre~\ref{ch:socle} montre en
-quoi cet ensemble forme un socle pour les travaux d'explicabilité qui prendront la suite, et ce
-qu'il manque encore pour en faire un environnement partagé.
+\vspace{0.6em}
+\noindent
+Ces travaux répondent à des besoins distincts et convergents : aux hydrogéologues, ils
+fournissent des indicateurs normalisés et un outil de scénarisation ancré dans leur cadre
+métier ; aux chercheurs en apprentissage automatique, un jeu de données hydro-climatique
+consolidé et un banc d'expérimentation instrumenté ; au programme \textsc{Junon}, une chaîne
+complète de la source ouverte au service interprétable, qui constitue une brique directement
+mobilisable pour les jumeaux numériques de la ressource en eau.
+
+\vspace{0.6em}
+\noindent
+Le dernier chapitre argumente en quoi cet ensemble forme un \textbf{socle réutilisable} pour les
+travaux d'explicabilité qui prendront la suite, et à quelles conditions.
+
+\begin{limite}[title={Portée et limites de ce rapport}]
+Les expériences d'apprentissage profond sont rapportées au niveau de leurs protocoles, de leurs
+capacités et de leurs choix de conception. Les jeux de données et les points de sauvegarde de
+modèles ont été purgés des dépôts lors de la passation ; aucun tableau de performances n'est
+donc avancé, par choix d'honnêteté plutôt que par reconstitution approximative. Les valeurs
+chiffrées présentées dans ce rapport sont exclusivement celles mesurées et consignées dans les
+dépôts au cours des travaux.
+\end{limite}

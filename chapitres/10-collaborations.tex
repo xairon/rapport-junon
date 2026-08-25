@@ -1,0 +1,146 @@
+\chapter{Collaborations et réponses aux besoins}
+\label{ch:collaborations}
+
+\questionchapitre{À quels besoins, exprimés par qui, ces développements répondent-ils
+effectivement ?}
+
+\section{Le cadre de travail}
+
+Les développements présentés dans ce rapport ont été conçus et réalisés dans leur intégralité au
+cours du postdoctorat, dans un dialogue continu avec trois interlocuteurs aux apports distincts.
+
+\paragraph{Supervision scientifique — Nicolas Labroche (LIFAT).} Responsable du volet PREDICTION
+du programme, il a encadré l'orientation scientifique des travaux, en particulier l'arbitrage
+initial : accepter que le sujet d'explicabilité impose d'abord la construction de son terrain
+expérimental, plutôt que de le traiter sur un jeu de données de circonstance. Cet arbitrage
+détermine tout ce qui précède.
+
+\paragraph{Collaboration technique — Hugo Breuillard (BRGM).} Data scientist en charge du projet
+côté BRGM, il constitue le point de contact sur les questions de chaîne de données et de
+stratégie de prévision. Les échanges ont porté sur l'articulation entre l'entrepôt développé ici
+et les besoins de modélisation du programme, et sur la cohérence des indicateurs produits avec
+ceux employés par ailleurs.
+
+\paragraph{Expertise métier — Augustin Thomas (BRGM).} Hydrogéologue, il a été l'interlocuteur
+sur l'ensemble des questions de domaine. C'est de ces échanges que procèdent les décisions qui
+ancrent la plateforme dans la pratique hydrogéologique plutôt que dans une transposition
+générique de méthodes d'apprentissage.
+
+\section{Une réunion de cadrage qui a orienté les travaux}
+
+La rencontre du 13 février 2026 entre le BRGM et l'Université de Tours mérite d'être décrite,
+car elle a produit des effets identifiables dans le code~\cite{reunion_cadrage}.
+
+Sa préparation consistait à formuler, à l'intention des hydrogéologues, les questions dont la
+réponse conditionnait les choix techniques : existe-t-il une typologie des nappes déjà employée,
+quels cas résistent aux modèles physiques, quels facteurs déterminent le paramétrage d'un modèle
+de prévision, l'explicabilité statistique suffit-elle ou faut-il des garanties physiques
+explicites, et qu'est-ce qu'une variation de niveau physiquement impossible.
+
+Quatre orientations en sont issues.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Orientation} & \textbf{Traduction dans les développements} \\
+\midrule
+Typologie des nappes & La distinction entre nappes inertielles, réactives et influencées
+structure les configurations par famille d'aquifère du chapitre~\ref{ch:metier} \\
+Garanties physiques dans l'explication & Les critères de plausibilité du bilan de masse et de
+cohérence temporelle sont mis en œuvre par la méthode contrefactuelle de la
+section~\ref{sec:physcf} \\
+Annotation des piézomètres & Le pipeline de détection d'influence anthropique du
+chapitre~\ref{ch:xai} répond au besoin d'identifier les ouvrages influencés \\
+Consolidation des données & La mise en place de l'entrepôt, dont la réunion attribue le pilotage
+à l'auteur, répond au besoin d'un espace commun de données harmonisées \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Cette réunion recense également les jeux de données existants et leurs limites : un ensemble
+d'environ \num{220} piézomètres réputés peu influencés dont la qualification restait à établir,
+un ensemble d'environ \num{170} piézomètres annotés par des experts et jugé représentatif de la
+métropole, et un jeu reconstitué dans le cadre de travaux de thèse. Le besoin exprimé était de
+les consolider et de les qualifier, ce que l'entrepôt rend possible en fournissant une base
+commune sur laquelle chacun peut être resitué.
+
+\section{Ce que la collaboration métier a produit}
+
+L'apport d'expertise n'est pas resté au stade de la discussion : il est inscrit dans le code, et
+identifiable. Quatre exemples le montrent.
+
+\paragraph{Les configurations de modélisation par famille d'aquifère.} La table présentée au
+chapitre~\ref{ch:metier} associe à chaque nature de milieu une combinaison de fonction de
+réponse et de modèle de bruit. Cette connaissance ne s'obtient pas par validation croisée : elle
+procède de la compréhension du comportement hydrodynamique de chaque milieu. Le cas karstique,
+traité par une double exponentielle pour représenter les deux temps de réponse des conduits et
+de la matrice, en est l'illustration la plus nette.
+
+\paragraph{L'adoption d'un standard d'évaluation reconnu.} Le choix d'évaluer les modèles selon
+les quatre critères STOWA plutôt que par un indicateur d'erreur unique relève du même registre.
+Il introduit notamment le critère de temps de réponse rapporté à la période de calibration, qui
+écarte des modèles apparemment excellents mais non identifiables — subtilité que la seule
+pratique de l'apprentissage automatique ne fait pas apparaître.
+
+\paragraph{La règle d'affichage cartographique.} La règle énoncée au
+chapitre~\ref{ch:observatoire} — un indicateur réellement standardisé ou une valeur réelle,
+jamais un intermédiaire — procède d'une préoccupation d'interprétation propre au domaine. Un
+outil qui colorie une carte de France selon des seuils choisis par son auteur fabrique une norme
+que l'utilisateur lira comme une référence établie.
+
+\paragraph{L'arbitrage sur l'évapotranspiration.} La décision documentée en
+section~\ref{sec:hargreaves} est exemplaire du bénéfice de la confrontation disciplinaire. La
+variable fournie par la réanalyse était disponible, correctement nommée et directement
+utilisable ; seule la confrontation de ses valeurs aux ordres de grandeur connus pour la France a
+révélé qu'elle ne désignait pas la grandeur attendue. Aucune vérification interne au code ne
+pouvait détecter cette erreur, car il ne s'agissait pas d'une erreur de calcul.
+
+\section{Des besoins distincts, un outil commun}
+
+Les deux communautés visées n'attendent pas la même chose, et l'architecture a dû accommoder les
+deux sans se scinder.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{3.6cm}XX@{}}
+\toprule
+ & \textbf{Hydrogéologues du BRGM} & \textbf{Chercheurs en apprentissage} \\
+\midrule
+\textbf{Question posée} & Où en est la ressource, et que se passe-t-il si l'on prélève ? &
+Quelle méthode prédit le mieux, et pourquoi ? \\
+\textbf{Attente principale} & Des indicateurs conformes aux pratiques, une scénarisation
+crédible & Un jeu de données consolidé, un protocole reproductible \\
+\textbf{Obstacle levé} & L'agrégation manuelle de sources hétérogènes & Le coût d'entrée à
+l'expérimentation \\
+\textbf{Ce qui a été livré} & Observatoire, indicateurs validés, laboratoire de modèles métier,
+scénarios bornés & Entrepôt interrogeable, catalogue d'architectures, traçabilité des
+expériences, outillage d'explicabilité \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Le point de rencontre est l'entrepôt. Parce que les indicateurs métier et les jeux
+d'apprentissage sont produits par la même chaîne et validés une seule fois, une comparaison
+entre un modèle appris et un modèle métier porte réellement sur les modèles, et non sur des
+préparations de données divergentes. Cette propriété, invisible dans l'interface, est ce qui rend
+la plateforme utilisable comme instrument de recherche et non seulement comme outil de
+consultation.
+
+\section{État de mise à disposition}
+
+La plateforme est déployée — l'interface sur l'infrastructure mutualisée de l'établissement, le
+calcul et les bases sur un serveur équipé d'un processeur graphique — et son usage demeure à ce
+jour circonscrit au cercle du projet. L'accès est nominatif : il n'existe ni inscription libre ni
+authentification déléguée, les comptes étant créés par un administrateur. Ce choix, adapté à un
+outil scientifique manipulant une chaîne de traitement en évolution, constitue le principal frein
+à une diffusion plus large — et le premier levier à actionner pour l'obtenir.
+
+\begin{acquisouvert}
+\textbf{Acquis} — Une collaboration qui a effectivement transformé les développements : les
+décisions métier structurantes sont inscrites dans le code et documentées, et les deux
+communautés disposent d'un socle commun de données.
+
+\textbf{Ouvert} — Plusieurs pistes identifiées lors du cadrage n'ont pas été explorées, notamment
+le rapprochement avec les modèles à réservoirs du BRGM et l'accès à leurs travaux de comparaison
+de modèles. L'élargissement des usages au-delà du cercle projet suppose une politique d'accès et
+un accompagnement, davantage que des développements supplémentaires.
+\end{acquisouvert}

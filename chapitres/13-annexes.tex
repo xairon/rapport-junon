@@ -8,18 +8,18 @@
 \begin{center}
 \begin{tabularx}{\textwidth}{@{}lX@{}}
 \toprule
-Période & 23 septembre 2025 au 24 août 2026 \\
-Volume & environ \num{7000} lignes Python et \num{1200} lignes SQL de transformation \\
-Ingestion & bibliothèque déclarative : pagination, reprise sur erreur, déduplication par
-fusion, partitionnement annuel de 1967 à aujourd'hui \\
+Période & 23 septembre 2025 — 24 août 2026 \\
+Volume & $\approx$ \num{7000} lignes Python, $\approx$ \num{1200} lignes SQL de transformation \\
+Ingestion & Bibliothèque d'extraction déclarative : pagination, reprise sur erreur,
+déduplication par fusion, partitionnement annuel de 1967 à aujourd'hui \\
 Transformation & 8 modèles de nettoyage, 3 modèles de rejets tracés, 18 modèles analytiques,
 complétés par des tables d'indicateurs calculées en Python \\
 Orchestration & 8 traitements planifiés, 3 capteurs événementiels, clés de concurrence par
 nature de traitement \\
-Stockage & base relationnelle avec extension de séries temporelles (partitionnement,
+Stockage & Base relationnelle avec extension de séries temporelles (partitionnement,
 compression) et extension géospatiale (jointures spatiales indexées) \\
 Infrastructure & 7 services conteneurisés, séparation du code métier et de l'orchestrateur,
-volumes déclarés hors du cycle de vie des conteneurs \\
+volumes de données déclarés hors du cycle de vie des conteneurs \\
 \bottomrule
 \end{tabularx}
 \end{center}
@@ -29,16 +29,16 @@ volumes déclarés hors du cycle de vie des conteneurs \\
 \begin{center}
 \begin{tabularx}{\textwidth}{@{}lX@{}}
 \toprule
-Période & 6 novembre 2025 au 24 août 2026 \\
-Volume & environ \num{40000} lignes Python et \num{29000} lignes TypeScript \\
-Interface & application monopage : cartographie, graphiques interactifs, suivi d'entraînement
+Période & 6 novembre 2025 — 24 août 2026 \\
+Volume & $\approx$ \num{40000} lignes Python, $\approx$ \num{29000} lignes TypeScript \\
+Interface & Application monopage : cartographie, graphiques interactifs, suivi d'entraînement
 en temps réel \\
 Service & API avec flux d'événements, authentification nominative, journal d'audit, limitation
 de débit \\
-C\oe ur métier & bibliothèque Python sans dépendance d'interface : préparation, modèles métier,
+Cœur métier & Bibliothèque Python sans dépendance d'interface : préparation, modèles métier,
 entraînement, explicabilité, contrefactuels, détection d'influence \\
 Vérification & \num{552} tests, dont \num{547} passent (mesuré le 24 août 2026) \\
-Déploiement & interface sur infrastructure mutualisée, calcul et bases sur serveur équipé d'un
+Déploiement & Interface sur infrastructure mutualisée, calcul et bases sur serveur équipé d'un
 processeur graphique ; environnements de développement et de production séparés \\
 \bottomrule
 \end{tabularx}
@@ -51,11 +51,11 @@ processeur graphique ; environnements de développement et de production sépar�
 \toprule
 \textbf{Source} & \textbf{Contenu} & \textbf{Couverture} \\
 \midrule
-Hub'Eau, piézométrie & niveaux de nappe aux ouvrages de surveillance & partitions depuis 1967 \\
-Hub'Eau, hydrométrie & débits des cours d'eau (sites, stations, observations) & partitions
+Hub'Eau — piézométrie & Niveaux de nappe aux ouvrages de surveillance & partitions depuis 1967 \\
+Hub'Eau — hydrométrie & Débits des cours d'eau (sites, stations, observations) & partitions
 depuis 1967 \\
-Copernicus ERA5-Land & réanalyse climatique sur grille \ang{0.1} & depuis 1950 \\
-BDLISA & référentiel hydrogéologique, entités aquifères & référentiel \\
+Copernicus — ERA5-Land & Réanalyse climatique sur grille \ang{0.1} & depuis 1950 \\
+BDLISA & Référentiel hydrogéologique (entités aquifères) & référentiel \\
 \bottomrule
 \end{tabularx}
 \end{center}
@@ -63,20 +63,20 @@ BDLISA & référentiel hydrogéologique, entités aquifères & référentiel \\
 \noindent
 La profondeur effectivement disponible varie d'une station à l'autre : les partitions
 d'ingestion couvrent la période complète, les données retournées par les services web dépendent
-de l'ouverture et de l'exploitation de chaque ouvrage.
+de la date de mise en service et de l'exploitation de chaque ouvrage.
 
-\begin{remarque}[title={Mentions obligatoires}]
+\begin{encadre}[title={Mentions obligatoires}]
 \emph{Generated using Copernicus Climate Change Service information, 2026. Neither the European
 Commission nor ECMWF is responsible for any use that may be made of the Copernicus information
 or data it contains.}
 
-\vspace{0.3em}
-Source : Hub'Eau, eaufrance.fr. Source : BDLISA, BRGM et Sandre.
+\vspace{0.4em}
+Source : Hub'Eau — eaufrance.fr \quad\textbullet\quad Source : BDLISA — BRGM / Sandre.
 
-\vspace{0.3em}
+\vspace{0.4em}
 Les licences des développements couvrent le code produit, non les données consultées : chaque
 source conserve ses propres conditions d'usage.
-\end{remarque}
+\end{encadre}
 
 \section{Volumétrie des indicateurs climatiques}
 
@@ -101,23 +101,28 @@ Mailles de vérification de l'équivalence des lois & \num{35614} \\
 \toprule
 \textbf{Terme} & \textbf{Définition} \\
 \midrule
-BDLISA & référentiel hydrogéologique français décrivant les entités aquifères \\
-Contrefactuel & explication de la forme « quelle modification minimale des entrées changerait
+Architecture médaillon & Organisation d'un entrepôt en couches de qualité croissante : données
+brutes, données nettoyées, données analytiques \\
+BDLISA & Référentiel hydrogéologique français décrivant les entités aquifères \\
+Contrefactuel & Explication de la forme « quelle modification minimale des entrées changerait
 la sortie de telle manière » \\
-ETP et ET0 & évapotranspiration potentielle ; évapotranspiration de référence au sens de la
+ETP / ET0 & Évapotranspiration potentielle ; évapotranspiration de référence au sens de la
 FAO-56 \\
-Idempotence & propriété d'un traitement dont la réexécution ne modifie pas le résultat \\
-IPS & indicateur piézométrique standardisé, position du mois courant par rapport à sa normale
+Hypertable & Table partitionnée dans le temps, permettant compression et interrogation efficace
+sur de grands volumes de séries \\
+Idempotence & Propriété d'un traitement dont la réexécution ne modifie pas le résultat \\
+IPS & Indicateur piézométrique standardisé, position du mois courant par rapport à sa normale
 saisonnière \\
-L-moments & statistiques d'ordre linéaires servant à ajuster une loi de probabilité, dont
+L-moments & Statistiques d'ordre linéaires servant à ajuster une loi de probabilité, dont
 $\tau_3$ mesure l'asymétrie \\
-Modèle TFN & modèle à fonction de transfert et bruit : le niveau simulé est la somme de
+McKee (classes de) & Échelle à sept classes de sévérité associée aux indices standardisés \\
+Modèle TFN & Modèle à fonction de transfert et bruit : le niveau simulé est la somme de
 convolutions des forçages par des réponses impulsionnelles calibrées \\
-Piézométrie & mesure du niveau des nappes d'eau souterraine \\
-SPI, STI, SPEI & indices standardisés de précipitation, de température et de bilan hydrique \\
-SSFI & indice standardisé de débit, équivalent de l'IPS pour les cours d'eau \\
-STOWA & standard néerlandais d'évaluation de la qualité des modèles TFN, en quatre critères \\
-Valeurs de Shapley & méthode d'attribution répartissant la contribution des entrées à une
+Piézométrie & Mesure du niveau des nappes d'eau souterraine \\
+SPI / STI / SPEI & Indices standardisés de précipitation, de température et de bilan hydrique \\
+SSFI & Indice standardisé de débit, équivalent de l'IPS pour les cours d'eau \\
+STOWA & Standard néerlandais d'évaluation de la qualité des modèles TFN, en quatre critères \\
+Valeurs de Shapley & Méthode d'attribution répartissant la contribution des entrées à une
 prédiction sur des bases axiomatiques \\
 \bottomrule
 \end{tabularx}
