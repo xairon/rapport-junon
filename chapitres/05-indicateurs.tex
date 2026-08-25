@@ -83,7 +83,7 @@ SPEI & Précipitation moins évapotranspiration & Loi logistique généralisée 
 \end{tabularx}
 \end{center}
 
-\section{Premier résultat : l'évapotranspiration de référence a dû être recalculée}
+\section{Premier arbitrage : quelle évapotranspiration employer}
 \label{sec:hargreaves}
 
 \subsection{De quoi il est question}
@@ -108,8 +108,8 @@ les agronomes et les indices de sécheresse publiés.
 ERA5-Land fournit directement une variable nommée « évaporation potentielle ». L'employer
 semblait naturel, et c'est ce qui a été fait initialement.
 
-Le résultat était aberrant. Comparé sur \num{30888} couples maille-mois entre 2015 et 2025, sur
-les mêmes mailles :
+Les valeurs obtenues étaient incompatibles avec ce que l'on sait du climat français. Comparé
+sur \num{30888} couples maille-mois entre 2015 et 2025, sur les mêmes mailles :
 
 \begin{center}\small
 \begin{tabular}{@{}lccc@{}}
@@ -134,7 +134,10 @@ n'y est pas.
 \subsection{Pourquoi}
 
 Les deux grandeurs portent des noms voisins et ne décrivent pas la même chose. C'est tout le
-problème, et c'est le point à retenir.
+problème, et il n'y a d'erreur nulle part : la variable d'ERA5 est correctement définie et
+conforme à ce qu'elle annonce, elle ne correspond simplement pas à la grandeur dont le SPEI a
+besoin. Le travail à faire n'était donc pas de corriger un défaut, mais d'identifier la bonne
+grandeur et de la produire.
 
 La variable d'ERA5 répond à la question : \emph{combien cette surface pourrait-elle évaporer si
 l'eau ne manquait jamais}, dans les conditions du modèle atmosphérique qui l'a produite. C'est
@@ -152,12 +155,16 @@ formule qui a été implémentée, directement en SQL.
 
 \subsection{Ce que cela change}
 
-Sans cette correction, tous les indices de bilan hydrique auraient été calculés sur un déficit
-d'eau surestimé de plus du double. La carte nationale aurait affiché une France en sécheresse
-quasi permanente, y compris pendant les années pluvieuses, et cette anomalie aurait été lue
-comme un signal climatique alors qu'elle n'aurait été qu'une erreur de définition. C'est
-précisément le genre d'erreur qu'aucun test logiciel ne détecte : le calcul était juste, c'est
-la grandeur qui n'était pas la bonne.
+Le choix de la grandeur décide de la justesse de tout ce qui en découle. Avec la variable brute,
+les indices de bilan hydrique auraient reposé sur un déficit d'eau surestimé de plus du double,
+et la carte nationale aurait affiché une France en sécheresse quasi permanente, y compris
+pendant les années pluvieuses. L'anomalie aurait été lue comme un signal climatique alors
+qu'elle n'aurait tenu qu'à une confusion entre deux définitions.
+
+C'est le genre de piège qu'aucun test logiciel ne détecte, et c'est ce qui le rend coûteux : le
+calcul était juste, le code sans faute, seule la grandeur employée n'était pas la bonne. Seule
+la confrontation des valeurs obtenues aux ordres de grandeur connus pour la France pouvait le
+révéler.
 
 \subsection{Où cela se joue dans l'entrepôt}
 
@@ -208,7 +215,7 @@ lue sur la fiche d'une station \textbf{ne désignent pas la même grandeur}, et 
 facteur voisin de deux. L'incohérence est documentée dans le dépôt ; sa résolution suppose de
 recalibrer l'ensemble des modèles existants.
 
-\section{Deuxième résultat : le choix de la loi statistique du SPEI}
+\section{Deuxième arbitrage : quelle loi ajuster pour le SPEI}
 \label{sec:glo}
 
 \subsection{De quoi il est question}
@@ -224,9 +231,9 @@ sur quelles mailles l'indice pourra être calculé.
 
 \subsection{Ce qui s'est passé}
 
-La formulation de référence du SPEI~\cite{vicenteserrano2010spei} emploie une loi dite
-log-logistique. Appliquée à la grille française, elle ne parvient à s'ajuster que sur
-\SI{74,6}{\percent} des cas. Autrement dit, un quart du territoire restait sans valeur, ce qui
+L'article fondateur du SPEI~\cite{vicenteserrano2010spei} emploie une loi dite log-logistique,
+et c'est elle qui avait été retenue au départ. Appliquée à la grille française, elle ne parvient
+à s'ajuster que sur \SI{74,6}{\percent} des cas. Autrement dit, un quart du territoire restait sans valeur, ce qui
 laisse un trou dans la carte nationale.
 
 Plutôt que de constater le taux d'échec, les rejets ont été instrumentés pour en identifier la
@@ -247,8 +254,10 @@ aurait rien changé : ce n'est pas un problème d'échantillon, c'est une forme 
 pas décrire.
 
 La logistique généralisée est une version élargie de la même loi, qui accepte les deux
-inclinaisons. C'est d'ailleurs celle qu'emploie l'implémentation de référence du
-SPEI~\cite{begueria_spei_package}. La couverture passe à \SI{100}{\percent}.
+inclinaisons. Il ne s'agit donc pas d'une invention ni d'un correctif : c'est la loi
+qu'emploie l'implémentation de référence du SPEI~\cite{begueria_spei_package}, distribuée par
+les auteurs de la méthode. Le passage à cette loi revient à s'aligner sur la pratique établie
+plutôt qu'à s'en écarter, et la couverture passe à \SI{100}{\percent}.
 
 \subsection{Ce que cela change}
 
@@ -261,7 +270,7 @@ reparamétrée : les valeurs restent donc inchangées partout où la loi d'origi
 vérifié à un écart maximal de \num{0,000} sur \num{35614} mailles, et le changement ne fait
 qu'ajouter les valeurs qui manquaient.
 
-\section{Troisième résultat : la validation des indices produits}
+\section{La vérification des indices produits}
 
 Un indice standardisé doit, par construction, suivre approximativement une loi normale centrée
 réduite \emph{sur sa propre période de référence}. C'est une propriété vérifiable, et elle a été
