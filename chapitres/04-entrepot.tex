@@ -303,6 +303,48 @@ une fois et matérialisée, transforme deux jeux de données étrangers l'un à 
 chronique unique où le niveau et son forçage climatique figurent sur la même ligne, au même
 jour.
 
+Elle mérite qu'on s'y arrête, car elle concentre deux difficultés que rien ne laissait prévoir.
+
+\subsection{Aligner les stations sur la grille climatique}
+
+\paragraph{Une emprise limitée à la métropole.} La grille climatique ingérée couvre un rectangle
+allant de \ang{41} à \ang{51.5} de latitude et de \ang{-5.5} à \ang{10} de longitude, soit la
+France métropolitaine et la Corse. Les départements et territoires d'outre-mer en sont exclus.
+Ce choix n'est pas de principe : il tient au volume, puisque étendre l'emprise multiplie d'autant
+la quantité de données à télécharger, à stocker et à indexer, pour des territoires que le
+programme ne visait pas.
+
+La conséquence doit être connue de quiconque exploite l'entrepôt. Les stations ultramarines
+présentes dans les référentiels nationaux sont bien ingérées, avec leurs mesures de niveau ou de
+débit, mais elles n'ont \textbf{aucun forçage climatique associé}. Elles restent donc
+inutilisables pour toute modélisation supposant la pluie et la température, et il faut les
+écarter explicitement plutôt que de les laisser produire des séries incomplètes. Elles
+constituent l'essentiel des lignes sans météo constatées dans les tables analytiques.
+
+\paragraph{Un piège de précision numérique.} Le second obstacle a coûté beaucoup plus cher, et il
+illustre une catégorie de défaut propre aux chaînes de données. Le chargement historique et la
+mise à jour quotidienne écrivaient les coordonnées d'une même maille avec des précisions
+flottantes différentes : la latitude \ang{48.1} pouvait être stockée telle quelle par l'un, et
+sous la forme \num{48.09999999999995} par l'autre. Pour la base, ce sont deux points distincts.
+
+La grille se dédoublait donc silencieusement, et la jointure du plus proche voisin accrochait
+environ \num{1300} stations à la variante issue des seules mises à jour récentes. Ces stations
+perdaient tout leur historique climatique : il ne leur restait qu'une centaine de jours de météo
+au lieu de plusieurs décennies. Rien ne signalait l'anomalie, sinon l'échec des calibrations en
+aval, faute d'un recouvrement suffisant entre le niveau observé et son forçage.
+
+Le correctif consiste à arrondir les coordonnées au pas natif de la grille, \ang{0.1}, ce qui est
+sans perte puisque c'est la résolution réelle du produit, et à le faire à trois endroits : à la
+déduplication en couche intermédiaire, à la construction des points de grille, et à la lecture
+lors du rattachement. Sur une station de contrôle, la couverture est passée d'une centaine de
+jours à près de \num{28000}, et la calibration qui échouait a retrouvé une efficience de
+Nash-Sutcliffe de \num{0,875}.
+
+Ce cas rejoint la catégorie décrite plus loin : le calcul était juste, la jointure faisait
+exactement ce qu'on lui demandait, et le défaut tenait à une différence invisible au quatorzième
+chiffre décimal.
+
+
 \paragraph{L'enrichissement hydrogéologique.} Les entités du référentiel BDLISA sont rattachées
 aux stations, ce qui rend disponible la nature de l'aquifère observé, information que le
 chapitre~\ref{ch:metier} exploitera pour paramétrer les modèles métier.
