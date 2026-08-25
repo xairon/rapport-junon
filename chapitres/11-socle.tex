@@ -6,14 +6,12 @@ conditions peuvent-ils fonder un environnement d'outils plus vaste ?}
 
 \section{Pourquoi la plupart des développements de recherche ne se réutilisent pas}
 
-La question mérite d'être posée franchement, parce que la réponse par défaut est négative. Un
-logiciel de recherche est ordinairement écrit pour produire un résultat, puis abandonné : il
+La réponse par défaut est négative. Un logiciel de recherche est ordinairement écrit pour produire un résultat, puis abandonné : il
 suppose un environnement particulier, mêle le traitement et son affichage, dépend de fichiers
 qui ne sont plus là, et sa reprise coûte plus cher que sa réécriture.
 
 Affirmer qu'un développement constitue un « socle » n'a donc de valeur que si l'on peut désigner
 les propriétés qui le rendent réutilisable et montrer qu'elles sont effectivement acquises.
-C'est l'objet de ce chapitre.
 
 \section{Les propriétés acquises}
 
@@ -31,12 +29,9 @@ elle qui distingue une infrastructure d'un script.
 
 \subsection{Un cœur de calcul indépendant de toute interface}
 
-Le cœur métier de la plateforme (préparation des données, modèles métier, entraînement,
-explicabilité, contrefactuels) ne comporte aucune dépendance à l'interface graphique. Le même
-code est appelé depuis l'API web, depuis un script ou depuis un carnet de calcul.
-
-Cette contrainte, tenue depuis l'origine et vérifiée, a un effet direct sur la valeur résiduelle
-des travaux : \textbf{même si l'application web était abandonnée, les méthodes resteraient
+La contrainte posée au chapitre~\ref{ch:observatoire}, un cœur métier sans dépendance à
+l'interface, a été tenue depuis l'origine. Son effet sur la valeur résiduelle des travaux est
+direct : \textbf{même si l'application web était abandonnée, les méthodes resteraient
 utilisables}. La contribution scientifique n'est pas prisonnière de son emballage.
 
 \subsection{Des indicateurs validés une fois pour tous les usages}
@@ -134,7 +129,7 @@ externe et l'assimilation de ses sorties & élevé \\
 \end{tabularx}
 \end{center}
 
-Le tableau appelle une lecture précise : ce qui est peu coûteux l'est \emph{parce que}
+Ce qui est peu coûteux l'est \emph{parce que}
 l'infrastructure existe. Le coût élevé de l'année écoulée a été payé une fois ; il ne se
 représente pas à chaque extension. C'est la définition même d'un socle.
 
@@ -170,7 +165,7 @@ d'expériences consolidée. Le socle rend ces travaux possibles ; il ne les a pa
 
 \section{Ce qui manque pour un véritable environnement d'outils}
 
-L'honnêteté commande de distinguer ce qui est acquis de ce qui reste à faire. Six chantiers
+Six chantiers
 séparent l'état actuel d'un environnement d'outils partagé. Aucun n'est un verrou de recherche ;
 tous sont des décisions d'investissement.
 

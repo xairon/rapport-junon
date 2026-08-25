@@ -310,7 +310,7 @@ une fois et matérialisée, transforme deux jeux de données étrangers l'un à 
 chronique unique où le niveau et son forçage climatique figurent sur la même ligne, au même
 jour.
 
-Elle mérite qu'on s'y arrête, car elle concentre deux difficultés que rien ne laissait prévoir.
+Deux difficultés que rien ne laissait prévoir s'y concentrent.
 
 \subsection{Aligner les stations sur la grille climatique}
 
@@ -396,8 +396,7 @@ une donnée absente, à condition que le défaut soit signalé.
 
 \section{Les garanties de la chaîne, et comment elles ont été éprouvées}
 
-Trois propriétés ont été recherchées, parce qu'elles décident de la confiance que l'on peut
-accorder à un jeu de données partagé.
+Trois propriétés décident de la confiance que l'on peut accorder à un jeu de données partagé.
 
 \begin{itemize}
   \item \textbf{L'idempotence} : relancer une ingestion sur une période déjà chargée ne duplique
@@ -419,7 +418,7 @@ bien dessinée, elle le devient une fois ses modes de défaillance rencontrés e
 détail de ces incidents et de leur résolution figure dans le manuel d'exploitation du dépôt, où
 il est utile ; il n'a pas sa place ici.
 
-Un enseignement mérite en revanche d'être retenu, car il vaut au-delà de ce projet.
+Un enseignement vaut en revanche au-delà de ce projet.
 
 \subsection{Les défaillances qui ne s'annoncent pas}
 
@@ -445,31 +444,9 @@ demandait. Deux conséquences pratiques en découlent, et elles ont été appliq
 C'est aussi la raison d'être des tables de rejets présentées plus haut : elles transforment un
 filtrage silencieux, donc invérifiable, en une question que l'on peut poser à la base.
 
-\section{Réalisation}
+Ce que cette chaîne change se mesure à une chose : obtenir soixante ans de niveaux de nappe
+joints à leur climat demandait plusieurs semaines de préparation. C'est aujourd'hui une requête.
 
-\begin{center}
-\begin{tabularx}{\textwidth}{@{}lX@{}}
-\toprule
-\textbf{Élément} & \textbf{État} \\
-\midrule
-Sources ingérées & Piézométrie et hydrométrie (partitions depuis 1967), ERA5-Land
-(1950$\rightarrow$), référentiel BDLISA \\
-Couche Silver & 8 modèles de nettoyage, 3 modèles de rejets tracés \\
-Couche Gold & 18 modèles de transformation, complétés par des tables d'indicateurs calculées en
-Python \\
-Orchestration & 8 traitements planifiés, 3 capteurs événementiels \\
-Infrastructure & 7 services conteneurisés, séparation du code métier et de l'orchestrateur \\
-Volume de code & $\approx$ \num{7000} lignes Python, $\approx$ \num{2600} lignes SQL de
-transformation \\
-\bottomrule
-\end{tabularx}
-\end{center}
-
-Au terme de ce chapitre, l'entrepôt constitue une chaîne complète, automatisée, idempotente,
-documentée et éprouvée par l'exploitation, dont les tables finales se consomment en SQL sans
-rien connaître de l'amont. Le coût d'entrée à l'expérimentation passe de plusieurs semaines à
-une requête. Deux prolongements restent ouverts. L'extension à la qualité de l'eau supposerait
-de nouvelles sources et de nouveaux modèles de transformation, sans remettre en cause
-l'architecture. Et si la restauration a été validée à l'échelle réelle, la supervision de
-production mériterait d'aller au-delà des contrôles existants, en surveillant la fraîcheur des
-données autant que le succès des exécutions.
+L'extension à la qualité de l'eau supposerait de nouvelles sources et de nouveaux modèles, sans
+toucher à l'architecture. La supervision, elle, gagnerait à surveiller la fraîcheur des données
+autant que le succès des exécutions.

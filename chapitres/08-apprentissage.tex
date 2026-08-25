@@ -41,7 +41,7 @@ hyperparamètres, ce qui permet d'ajouter une architecture sans modifier l'inter
 
 \section{Le protocole expérimental}
 
-Le dispositif vise trois propriétés, dans cet ordre de priorité.
+Le dispositif vise trois propriétés.
 
 \paragraph{La traçabilité.} Chaque exécution d'entraînement est enregistrée dans MLflow~\cite{mlflow} : paramètres, métriques, artefacts, modèle produit. Les jeux de
 données préparés et les modèles entraînés font l'objet de registres distincts, de sorte qu'un
@@ -100,8 +100,6 @@ aller chercher.
 
 \section{Ce qui est établi, et ce qui ne l'est pas}
 
-Il importe d'être précis sur le statut de ce chapitre.
-
 \textbf{Ce qui est acquis} est le dispositif : un banc d'expérimentation instrumenté, traçable,
 qui rend les comparaisons possibles et rejouables, accessible à des utilisateurs de niveaux
 d'expertise différents, et dont le cœur est réutilisable hors de l'application.
@@ -126,13 +124,8 @@ dernier est ignoré. Aucun ne
 signale un défaut applicatif, mais la purge des journaux se trouve de fait non testée. C'est le
 premier correctif à apporter par toute personne reprenant ces travaux.
 
-Le laboratoire d'apprentissage est donc opérationnel, traçable et accessible à des utilisateurs
-de niveaux d'expertise différents, et son cœur de calcul reste utilisable en dehors de
-l'application. Il faut le prendre pour ce qu'il est : un banc d'expérimentation prêt à servir,
-et non une étude de performances. Aucune architecture n'est ici recommandée plutôt qu'une autre,
-et ce silence est volontaire.
-
-Deux chantiers restent ouverts, de natures différentes. L'évaluation comparative des
-architectures relève de la recherche et revient à ceux qui reprendront ces travaux.
-L'automatisation de la suite de tests relève de l'ingénierie et devrait être traitée en premier,
-car elle conditionne la confiance dans toutes les évolutions ultérieures.
+Aucune architecture n'est recommandée ici plutôt qu'une autre, et ce silence est volontaire :
+ce chapitre livre un banc d'expérimentation, pas une étude de performances. Deux travaux
+l'attendent, de natures différentes. L'évaluation comparative des architectures relève de la
+recherche. L'automatisation de la suite de tests relève de l'ingénierie, et devrait passer en
+premier : elle conditionne la confiance dans tout ce qui suivra.

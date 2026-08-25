@@ -28,34 +28,30 @@ générique de méthodes d'apprentissage.
 
 \section{La conduite du projet}
 
-Une part du travail n'apparaît ni dans les dépôts ni dans les mesures, et il serait pourtant
-trompeur de la passer sous silence : ces développements n'ont pas été commandés, ils ont été
-proposés, puis portés jusqu'à leur adoption.
+Une part du travail n'apparaît ni dans les dépôts ni dans les mesures. Ces développements
+n'ont pas été commandés : je les ai proposés, puis portés jusqu'à leur adoption.
 
-\paragraph{Identifier le besoin et le faire reconnaître.} L'absence de jeu de données
-exploitable aurait pu être traitée comme une contrainte personnelle, contournée par une
-extraction de circonstance suffisante pour produire un résultat. Le parti inverse a été pris :
-formuler le manque, le documenter, et le soumettre aux partenaires pour vérifier s'il était
-partagé. Il l'était. Cette vérification a transformé un obstacle individuel en objet de travail
-légitime, et c'est elle qui a rendu possible l'investissement de plusieurs mois que représente
-un entrepôt de données.
+\paragraph{Identifier le besoin et le faire reconnaître.} J'aurais pu contourner l'absence de jeu
+de données par une extraction de circonstance, suffisante pour produire un résultat. J'ai pris le
+parti inverse : formuler le manque, le documenter, puis le soumettre aux partenaires pour savoir
+s'ils le partageaient. C'est cette vérification, et elle seule, qui a rendu légitime
+l'investissement de plusieurs mois que représente un entrepôt de données.
 
-\paragraph{Aller chercher les interlocuteurs.} Les contacts n'ont pas été hérités d'un
-dispositif préexistant. Ils ont été pris directement, auprès des interlocuteurs techniques comme
-des experts métier, en préparant chaque échange autour des questions dont la réponse
-conditionnait un choix de conception. La section suivante en donne l'exemple le plus net.
+\paragraph{Aller chercher les interlocuteurs.} Aucun de ces contacts n'était hérité d'un
+dispositif existant. Je les ai pris directement, auprès des interlocuteurs techniques comme des
+experts métier, en préparant chaque échange autour des questions dont la réponse conditionnait un
+choix de conception. La section~\ref{sec:apport-metier} en montre le résultat dans le code.
 
-\paragraph{Tenir le suivi dans la durée.} Un échange ponctuel ne produit pas d'effet. Le suivi
-avec le BRGM a été maintenu tout au long de la période, ce qui explique que les décisions métier
-ne soient pas restées au stade de la discussion mais se retrouvent inscrites dans le code, comme
-le montre la section~\ref{sec:apport-metier}.
+\paragraph{Tenir le suivi dans la durée.} Un échange ponctuel ne produit pas d'effet. J'ai
+maintenu le suivi avec le BRGM tout au long de la période, et c'est ce qui explique que les
+décisions métier ne soient pas restées au stade de la discussion.
 
-\paragraph{Ouvrir le socle au-delà de son périmètre.} Enfin, les travaux ont été présentés aux
-équipes du projet ANR \textsc{Aida}, dont le domaine d'expérimentation recouvre en partie celui
-traité ici. L'intention n'était pas de revendiquer un périmètre, mais l'inverse : signaler
-l'existence d'une infrastructure disponible, afin que ceux qui en auraient l'usage n'aient pas à
-la reconstruire. Une infrastructure dont personne ne connaît l'existence ne vaut pas mieux
-qu'une infrastructure inexistante.
+\paragraph{Ouvrir le socle au-delà de son périmètre.} J'ai enfin présenté ces travaux aux équipes
+du projet ANR \textsc{Aida}, dont le domaine d'expérimentation recouvre en partie celui traité
+ici. L'intention n'était pas de revendiquer un périmètre, mais l'inverse : signaler l'existence
+d'une infrastructure disponible, pour que ceux qui en auraient l'usage n'aient pas à la
+reconstruire. Une infrastructure dont personne ne connaît l'existence ne vaut pas mieux qu'une
+infrastructure inexistante.
 
 \begin{center}
 \begin{tabularx}{\textwidth}{@{}lX@{}}
@@ -72,10 +68,9 @@ Ouverture à d'autres équipes & Un socle connu au-delà de son projet d'origine
 \end{tabularx}
 \end{center}
 
-Cette dimension mérite d'être signalée pour une raison qui dépasse le compte rendu d'activité.
 Un entrepôt de données mutualisé n'est pas un objet technique : c'est un objet d'organisation.
 Sa valeur tient à ce que plusieurs équipes acceptent de s'y référer, ce qui relève de la
-conviction et non de la programmation. Le chapitre~\ref{ch:socle} montre que les obstacles
+conviction plus que de la programmation. Le chapitre~\ref{ch:socle} montre que les obstacles
 restants à son élargissement sont eux aussi de cette nature.
 
 \section{Ce que la collaboration métier a produit}
@@ -114,8 +109,8 @@ pouvait détecter cette erreur, car il ne s'agissait pas d'une erreur de calcul.
 
 Les échanges n'ont pas seulement produit des décisions techniques. Ils ont fait émerger une
 liste de besoins concrets, qui a servi à orienter les développements et qui reste disponible
-pour la suite. Elle mérite d'être consignée, car elle constitue à elle seule un livrable : un
-socle sans usage identifié n'est qu'une infrastructure en attente.
+pour la suite. Cette liste est un livrable à elle seule : un socle sans usage identifié n'est qu'une
+infrastructure en attente.
 
 \begin{center}
 \begin{tabularx}{\textwidth}{@{}lXl@{}}
@@ -143,14 +138,14 @@ pas, l'indicateur existant ne valant que pour les nappes libres & non traité \\
 \end{tabularx}
 \end{center}
 
-Deux remarques sur ce tableau. La colonne d'état est délibérément sévère : « outillé » signifie
+La colonne d'état est délibérément sévère : « outillé » signifie
 que les moyens existent, pas qu'un résultat a été produit. Et les trois dernières lignes sont
 assumées comme telles : ce sont des sujets à part entière, identifiés comme prometteurs au cours
 des échanges, mais qui dépassaient le périmètre et le temps disponibles. Ils sont consignés ici
 parce qu'ils constituent des points d'entrée pour la suite, et parce qu'ils viennent des experts
 du domaine plutôt que d'une projection d'informaticien.
 
-Un point mérite d'être souligné à propos de la scénarisation. Les équipes du BRGM travaillant
+Un mot sur la scénarisation. Les équipes du BRGM travaillant
 sur la situation des nappes emploient déjà les indicateurs standardisés que produit désormais
 l'entrepôt. Coupler ces indicateurs à des scénarios prospectifs, c'est-à-dire répondre non
 seulement « où en est-on » mais « que faudrait-il pour en sortir », est le prolongement naturel
@@ -224,11 +219,7 @@ authentification déléguée, les comptes étant créés par un administrateur. 
 outil scientifique manipulant une chaîne de traitement en évolution, constitue le principal frein
 à une diffusion plus large, et le premier levier à actionner pour l'obtenir.
 
-La collaboration a donc effectivement transformé les développements, et non seulement accompagné
-leur réalisation : les décisions métier structurantes sont inscrites dans le code et
-documentées, et les deux communautés disposent d'un socle commun de données.
-
-Plusieurs pistes identifiées au cours des échanges n'ont pas été explorées, notamment le
-rapprochement avec les modèles à réservoirs du BRGM et l'accès à leurs travaux de comparaison de
-modèles. Quant à l'élargissement des usages au-delà du cercle du projet, il relève d'une
-politique d'accès et d'un accompagnement davantage que de développements supplémentaires.
+Plusieurs pistes ouvertes au cours de ces échanges n'ont pas été suivies. Le rapprochement avec
+les modèles à réservoirs du BRGM en est la principale : elle donnerait une seconde référence de
+comparaison, indépendante de celle construite ici. Quant à l'élargissement des usages, il tient à
+une politique d'accès et à un accompagnement, non à des développements supplémentaires.
