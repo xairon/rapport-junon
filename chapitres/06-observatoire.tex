@@ -7,8 +7,8 @@ l'application qui les héberge ?}
 
 \section{Une contrainte d'architecture posée d'emblée}
 
-La plateforme comporte trois couches : une interface web~\cite{react}, un service
-applicatif~\cite{fastapi}, et une bibliothèque métier en Python. La contrainte structurante porte sur la troisième : \textbf{la
+La plateforme comporte trois couches : une interface web en React~\cite{react}, un service
+applicatif FastAPI~\cite{fastapi}, et une bibliothèque métier en Python. La contrainte structurante porte sur la troisième : \textbf{la
 bibliothèque métier ne comporte aucune dépendance à l'interface}.
 
 Cette règle a une conséquence pratique déterminante pour un travail de recherche. Le code de
@@ -188,14 +188,12 @@ l'établissement, le calcul et les bases restent sur le serveur équipé d'un pr
 graphique. Une seule exigence réseau conditionne l'ensemble, l'ouverture de la route entre les
 deux.
 
-\begin{acquisouvert}
-\textbf{Acquis.} Une interface d'exploration opérationnelle couvrant les nappes, les rivières
-et le climat, alimentée directement par les indicateurs validés, gouvernée par une règle
-d'affichage qui protège l'utilisateur des lectures abusives, et bâtie sur un cœur métier
-indépendant de l'interface.
+L'Observatoire offre ainsi une exploration opérationnelle des nappes, des rivières et du climat,
+alimentée directement par les indicateurs validés, et gouvernée par une règle d'affichage qui
+protège l'utilisateur des lectures abusives. Il repose sur un cœur métier indépendant de
+l'interface, propriété qui conditionne la réutilisation des méthodes développées.
 
-\textbf{Ouvert.} L'Observatoire dépend entièrement de l'entrepôt et ne se dégrade pas
-gracieusement en son absence : il répond en erreur plutôt que d'afficher un état partiel. Ce
-comportement est assumé pour un outil scientifique, mais serait à revoir pour une diffusion
-large.
-\end{acquisouvert}
+Une limite doit être signalée : l'Observatoire dépend entièrement de l'entrepôt et ne se dégrade
+pas gracieusement en son absence. Il répond en erreur plutôt que d'afficher un état partiel.
+Ce comportement est assumé pour un outil scientifique, où une valeur absente vaut mieux qu'une
+valeur douteuse, mais il serait à revoir pour une diffusion large.

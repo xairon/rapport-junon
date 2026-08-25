@@ -77,75 +77,133 @@ vérifie par une requête au lieu d'être silencieux.}
 \label{fig:medaillon}
 \end{figure}
 
-\section{Les choix techniques, et ce qu'ils évitent d'écrire}
+\section{Le choix de la pile technique}
 
-Quatre outils structurent la chaîne. Aucun n'était imposé, et chacun remplace du code qu'il
-aurait fallu écrire, maintenir et déboguer sans apporter le moindre résultat scientifique. C'est
-le critère qui a présidé à leur sélection : \emph{ce que je n'ai pas eu à écrire}.
+Aucun outil n'était imposé. Chacun a été retenu après une revue des solutions disponibles, selon
+trois critères explicites, et c'est le troisième qui a le plus pesé.
 
-\paragraph{L'ingestion.} Interroger une interface web publique paraît trivial jusqu'à ce qu'on
-le fasse sérieusement. Il faut paginer, réessayer sur erreur serveur avec une temporisation
-croissante, découvrir le schéma des colonnes, convertir les types, insérer par lots, et surtout
-savoir où l'on s'était arrêté la fois précédente pour ne pas tout recharger. Une bibliothèque
-d'ingestion déclarative~\cite{dlt} fournit ces mécanismes ; on décrit la source et la clé
-primaire, elle se charge du reste, y compris de la déduplication par fusion. Écrire cela à la
-main pour quatre sources aurait représenté plusieurs centaines de lignes de code sans intérêt
-propre, et autant d'occasions de se tromper silencieusement.
+\begin{enumerate}
+  \item \textbf{Ce que l'outil évite d'écrire.} Tout mécanisme fourni par une bibliothèque
+  éprouvée est du code que je n'ai pas à produire, à tester ni à documenter, et qui n'apporte
+  aucun résultat scientifique propre.
+  \item \textbf{L'adéquation au besoin réel}, en particulier la combinaison rare de séries
+  temporelles longues et de traitement géospatial.
+  \item \textbf{La pérennité et la transférabilité.} Ces travaux sont destinés à être repris.
+  Un outil de niche, si élégant soit-il, condamne le successeur à une documentation absente, à
+  des forums vides et à une compétence introuvable. Le critère décisif n'est donc pas la
+  supériorité technique d'un outil, mais son \textbf{adoption} : la taille de sa communauté, la
+  vivacité de sa maintenance, l'abondance de sa documentation et la probabilité qu'un nouvel
+  arrivant le connaisse déjà.
+\end{enumerate}
 
-\paragraph{La transformation.} Le choix déterminant est ici de transformer \textbf{dans la base}
-plutôt qu'en mémoire. Avec des centaines de millions de lignes, charger les données dans un
-tableau Python pour les nettoyer n'est pas une option, alors que la base de données sait le
-faire sur place. L'outil retenu~\cite{dbt} pousse cette logique jusqu'au bout : chaque
+Ce dernier point est la raison pour laquelle la pile retenue est délibérément
+\textbf{conventionnelle}. L'enchaînement ingestion, transformation, orchestration correspond à
+un patron d'architecture largement diffusé dans l'industrie de la donnée, et chacun de ses
+composants est un choix courant dans ce patron plutôt qu'une préférence personnelle.
+
+\subsection{Ingestion : dlt}
+
+Interroger une interface web publique paraît trivial jusqu'à ce qu'on le fasse sérieusement. Il
+faut paginer, réessayer sur erreur serveur avec une temporisation croissante, découvrir le
+schéma des colonnes, insérer par lots, et surtout savoir où l'on s'était arrêté pour ne pas tout
+recharger. \textbf{dlt}~\cite{dlt} fournit ces mécanismes : on déclare la source et la clé
+primaire, la bibliothèque se charge du reste, y compris de la déduplication par fusion et du
+suivi de l'état incrémental.
+
+Deux familles d'alternatives ont été écartées. Écrire les clients à la main aurait représenté
+plusieurs centaines de lignes sans intérêt propre, et autant d'occasions de se tromper
+silencieusement. Déployer une plateforme d'intégration complète, du type de celles qui
+s'administrent par interface graphique, aurait imposé un service supplémentaire à maintenir et
+une configuration hors du dépôt, donc non versionnée, pour quatre sources seulement. dlt occupe
+exactement l'espace intermédiaire : une bibliothèque, dans le code, versionnée avec lui.
+
+\subsection{Transformation : dbt}
+
+Le choix déterminant est ici de transformer \textbf{dans la base} plutôt qu'en mémoire. Avec des
+centaines de millions de lignes, charger les données dans un tableau Python n'est pas une
+option, alors que le moteur de base de données sait le faire sur place.
+
+\textbf{dbt}~\cite{dbt} est le standard de fait de cette approche, au point d'avoir donné son nom
+à un métier, l'\emph{analytics engineering}. Sa maturité et sa diffusion sont précisément ce
+qu'on recherche pour un socle destiné à durer. Il apporte quatre mécanismes : chaque
 transformation est un fichier SQL versionné, l'ordre d'exécution se déduit automatiquement des
 références entre modèles, les tests de qualité se déclarent à côté du modèle qu'ils vérifient,
-et la documentation se génère. Un bénéfice secondaire compte autant que le premier : les
+et la documentation se génère. Un bénéfice secondaire compte autant que les autres : les
 transformations restent lisibles par un hydrogéologue ou un analyste, ce qu'un script Python de
 plusieurs centaines de lignes n'aurait pas été.
 
-\paragraph{L'orchestration.} Un ordonnanceur classique raisonne en tâches : exécuter A, puis B,
-à trois heures du matin. L'outil retenu~\cite{dagster} raisonne en \emph{actifs} : déclarer
-qu'une table doit exister et être à jour, et le laisser déterminer ce qu'il faut exécuter pour
-cela. La différence est concrète sur cette chaîne. Elle permet de partitionner l'ingestion par
-année et de rejouer une seule année, de déclencher la transformation quand la donnée arrive
-plutôt qu'à heure fixe, et de constater d'un coup d'œil quelles tables sont fraîches et
-lesquelles ne le sont pas. L'intégration avec l'outil de transformation est native, ce qui
-évite de maintenir deux graphes de dépendances séparés.
+\subsection{Orchestration : Dagster}
 
-\paragraph{Le stockage.} Le besoin dictait le choix. Ce travail exige simultanément deux
-capacités : interroger efficacement des séries temporelles longues, et effectuer des jointures
-spatiales pour rattacher chaque station à sa maille climatique. PostgreSQL~\cite{postgresql} est
-le seul moteur courant qui réunisse les deux dans un même produit, par ses extensions
-temporelle~\cite{timescaledb} et géospatiale~\cite{postgis}, sans avoir à faire dialoguer deux
-systèmes. S'y ajoutent trois propriétés qui pesaient lourd dans un contexte de recherche :
-aucun coût de licence, un déploiement sur le serveur du laboratoire donc aucune dépendance à un
+Un ordonnanceur classique raisonne en tâches : exécuter A, puis B, à trois heures du matin.
+\textbf{Dagster}~\cite{dagster} raisonne en \emph{actifs} : on déclare qu'une table doit exister
+et être à jour, et l'outil détermine ce qu'il faut exécuter pour cela.
+
+La différence est concrète sur cette chaîne. Elle permet de partitionner l'ingestion par année
+et de rejouer une seule année, de déclencher la transformation quand la donnée arrive plutôt
+qu'à heure fixe, et de voir d'un coup d'œil quelles tables sont fraîches et lesquelles ne le
+sont pas. Airflow, l'ordonnanceur historique du domaine, aurait imposé de décrire ces
+dépendances à la main et de maintenir un second graphe en parallèle de celui de dbt, alors que
+l'intégration est ici native. Un simple ordonnanceur système, quant à lui, n'offre ni reprise
+partielle, ni traçabilité, ni limitation de concurrence, trois besoins dont le
+chapitre~\ref{ch:entrepot} montre qu'ils se sont révélés indispensables.
+
+\subsection{Stockage : PostgreSQL, TimescaleDB et PostGIS}
+
+Le besoin dictait le choix. Ce travail exige simultanément deux capacités : interroger
+efficacement des séries temporelles longues, et effectuer des jointures spatiales pour rattacher
+chaque station à sa maille climatique. \textbf{PostgreSQL}~\cite{postgresql} est le seul moteur
+courant qui réunisse les deux dans un même produit, grâce à \textbf{TimescaleDB}~\cite{timescaledb}
+pour le partitionnement temporel et la compression, et à \textbf{PostGIS}~\cite{postgis} pour les
+index et opérateurs géospatiaux. PostGIS est d'ailleurs la référence du géospatial libre, employée
+bien au-delà du monde de la recherche.
+
+S'y ajoutent trois propriétés qui pesaient lourd dans un contexte de recherche publique : aucun
+coût de licence, un déploiement sur le serveur du laboratoire donc aucune dépendance à un
 fournisseur ni facturation à la requête, et une interface SQL que tout le monde sait déjà
-interroger. Un entrepôt hébergé aurait imposé un budget récurrent et une adhérence
-contractuelle pour un gain nul à cette échelle.
+interroger. Un entrepôt hébergé dans le nuage aurait apporté une élasticité inutile à cette
+échelle, en échange d'un budget récurrent et d'une adhérence contractuelle. Un stockage en
+fichiers colonnaires, plus léger, ne fournissait ni les jointures spatiales indexées ni la mise
+à jour incrémentale dont la chaîne a besoin.
 
-\paragraph{Le déploiement.} L'ensemble est décrit dans un fichier de composition de conteneurs.
-Une orchestration de conteneurs plus élaborée aurait été surdimensionnée pour un serveur unique,
-et aurait ajouté une compétence à transmettre au successeur sans bénéfice opérationnel.
+\subsection{Déploiement}
+
+L'ensemble est décrit dans un fichier Docker Compose, format devenu l'usage courant pour
+reproduire une pile de services sur une machine. Une orchestration de conteneurs plus élaborée,
+de type Kubernetes, aurait été surdimensionnée pour un serveur unique et aurait ajouté une
+compétence à transmettre au successeur sans bénéfice opérationnel.
+
+\subsection{Synthèse}
 
 \begin{center}
-\begin{tabularx}{\textwidth}{@{}lX@{}}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
 \toprule
-\textbf{Fonction} & \textbf{Ce qui serait à écrire et à maintenir sans l'outil} \\
+\textbf{Rôle} & \textbf{Retenu} & \textbf{Écarté, et pourquoi} \\
 \midrule
-Ingestion & Pagination, reprise sur erreur, inférence de schéma, déduplication, suivi de
-l'avancement incrémental \\
-Transformation & Graphe de dépendances entre modèles, ordre d'exécution, tests de qualité,
-documentation, gestion de l'incrémental \\
-Orchestration & Planification, déclenchement par événement, partitionnement, reprise partielle,
-limitation de concurrence \\
-Stockage & Partitionnement temporel, compression, index géospatiaux, opérateurs de proximité \\
+Ingestion & dlt & Clients écrits à la main (code sans valeur propre) ; plateforme d'intégration
+administrée (service en plus, configuration hors dépôt) \\
+Transformation & dbt & Scripts Python (ne passent pas à l'échelle, illisibles pour les métiers) \\
+Orchestration & Dagster & Airflow (dépendances à décrire à la main, second graphe à maintenir) ;
+ordonnanceur système (ni reprise, ni traçabilité) \\
+Stockage & PostgreSQL & Entrepôt hébergé (coût récurrent, adhérence) ; fichiers colonnaires
+(pas de jointure spatiale indexée) \\
+Séries temporelles & TimescaleDB & Partitionnement manuel (à écrire et à maintenir) \\
+Géospatial & PostGIS & Calculs de distance en Python (lents, non indexés) \\
+Déploiement & Docker Compose & Kubernetes (surdimensionné pour un serveur) \\
 \bottomrule
 \end{tabularx}
 \end{center}
 
+Le même raisonnement a présidé aux choix de la plateforme, présentés aux
+chapitres~\ref{ch:metier} et~\ref{ch:apprentissage} : Pastas est la référence de la communauté
+hydrogéologique pour les modèles à fonction de transfert, Darts unifie sous une seule interface
+des architectures de prévision qu'il aurait fallu intégrer une à une, MLflow et Optuna sont les
+outils les plus répandus pour, respectivement, tracer des expériences et optimiser des
+hyperparamètres. Dans chaque cas, le critère est le même : un successeur doit pouvoir reprendre
+le travail sans apprendre un outil que personne n'utilise.
+
 \section{Bronze : ingérer sans interpréter}
 
-Chaque source est ingérée par une bibliothèque d'extraction déclarative~\cite{dlt} qui prend en
-charge la pagination des interfaces web, les tentatives successives avec temporisation
+Chaque source est ingérée par dlt, qui prend en charge la pagination des interfaces web, les tentatives successives avec temporisation
 exponentielle sur les erreurs serveur, l'inférence de schéma et la déduplication par fusion sur
 la clé primaire. Les séries temporelles sont partitionnées par année, ce qui rend chaque tranche
 rechargeable indépendamment. Les partitions couvrent 1967 à aujourd'hui pour la piézométrie
@@ -158,7 +216,7 @@ est lisible et modifiable.
 
 Le cas d'ERA5 fait exception sur un point, imposé par la nature du produit : les fichiers
 NetCDF ne sont jamais archivés en base. Ils sont téléchargés en stockage temporaire, extraits en
-mémoire~\cite{xarray} et insérés directement. Deux chemins d'ingestion coexistent, l'un pour
+mémoire avec xarray~\cite{xarray} et insérés directement. Deux chemins d'ingestion coexistent, l'un pour
 les séries issues du pas de \SI{00}{\hour}~UTC, l'autre pour les statistiques journalières de
 température agrégées localement sur les vingt-quatre pas horaires, pour la raison exposée au
 chapitre~\ref{ch:verrou} : flux cumulés et grandeurs instantanées ne se lisent pas de la même
@@ -186,7 +244,7 @@ Entités hydrogéologiques BDLISA & \num{3716} \\
 
 \section{Silver : nettoyer en rendant compte}
 
-Chaque modèle de cette couche~\cite{dbt} sélectionne les colonnes utiles, convertit les types,
+Chaque modèle dbt de cette couche sélectionne les colonnes utiles, convertit les types,
 déduplique et écarte les lignes invalides. La caractéristique importante n'est pas le nettoyage
 lui-même, mais sa \textbf{traçabilité} : les lignes écartées ne disparaissent pas, elles sont
 écrites dans un schéma dédié, accompagnées du motif de leur exclusion : date de mesure absente,
@@ -206,7 +264,7 @@ C'est dans cette couche que se résout le verrou central identifié au chapitre 
 
 \paragraph{Le rattachement climatique.} Chaque station piézométrique ou hydrométrique est
 associée à sa maille ERA5 la plus proche par une jointure spatiale du plus proche voisin,
-exécutée par l'extension géospatiale de PostgreSQL~\cite{postgis}. Cette opération, effectuée
+exécutée par PostGIS. Cette opération, effectuée
 une fois et matérialisée, transforme deux jeux de données étrangers l'un à l'autre en une
 chronique unique où le niveau et son forçage climatique figurent sur la même ligne, au même
 jour.
@@ -219,7 +277,7 @@ chapitre~\ref{ch:metier} exploitera pour paramétrer les modèles métier.
 piézométriques et hydrométriques enrichies du climat), des faits agrégés mensuels et annuels,
 des dimensions de description (calendrier, géographie, stations) et les grilles climatiques,
 soit dix-huit modèles de transformation complétés par des tables d'indicateurs calculées en
-Python. Les faits journaliers sont stockés en \emph{hypertables} compressées~\cite{timescaledb},
+Python. Les faits journaliers sont stockés en \emph{hypertables} TimescaleDB compressées,
 forme de partitionnement temporel qui maintient les performances d'interrogation sur plusieurs
 dizaines de millions de lignes.
 
@@ -229,7 +287,7 @@ des tables finales.
 
 \section{Orchestration : planifier l'ingestion, déclencher la transformation}
 
-L'ingestion est \textbf{planifiée}~\cite{dagster} : mise à jour quotidienne des chroniques et du
+L'ingestion est \textbf{planifiée} par Dagster : mise à jour quotidienne des chroniques et du
 climat, rafraîchissement mensuel du référentiel, contrôle hebdomadaire de complétude, recalcul
 hebdomadaire des références statistiques. La transformation, elle, est \textbf{déclenchée par
 événement} : dès que de nouvelles données brutes sont disponibles, un capteur lance la chaîne de
@@ -360,13 +418,11 @@ transformation \\
 \end{tabularx}
 \end{center}
 
-\begin{acquisouvert}
-\textbf{Acquis.} Une chaîne complète, automatisée, idempotente, documentée et éprouvée par
-l'exploitation, dont les tables finales sont consommables en SQL sans connaissance de l'amont.
-Le coût d'entrée à l'expérimentation passe de plusieurs semaines à une requête.
-
-\textbf{Ouvert.} L'entrepôt couvre la quantité d'eau ; l'extension à la qualité supposerait de
-nouvelles sources et de nouveaux modèles, sans remettre en cause l'architecture. La
-restauration a été validée à l'échelle réelle, mais la supervision de production reste à
-instrumenter au-delà des contrôles existants.
-\end{acquisouvert}
+Au terme de ce chapitre, l'entrepôt constitue une chaîne complète, automatisée, idempotente,
+documentée et éprouvée par l'exploitation, dont les tables finales se consomment en SQL sans
+rien connaître de l'amont. Le coût d'entrée à l'expérimentation passe de plusieurs semaines à
+une requête. Deux prolongements restent ouverts. L'extension à la qualité de l'eau supposerait
+de nouvelles sources et de nouveaux modèles de transformation, sans remettre en cause
+l'architecture. Et si la restauration a été validée à l'échelle réelle, la supervision de
+production mériterait d'aller au-delà des contrôles existants, en surveillant la fraîcheur des
+données autant que le succès des exécutions.

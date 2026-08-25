@@ -43,8 +43,7 @@ hyperparamètres, ce qui permet d'ajouter une architecture sans modifier l'inter
 
 Le dispositif vise trois propriétés, dans cet ordre de priorité.
 
-\paragraph{La traçabilité.} Chaque exécution d'entraînement est enregistrée dans un registre
-d'expériences~\cite{mlflow} : paramètres, métriques, artefacts, modèle produit. Les jeux de
+\paragraph{La traçabilité.} Chaque exécution d'entraînement est enregistrée dans MLflow~\cite{mlflow} : paramètres, métriques, artefacts, modèle produit. Les jeux de
 données préparés et les modèles entraînés font l'objet de registres distincts, de sorte qu'un
 résultat puisse être rattaché sans ambiguïté au couple exact qui l'a produit. Sans ce mécanisme,
 une comparaison entre deux expériences menées à quelques semaines d'intervalle n'est pas
@@ -57,8 +56,8 @@ d'événements. Cette séparation, visible sur la figure~\ref{fig:archi-platefor
 conséquence pratique importante : \textbf{le même code d'entraînement s'exécute depuis
 l'application, depuis un script ou depuis un carnet de calcul}, sans modification.
 
-\paragraph{La conduite d'expériences longues.} L'entraînement s'effectue sur processeur
-graphique lorsque disponible~\cite{pytorch_lightning}, avec arrêt anticipé et suivi de
+\paragraph{La conduite d'expériences longues.} L'entraînement s'appuie sur PyTorch Lightning~\cite{pytorch_lightning} et s'effectue sur
+processeur graphique lorsque celui-ci est disponible, avec arrêt anticipé et suivi de
 l'évolution des pertes en apprentissage et en validation. L'utilisateur voit progresser son
 entraînement au lieu d'attendre un résultat opaque, et peut l'interrompre s'il diverge.
 
@@ -66,7 +65,7 @@ entraînement au lieu d'attendre un résultat opaque, et peut l'interrompre s'il
 
 La comparaison d'architectures n'a de sens que si chacune est évaluée dans une configuration
 raisonnable ; comparer un modèle réglé à un modèle laissé aux valeurs par défaut ne renseigne
-que sur le réglage. Une recherche automatisée d'hyperparamètres~\cite{optuna} est donc intégrée,
+que sur le réglage. Optuna~\cite{optuna} est donc intégré pour la recherche automatisée d'hyperparamètres,
 avec élagage des essais non prometteurs pour concentrer le budget de calcul sur les
 configurations viables.
 
@@ -114,10 +113,9 @@ par la base en mémoire employée pour les tests, qui ne conserve pas le fuseau 
 signale un défaut applicatif, mais la purge des journaux se trouve de fait non testée. C'est le
 premier correctif à apporter par toute personne reprenant ces travaux.
 
-\begin{acquisouvert}
-\textbf{Acquis.} Un laboratoire d'expérimentation opérationnel, traçable et accessible, dont le
-cœur de calcul est indépendant de l'interface et donc réutilisable.
-
-\textbf{Ouvert.} L'évaluation comparative systématique, et l'automatisation de la suite de
-tests.
-\end{acquisouvert}
+Le laboratoire d'apprentissage est donc opérationnel, traçable et accessible à des utilisateurs
+de niveaux d'expertise différents, et son cœur de calcul reste utilisable en dehors de
+l'application. Ce qui manque tient en deux chantiers, et ils sont de nature différente :
+l'évaluation comparative des architectures relève de la recherche, l'automatisation de la suite
+de tests relève de l'ingénierie et devrait être traitée en premier, car elle conditionne la
+confiance dans toutes les évolutions ultérieures.
