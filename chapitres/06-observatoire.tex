@@ -98,8 +98,8 @@ l'autre.
 
 \paragraph{Climat.} Exploration de la grille nationale de \ang{0.1} selon trois vues : une vue de
 situation cartographique à l'échelle du pays, une vue par point ou par zone donnant l'historique
-d'une maille depuis 1950 — pluie comparée à la normale, indices sur plusieurs fenêtres, table des
-épisodes de sécheresse, export tabulaire — et une vue de comparaison inter-annuelle.
+d'une maille depuis 1950 (pluie comparée à la normale, indices sur plusieurs fenêtres, table des
+épisodes de sécheresse, export tabulaire), et une vue de comparaison inter-annuelle.
 
 Les deux volets communiquent : depuis la carte des nappes, un lien contextuel ouvre le climat de
 la maille correspondante ; depuis la fiche d'une station, on accède à son contexte climatique
@@ -110,10 +110,10 @@ local.
 Les couches cartographiques disponibles obéissent à une règle explicite, adoptée après
 discussion et maintenue depuis :
 
-\begin{encadre}[title={La règle}]
-\emph{Soit un indicateur réellement standardisé, soit une valeur réelle affichée comme telle —
-jamais un intermédiaire inventé.}
-\end{encadre}
+\begin{quote}
+\emph{Soit un indicateur réellement standardisé, soit une valeur réelle affichée comme telle.
+Jamais un intermédiaire inventé.}
+\end{quote}
 
 Concrètement, les indices standardisés (précipitation, température, bilan hydrique) sont
 cartographiés sur l'échelle à sept classes, et les grandeurs journalières brutes (températures
@@ -123,7 +123,7 @@ couches cartographiques : ils apparaissent comme chiffres exacts dans le panneau
 maille.
 
 La raison est méthodologique. Cartographier une grandeur absolue sur une palette de couleurs
-suppose un seuillage, donc une norme implicite — et cette norme, n'étant pas une référence
+suppose un seuillage, donc une norme implicite. Or cette norme, n'étant pas une référence
 statistique établie, serait une invention de l'outil. L'utilisateur lirait une carte de
 sécheresse là où il n'y a qu'un choix de bornes. Refuser cette couche coûte une fonctionnalité
 apparente et évite une erreur d'interprétation systématique.
@@ -134,7 +134,7 @@ apparente et évite une erreur d'interprétation systématique.
 tables analytiques de l'entrepôt. Aucune statistique n'est calculée à la volée. La conséquence
 est double : les temps de réponse sont ceux d'une base de données correctement indexée, et
 surtout \textbf{la valeur affichée est exactement celle qui a été validée} au
-chapitre~\ref{ch:indicateurs} — il n'existe pas de second calcul susceptible de diverger.
+chapitre~\ref{ch:indicateurs}. Il n'existe pas de second calcul susceptible de diverger.
 
 \paragraph{Les réponses sont mises en cache.} Les vues cartographiques nationales portent sur
 des volumes importants et changent peu ; leur mise en cache pour vingt-quatre heures réduit la
@@ -144,16 +144,15 @@ cache, sous peine de servir des valeurs périmées pendant une journée.
 
 \paragraph{Le point d'entrée est unique.} Le service qui sert l'interface assure également le
 relais vers l'API, les en-têtes de sécurité et la limitation de débit. Une architecture
-antérieure comportait un second relais, redondant, qui n'était jamais démarré en production —
+antérieure comportait un second relais, redondant, qui n'était jamais démarré en production,
 de sorte que les protections qu'il portait n'étaient, en pratique, jamais appliquées. Sa
 suppression au profit d'une configuration unique a supprimé cet écart entre l'intention et le
 déploiement réel.
 
-\begin{limite}[title={Une leçon d'architecture}]
-Une protection configurée dans un composant qui ne tourne pas est une protection absente, avec
-en plus la croyance qu'elle existe. La consolidation en un point d'entrée unique vaut moins pour
-sa simplicité que pour la disparition de cet écart.
-\end{limite}
+La leçon dépasse son détail technique. Une protection configurée dans un composant qui ne tourne
+pas est une protection absente, avec en plus la croyance qu'elle existe. La consolidation en un
+point d'entrée unique vaut donc moins pour sa simplicité que pour la disparition de cet écart
+entre l'intention et le déploiement.
 
 \section{Accès, sécurité et données personnelles}
 
@@ -190,12 +189,12 @@ graphique. Une seule exigence réseau conditionne l'ensemble, l'ouverture de la 
 deux.
 
 \begin{acquisouvert}
-\textbf{Acquis} — Une interface d'exploration opérationnelle couvrant les nappes, les rivières
+\textbf{Acquis.} Une interface d'exploration opérationnelle couvrant les nappes, les rivières
 et le climat, alimentée directement par les indicateurs validés, gouvernée par une règle
 d'affichage qui protège l'utilisateur des lectures abusives, et bâtie sur un cœur métier
 indépendant de l'interface.
 
-\textbf{Ouvert} — L'Observatoire dépend entièrement de l'entrepôt et ne se dégrade pas
+\textbf{Ouvert.} L'Observatoire dépend entièrement de l'entrepôt et ne se dégrade pas
 gracieusement en son absence : il répond en erreur plutôt que d'afficher un état partiel. Ce
 comportement est assumé pour un outil scientifique, mais serait à revoir pour une diffusion
 large.

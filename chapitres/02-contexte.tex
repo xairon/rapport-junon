@@ -15,31 +15,31 @@ Centre-Val de Loire, le pôle de compétitivité DREAM Eau \& Milieux, des colle
 entreprises du territoire~\cite{brgm_junon_programme,brgm_junon_lancement}.
 
 L'objectif du programme est de développer des \textbf{jumeaux numériques} appliqués aux milieux
-naturels continentaux — eau, sol, air — et de concevoir les services numériques associés. Un
+naturels continentaux (eau, sol, air) et de concevoir les services numériques associés. Un
 jumeau numérique ne se réduit pas à une visualisation : il vise à reproduire les structures et
 les processus réels tout au long de leur évolution, en s'appuyant notamment sur des approches
 d'apprentissage automatique. Cette ambition se décline en projets collaboratifs, dont trois
-portent sur des compartiments environnementaux — \textsc{Juneau} pour la quantité et la qualité
+portent sur des compartiments environnementaux : \textsc{Juneau} pour la quantité et la qualité
 des eaux souterraines, \textsc{PrevizO} pour les eaux de surface, \textsc{Januss} pour la
-qualité de l'air et les zones humides — et trois structurent les moyens transversaux :
+qualité de l'air et les zones humides. Trois autres structurent les moyens transversaux :
 
 \begin{itemize}
-  \item \textbf{DATA} — la gestion des observations environnementales, des séries de mesures et
+  \item \textbf{DATA}, la gestion des observations environnementales, des séries de mesures et
   des données satellitaires, leur partage et leur réutilisation au sein du programme ;
-  \item \textbf{PREDICTION} — la modélisation et la prédiction à partir de ces données, pour
+  \item \textbf{PREDICTION}, la modélisation et la prédiction à partir de ces données, pour
   représenter des systèmes naturels complexes ;
-  \item \textbf{JUMEAUX NUMÉRIQUES} — l'assemblage des données, des modèles et des expertises en
+  \item \textbf{JUMEAUX NUMÉRIQUES}, l'assemblage des données, des modèles et des expertises en
   prototypes opérationnels.
 \end{itemize}
 
 Le LIFAT participe à ces trois volets transversaux sur la période 2022--2026~\cite{lifat_junon}.
-Le volet PREDICTION, sous la responsabilité de Nicolas Labroche, porte les questions de
-modélisation prédictive des séries temporelles environnementales : comment apprendre le
-comportement d'un système naturel à partir d'observations éparses, bruitées et déséquilibrées,
-et comment qualifier la confiance que l'on peut accorder à la prédiction obtenue.
+Le volet PREDICTION porte les questions de modélisation prédictive des séries temporelles
+environnementales : comment apprendre le comportement d'un système naturel à partir
+d'observations éparses, bruitées et déséquilibrées, et comment qualifier la confiance que l'on
+peut accorder à la prédiction obtenue.
 
-C'est dans ce volet que s'inscrit le présent postdoctorat, mené sous la supervision de Nicolas
-Labroche du 15 septembre 2025 au 30 juin 2026.
+C'est dans ce volet que s'inscrivent les présents travaux, menés du 15 septembre 2025 au 30 juin
+2026 sous la supervision de Nicolas Labroche.
 
 \section{La mission initiale : l'explicabilité}
 
@@ -51,7 +51,7 @@ sur quoi le modèle s'appuie-t-il, que se passerait-il dans d'autres conditions,
 peut-on lui faire confiance hors du régime observé.
 
 Ces questions ne sont pas académiques. Les niveaux de nappe conditionnent des décisions
-publiques — arrêtés de restriction d'usage, autorisations de prélèvement, planification de
+publiques : arrêtés de restriction d'usage, autorisations de prélèvement, planification de
 l'alimentation en eau potable. Une prédiction que l'on ne sait pas justifier ne sera pas
 mobilisée, et ne devrait pas l'être.
 
@@ -65,21 +65,13 @@ déterminé la trajectoire de l'année.
 Le travail a donc pris la forme d'une \textbf{ingénierie de recherche assumée} : identifier les
 sources, construire l'entrepôt, produire les indicateurs, vérifier leur validité, puis seulement
 outiller la modélisation et l'explicabilité. Cette réorientation n'a pas dilué le sujet initial,
-elle en a conditionné la possibilité — et, en pratique, elle a produit un résultat plus durable
+elle en a conditionné la possibilité. En pratique, elle a produit un résultat plus durable
 qu'une étude d'explicabilité menée sur un jeu de données jetable : \textbf{l'infrastructure
 survit à l'expérience}.
 
-Ce n'est pas non plus une reconstruction a posteriori. La réunion de cadrage du 13 février 2026
-entre le BRGM et l'Université de Tours inscrit parmi ses prochaines étapes la « mise en place
-d'une stack pérenne pour stocker et harmoniser les données communes », et en attribue nommément
-le pilotage à l'auteur de ce rapport~\cite{reunion_cadrage}.
-
-\begin{encadre}[title={Le fil conducteur de ce rapport}]
-Ce rapport suit l'ordre dans lequel les obstacles se sont présentés — de la donnée dispersée
-jusqu'à la prévision explicable — plutôt que l'ordre des dépôts logiciels. Chaque chapitre
-s'ouvre sur la question à laquelle il répond et se referme sur ce qui est acquis et ce qui
-demeure ouvert.
-\end{encadre}
+Ce n'est pas non plus une reconstruction a posteriori : la mise en place d'une infrastructure
+pérenne pour stocker et harmoniser les données communes a été actée avec le BRGM lors d'une
+réunion de cadrage en février 2026, et son pilotage confié à l'auteur de ces travaux.
 
 \section{Périmètre du rapport}
 
@@ -106,9 +98,9 @@ passation se sont poursuivis jusqu'au 24 août 2026, afin que les réalisations 
 exploitables après le départ de leur auteur.
 
 \begin{acquisouvert}
-\textbf{Acquis} — Le positionnement est clair : ces travaux relèvent des volets DATA et
+\textbf{Acquis.} Le positionnement est clair : ces travaux relèvent des volets DATA et
 PREDICTION du programme, et adressent le compartiment des eaux souterraines.
 
-\textbf{Ouvert} — L'articulation avec le volet JUMEAUX NUMÉRIQUES reste à instruire ; le
+\textbf{Ouvert.} L'articulation avec le volet JUMEAUX NUMÉRIQUES reste à instruire ; le
 chapitre~\ref{ch:socle} propose une trajectoire.
 \end{acquisouvert}

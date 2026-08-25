@@ -5,7 +5,7 @@
 en un ensemble interrogeable, reproductible et digne de confiance ?}
 
 Ce chapitre porte le résultat principal du travail. Il ne s'agit pas d'un choix d'outils, mais
-d'un ensemble de propriétés à garantir — celles dont dépend la possibilité même de comparer
+d'un ensemble de propriétés à garantir, celles dont dépend la possibilité même de comparer
 deux expériences.
 
 \section{Le principe retenu : une architecture médaillon}
@@ -77,6 +77,71 @@ vérifie par une requête au lieu d'être silencieux.}
 \label{fig:medaillon}
 \end{figure}
 
+\section{Les choix techniques, et ce qu'ils évitent d'écrire}
+
+Quatre outils structurent la chaîne. Aucun n'était imposé, et chacun remplace du code qu'il
+aurait fallu écrire, maintenir et déboguer sans apporter le moindre résultat scientifique. C'est
+le critère qui a présidé à leur sélection : \emph{ce que je n'ai pas eu à écrire}.
+
+\paragraph{L'ingestion.} Interroger une interface web publique paraît trivial jusqu'à ce qu'on
+le fasse sérieusement. Il faut paginer, réessayer sur erreur serveur avec une temporisation
+croissante, découvrir le schéma des colonnes, convertir les types, insérer par lots, et surtout
+savoir où l'on s'était arrêté la fois précédente pour ne pas tout recharger. Une bibliothèque
+d'ingestion déclarative~\cite{dlt} fournit ces mécanismes ; on décrit la source et la clé
+primaire, elle se charge du reste, y compris de la déduplication par fusion. Écrire cela à la
+main pour quatre sources aurait représenté plusieurs centaines de lignes de code sans intérêt
+propre, et autant d'occasions de se tromper silencieusement.
+
+\paragraph{La transformation.} Le choix déterminant est ici de transformer \textbf{dans la base}
+plutôt qu'en mémoire. Avec des centaines de millions de lignes, charger les données dans un
+tableau Python pour les nettoyer n'est pas une option, alors que la base de données sait le
+faire sur place. L'outil retenu~\cite{dbt} pousse cette logique jusqu'au bout : chaque
+transformation est un fichier SQL versionné, l'ordre d'exécution se déduit automatiquement des
+références entre modèles, les tests de qualité se déclarent à côté du modèle qu'ils vérifient,
+et la documentation se génère. Un bénéfice secondaire compte autant que le premier : les
+transformations restent lisibles par un hydrogéologue ou un analyste, ce qu'un script Python de
+plusieurs centaines de lignes n'aurait pas été.
+
+\paragraph{L'orchestration.} Un ordonnanceur classique raisonne en tâches : exécuter A, puis B,
+à trois heures du matin. L'outil retenu~\cite{dagster} raisonne en \emph{actifs} : déclarer
+qu'une table doit exister et être à jour, et le laisser déterminer ce qu'il faut exécuter pour
+cela. La différence est concrète sur cette chaîne. Elle permet de partitionner l'ingestion par
+année et de rejouer une seule année, de déclencher la transformation quand la donnée arrive
+plutôt qu'à heure fixe, et de constater d'un coup d'œil quelles tables sont fraîches et
+lesquelles ne le sont pas. L'intégration avec l'outil de transformation est native, ce qui
+évite de maintenir deux graphes de dépendances séparés.
+
+\paragraph{Le stockage.} Le besoin dictait le choix. Ce travail exige simultanément deux
+capacités : interroger efficacement des séries temporelles longues, et effectuer des jointures
+spatiales pour rattacher chaque station à sa maille climatique. PostgreSQL~\cite{postgresql} est
+le seul moteur courant qui réunisse les deux dans un même produit, par ses extensions
+temporelle~\cite{timescaledb} et géospatiale~\cite{postgis}, sans avoir à faire dialoguer deux
+systèmes. S'y ajoutent trois propriétés qui pesaient lourd dans un contexte de recherche :
+aucun coût de licence, un déploiement sur le serveur du laboratoire donc aucune dépendance à un
+fournisseur ni facturation à la requête, et une interface SQL que tout le monde sait déjà
+interroger. Un entrepôt hébergé aurait imposé un budget récurrent et une adhérence
+contractuelle pour un gain nul à cette échelle.
+
+\paragraph{Le déploiement.} L'ensemble est décrit dans un fichier de composition de conteneurs.
+Une orchestration de conteneurs plus élaborée aurait été surdimensionnée pour un serveur unique,
+et aurait ajouté une compétence à transmettre au successeur sans bénéfice opérationnel.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Fonction} & \textbf{Ce qui serait à écrire et à maintenir sans l'outil} \\
+\midrule
+Ingestion & Pagination, reprise sur erreur, inférence de schéma, déduplication, suivi de
+l'avancement incrémental \\
+Transformation & Graphe de dépendances entre modèles, ordre d'exécution, tests de qualité,
+documentation, gestion de l'incrémental \\
+Orchestration & Planification, déclenchement par événement, partitionnement, reprise partielle,
+limitation de concurrence \\
+Stockage & Partitionnement temporel, compression, index géospatiaux, opérateurs de proximité \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
 \section{Bronze : ingérer sans interpréter}
 
 Chaque source est ingérée par une bibliothèque d'extraction déclarative~\cite{dlt} qui prend en
@@ -93,9 +158,9 @@ est lisible et modifiable.
 
 Le cas d'ERA5 fait exception sur un point, imposé par la nature du produit : les fichiers
 NetCDF ne sont jamais archivés en base. Ils sont téléchargés en stockage temporaire, extraits en
-mémoire~\cite{xarray} et insérés directement. Deux chemins d'ingestion coexistent — l'un pour
+mémoire~\cite{xarray} et insérés directement. Deux chemins d'ingestion coexistent, l'un pour
 les séries issues du pas de \SI{00}{\hour}~UTC, l'autre pour les statistiques journalières de
-température agrégées localement sur les vingt-quatre pas horaires — pour la raison exposée au
+température agrégées localement sur les vingt-quatre pas horaires, pour la raison exposée au
 chapitre~\ref{ch:verrou} : flux cumulés et grandeurs instantanées ne se lisent pas de la même
 manière.
 
@@ -124,7 +189,7 @@ Entités hydrogéologiques BDLISA & \num{3716} \\
 Chaque modèle de cette couche~\cite{dbt} sélectionne les colonnes utiles, convertit les types,
 déduplique et écarte les lignes invalides. La caractéristique importante n'est pas le nettoyage
 lui-même, mais sa \textbf{traçabilité} : les lignes écartées ne disparaissent pas, elles sont
-écrites dans un schéma dédié, accompagnées du motif de leur exclusion — date de mesure absente,
+écrites dans un schéma dédié, accompagnées du motif de leur exclusion : date de mesure absente,
 code de station manquant, station orpheline de son site.
 
 Cette décision a un coût de stockage négligeable et une valeur méthodologique élevée. Un
@@ -147,7 +212,7 @@ chronique unique où le niveau et son forçage climatique figurent sur la même 
 jour.
 
 \paragraph{L'enrichissement hydrogéologique.} Les entités du référentiel BDLISA sont rattachées
-aux stations, ce qui rend disponible la nature de l'aquifère observé — information que le
+aux stations, ce qui rend disponible la nature de l'aquifère observé, information que le
 chapitre~\ref{ch:metier} exploitera pour paramétrer les modèles métier.
 
 \paragraph{Les tables analytiques.} La couche expose des faits journaliers (chroniques
@@ -164,7 +229,7 @@ des tables finales.
 
 \section{Orchestration : planifier l'ingestion, déclencher la transformation}
 
-L'ingestion est \textbf{planifiée}~\cite{dagster} — mise à jour quotidienne des chroniques et du
+L'ingestion est \textbf{planifiée}~\cite{dagster} : mise à jour quotidienne des chroniques et du
 climat, rafraîchissement mensuel du référentiel, contrôle hebdomadaire de complétude, recalcul
 hebdomadaire des références statistiques. La transformation, elle, est \textbf{déclenchée par
 événement} : dès que de nouvelles données brutes sont disponibles, un capteur lance la chaîne de
@@ -175,19 +240,17 @@ Ce choix évite le défaut classique des chaînes entièrement planifiées, où 
 s'exécute à heure fixe sur des données parfois absentes, et produit des résultats partiels sans
 que rien ne le signale.
 
-\begin{encadre}[title={Les contrôles qualité ne bloquent pas le rafraîchissement}]
-Les tests de qualité s'exécutent en parallèle du recalcul des indicateurs, et non en amont. Un
-test en échec fait échouer sa propre exécution — donc alerte — mais n'empêche pas la donnée
-d'être mise à jour. L'arbitrage est délibéré : sur une chaîne de surveillance, une donnée
-imparfaite mais fraîche est préférable à une donnée absente, à condition que le défaut soit
-signalé.
-\end{encadre}
+\paragraph{Les contrôles ne bloquent pas le rafraîchissement.} Les tests de qualité s'exécutent
+en parallèle du recalcul des indicateurs, et non en amont. Un test en échec fait échouer sa
+propre exécution, donc alerte, mais n'empêche pas la donnée d'être mise à jour. L'arbitrage est
+délibéré : sur une chaîne de surveillance, une donnée imparfaite mais fraîche est préférable à
+une donnée absente, à condition que le défaut soit signalé.
 
 \section{Ce que l'architecture garantit, et ce que l'exploitation a enseigné}
 
-Trois propriétés ont été recherchées et vérifiées : l'\textbf{idempotence} — relancer une
-ingestion sur une période déjà chargée ne duplique rien —, la \textbf{reprise} — le chargement
-initial complet est interruptible et redémarrable, son avancement étant persisté en base — et
+Trois propriétés ont été recherchées et vérifiées. L'\textbf{idempotence} : relancer une
+ingestion sur une période déjà chargée ne duplique rien. La \textbf{reprise} : le chargement
+initial complet est interruptible et redémarrable, son avancement étant persisté en base. Enfin,
 la \textbf{maîtrise de la concurrence}.
 
 Les incidents qui suivent sont rapportés parce qu'ils constituent le contenu concret du travail
@@ -231,15 +294,51 @@ diagnostiquer.
   \item \textbf{Un modèle incrémental qui ne produit rien.} Sur un jeu de données arrêté dans le
   passé, la fenêtre de recalcul glissante ne couvre aucune donnée. L'exécution est déclarée
   réussie et la table ne grandit pas.
+  \item \textbf{Une ingestion qui tourne mais n'avance plus.} Le cas le plus instructif est
+  détaillé ci-dessous.
 \end{itemize}
 
-\begin{limite}[title={Ce qu'il faut retenir de ces incidents}]
-Une chaîne de données correcte en régime nominal peut être fausse en régime de recouvrement ou
-de rattrapage. Les garanties d'unicité doivent être portées par le schéma quand c'est possible,
-et par l'orchestration quand ce ne l'est pas — jamais par l'hypothèse implicite que deux
-traitements ne se croiseront pas. Surtout, une vérification qui ne peut pas échouer ne vérifie
-rien : les trois cas ci-dessus passent tous les tests existants.
-\end{limite}
+\subsection{Quand la requête elle-même gèle la donnée}
+
+Le 24 juin 2026, l'entrepôt climatique était figé au 2 juin, soit trois semaines de retard,
+alors que le fournisseur servait des données jusqu'au 19 juin. Aucune exécution n'avait échoué,
+aucune alerte n'avait été levée : le traitement s'exécutait chaque nuit, se déclarait réussi, et
+n'apportait rien.
+
+La cause tenait à la forme de la requête. Celle-ci était construite sur un gabarit fixe, en
+demandant tous les jours du mois et toutes les valeurs possibles, indépendamment de la période
+réellement souhaitée. Or le service de diffusion met ses résultats en cache, indexés par la
+\emph{signature} de la requête. Une requête rigoureusement identique d'un jour sur l'autre
+retombait donc sur le même artefact mis en cache, périmé, sans jamais atteindre les données
+nouvellement publiées.
+
+Le correctif consiste à dériver les années, mois et jours demandés de la fenêtre réellement
+visée. La signature change dès que la borne de fin avance, ce qui produit une nouvelle clé de
+cache et ramène des données fraîches. Un second défaut a été corrigé au passage : un paramètre
+transmis sous forme de chaîne au lieu d'une liste ciblait lui aussi une entrée de cache
+obsolète.
+
+\paragraph{Ce que ce cas enseigne.} La panne ne venait ni du code de traitement, ni des données,
+mais de l'\emph{interaction} entre la requête émise et le comportement de cache du fournisseur,
+comportement qui n'est pas documenté. Aucun test unitaire ne pouvait la détecter, puisque le
+code faisait exactement ce qu'on lui demandait. Seule la comparaison entre la date maximale
+présente en base et celle réellement disponible chez le fournisseur permet de voir ce genre de
+gel, ce qui plaide pour une surveillance portant sur la fraîcheur des données plutôt que sur le
+seul succès des exécutions.
+
+\paragraph{Deux autres pièges de même nature.} Les colonnes de la couche brute étant stockées en
+texte par l'outil d'ingestion, toute comparaison de date exige une conversion explicite : son
+absence bloquait le rechargement d'une partition annuelle. Pour la même raison, le contrôle de
+fraîcheur ne pouvait pas s'appuyer sur les colonnes de date métier ; il a été rebasé sur
+l'horodatage d'ingestion, qui répond d'ailleurs à la question réellement posée, celle de savoir
+si la collecte tourne encore.
+
+Ces trois incidents enseignent la même chose. Une chaîne de données correcte en régime nominal
+peut être fausse en régime de recouvrement ou de rattrapage. Les garanties d'unicité doivent
+être portées par le schéma quand c'est possible, et par l'orchestration quand ce ne l'est pas,
+jamais par l'hypothèse implicite que deux traitements ne se croiseront pas. Surtout, une
+vérification qui ne peut pas échouer ne vérifie rien : les trois cas ci-dessus passent tous les
+tests existants.
 
 \section{Réalisation}
 
@@ -262,11 +361,11 @@ transformation \\
 \end{center}
 
 \begin{acquisouvert}
-\textbf{Acquis} — Une chaîne complète, automatisée, idempotente, documentée et éprouvée par
+\textbf{Acquis.} Une chaîne complète, automatisée, idempotente, documentée et éprouvée par
 l'exploitation, dont les tables finales sont consommables en SQL sans connaissance de l'amont.
 Le coût d'entrée à l'expérimentation passe de plusieurs semaines à une requête.
 
-\textbf{Ouvert} — L'entrepôt couvre la quantité d'eau ; l'extension à la qualité supposerait de
+\textbf{Ouvert.} L'entrepôt couvre la quantité d'eau ; l'extension à la qualité supposerait de
 nouvelles sources et de nouveaux modèles, sans remettre en cause l'architecture. La
 restauration a été validée à l'échelle réelle, mais la supervision de production reste à
 instrumenter au-delà des contrôles existants.

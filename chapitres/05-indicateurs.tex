@@ -9,9 +9,9 @@ qu'ils sont justes ?}
 
 Un niveau piézométrique de \SI{12,4}{\metre} n'est ni haut ni bas dans l'absolu : il l'est
 relativement à ce que l'ouvrage observe habituellement à cette période de l'année. La même
-remarque vaut pour un cumul de pluie ou une température. L'usage opérationnel — décider s'il
-faut restreindre les prélèvements, comparer deux bassins, situer un épisode dans l'histoire
-climatique — suppose donc de rapporter chaque mesure à sa \textbf{distribution de référence}.
+remarque vaut pour un cumul de pluie ou une température. L'usage opérationnel suppose donc de rapporter chaque mesure à sa \textbf{distribution de
+référence} : décider s'il faut restreindre les prélèvements, comparer deux bassins, situer un
+épisode dans l'histoire climatique.
 
 C'est l'objet des indices standardisés. Leur principe est constant : ajuster une loi de
 probabilité sur la série de référence, puis transformer la valeur observée en un score exprimé
@@ -60,7 +60,7 @@ nulle et l'indice prend la valeur \emph{inconnu}. Produire une classe plutôt qu
 d'ignorance reviendrait à inventer une information que l'utilisateur lirait comme une mesure.
 
 La table de référence est recalculée \emph{hebdomadairement}, et non chaque nuit ni une fois par
-décennie : la fenêtre est fixe, mais les grilles par station ne le sont pas — une station
+décennie. La fenêtre est fixe, mais les grilles par station ne le sont pas : une station
 accumule de l'historique, de nouvelles stations apparaissent, et une station classée en
 référence provisoire peut franchir le seuil des quinze années.
 
@@ -86,75 +86,135 @@ SPEI & Précipitation moins évapotranspiration & Loi logistique généralisée 
 \section{Premier résultat : l'évapotranspiration de référence a dû être recalculée}
 \label{sec:hargreaves}
 
-Le calcul du SPEI suppose un bilan hydrique, donc une évapotranspiration. ERA5-Land fournit
-directement une variable d'évaporation potentielle : l'employer semblait naturel, et c'est ce
-qui a été fait initialement.
+\subsection{De quoi il est question}
+
+L'indice de bilan hydrique, le SPEI, compare ce que le ciel apporte à ce que l'atmosphère
+reprend. L'apport, c'est la pluie, et elle se mesure. Le prélèvement, c'est
+l'\textbf{évapotranspiration} : l'eau qui repart vers l'atmosphère, à la fois par évaporation
+directe du sol et par transpiration des plantes. Cette seconde grandeur ne se mesure pas
+partout, il faut donc la calculer.
+
+Or « calculer l'évapotranspiration » n'a pas de sens tant qu'on n'a pas dit \emph{de quelle
+surface}. Un lac, une forêt et un champ de blé n'évaporent pas la même quantité d'eau sous le
+même ciel. Pour rendre les chiffres comparables d'un pays à l'autre, l'Organisation des Nations
+unies pour l'alimentation et l'agriculture, la \textbf{FAO}, a fixé une convention dans un
+document de référence appelé FAO-56~\cite{allen1998fao56} : on calcule ce qu'évaporerait une
+surface conventionnelle, un gazon ras et bien alimenté en eau. C'est
+l'\textbf{évapotranspiration de référence}, et c'est elle qu'emploient les hydrologues,
+les agronomes et les indices de sécheresse publiés.
+
+\subsection{Ce qui s'est passé}
+
+ERA5-Land fournit directement une variable nommée « évaporation potentielle ». L'employer
+semblait naturel, et c'est ce qui a été fait initialement.
 
 Le résultat était aberrant. Comparé sur \num{30888} couples maille-mois entre 2015 et 2025, sur
 les mêmes mailles :
 
 \begin{center}\small
-\begin{tabularx}{\textwidth}{@{}Xrrr@{}}
+\begin{tabular}{@{}lccc@{}}
 \toprule
- & \textbf{Hargreaves (FAO-56)} & \textbf{Évaporation potentielle ERA5-Land} & \textbf{Rapport} \\
+ & \textbf{Hargreaves} & \textbf{Variable ERA5-Land} & \textbf{Rapport} \\
+ & \small(référence FAO-56) & \small(« évaporation potentielle ») & \\
 \midrule
-Évapotranspiration annuelle & \SI{818}{\milli\metre} & \SI{1756}{\milli\metre} & $\times\,\num{2,15}$ \\
-Bilan précipitation $-$ ETP & \SI{+146}{\milli\metre\per\an} & \SI{-793}{\milli\metre\per\an} & --- \\
+Évapotranspiration annuelle & \SI{818}{\milli\metre} & \SI{1756}{\milli\metre} &
+$\times\,\num{2,15}$ \\
+Bilan précipitation moins ETP & \SI{+146}{\milli\metre\per\an} & \SI{-793}{\milli\metre\per\an} &
+\\
 \bottomrule
-\end{tabularx}
+\end{tabular}
 \end{center}
 
 La seconde colonne place \textbf{l'intégralité du territoire français en déficit hydrique
-permanent}, y compris les années humides — ce qui est physiquement faux. La valeur de
+permanent}, y compris les années humides, ce qui est physiquement faux. La valeur de
 \SI{818}{\milli\metre\per\an} se situe dans l'intervalle des références publiées pour la
 France (\SIrange{700}{900}{\milli\metre\per\an}) ; celle de \SI{1756}{\milli\metre\per\an}
 n'y est pas.
 
-L'explication tient à la définition des grandeurs, et c'est le point à retenir : les deux
-portent des noms voisins et ne décrivent pas la même chose. L'évaporation potentielle d'ERA5
-n'est pas une évapotranspiration de référence au sens de la FAO — c'est l'évaporation d'une
-surface non contrainte en eau, calculée avec la résistance aérodynamique du modèle
-atmosphérique, dont la littérature documente la surestimation substantielle. La formule de
-Hargreaves~\cite{hargreaves1985} est précisément le repli recommandé par la
-FAO-56~\cite{allen1998fao56} lorsque le rayonnement, le vent et l'humidité ne sont pas
-disponibles ; elle ne requiert que les températures extrêmes journalières et le rayonnement
-extraterrestre, dérivable analytiquement de la latitude et du jour de l'année. Elle est
-implémentée directement en SQL, avec le calcul complet du rayonnement extraterrestre.
+\subsection{Pourquoi}
 
-\begin{resultat}[title={Décision}]
-L'évapotranspiration de référence est recalculée par la formule de Hargreaves à partir des
-températures journalières vraies. La variable ERA5 d'origine reste exposée pour la traçabilité,
-avec une consigne explicite de non-consommation.
-\end{resultat}
+Les deux grandeurs portent des noms voisins et ne décrivent pas la même chose. C'est tout le
+problème, et c'est le point à retenir.
+
+La variable d'ERA5 répond à la question : \emph{combien cette surface pourrait-elle évaporer si
+l'eau ne manquait jamais}, dans les conditions du modèle atmosphérique qui l'a produite. C'est
+une borne haute théorique, et la littérature documente qu'elle dépasse largement la demande
+réelle d'un couvert végétal. La grandeur de la FAO répond à une autre question : \emph{combien
+évapore la surface conventionnelle de référence}. La première n'est pas la seconde, et aucune
+des deux n'est fausse : elles ne mesurent simplement pas le même objet.
+
+Pour obtenir la seconde, la FAO-56 prévoit une méthode complète, qui exige le rayonnement, le
+vent et l'humidité. Ces variables n'étaient pas ingérées. Le même document recommande alors une
+méthode de repli, la formule de Hargreaves~\cite{hargreaves1985}, qui n'a besoin que des
+températures journalières minimale, maximale et moyenne, plus le rayonnement reçu au sommet de
+l'atmosphère, lequel se calcule à partir de la seule latitude et du jour de l'année. C'est cette
+formule qui a été implémentée, directement en SQL.
+
+\subsection{Ce que cela change}
+
+Sans cette correction, tous les indices de bilan hydrique auraient été calculés sur un déficit
+d'eau surestimé de plus du double. La carte nationale aurait affiché une France en sécheresse
+quasi permanente, y compris pendant les années pluvieuses, et cette anomalie aurait été lue
+comme un signal climatique alors qu'elle n'aurait été qu'une erreur de définition. C'est
+précisément le genre d'erreur qu'aucun test logiciel ne détecte : le calcul était juste, c'est
+la grandeur qui n'était pas la bonne.
+
+En conséquence, l'évapotranspiration de référence est recalculée par la formule de Hargreaves à
+partir des températures journalières vraies. La variable ERA5 d'origine reste exposée pour la
+traçabilité, assortie d'une consigne explicite de non-consommation.
 
 \section{Deuxième résultat : le choix de la loi statistique du SPEI}
 \label{sec:glo}
 
-La formulation de référence du SPEI~\cite{vicenteserrano2010spei} ajuste une loi log-logistique
-à trois paramètres. Appliquée à la grille française, elle ne converge que sur
-\SI{74,6}{\percent} des triplets maille~$\times$~mois~$\times$~fenêtre. Un quart du domaine
-restait sans valeur, ce qui est inacceptable pour une couche cartographique nationale.
+\subsection{De quoi il est question}
+
+Dire qu'un mois est « sec » n'a de sens que par comparaison avec les mois de même saison des
+décennies précédentes. Un indice standardisé effectue cette comparaison automatiquement : il
+transforme une valeur en un score de rareté, où $0$ signifie « exactement normal » et $-2$
+« aussi sec qu'une année sur quarante environ ».
+
+Pour effectuer cette transformation, il faut d'abord décrire la forme de la distribution des
+valeurs passées, au moyen d'une loi de probabilité. C'est un choix technique, et il détermine
+sur quelles mailles l'indice pourra être calculé.
+
+\subsection{Ce qui s'est passé}
+
+La formulation de référence du SPEI~\cite{vicenteserrano2010spei} emploie une loi dite
+log-logistique. Appliquée à la grille française, elle ne parvient à s'ajuster que sur
+\SI{74,6}{\percent} des cas. Autrement dit, un quart du territoire restait sans valeur, ce qui
+laisse un trou dans la carte nationale.
 
 Plutôt que de constater le taux d'échec, les rejets ont été instrumentés pour en identifier la
-cause. Le résultat est net : \textbf{la totalité des rejets} provient de la garde sur le
-paramètre de forme, et \textbf{aucun} d'une insuffisance de données.
+cause. Le résultat est net : \textbf{la totalité des rejets} provient d'une seule et même
+condition mathématique, et \textbf{aucun} d'un manque de données.
 
-L'explication tient en trois phrases. L'ajustement passe par la méthode des
-L-moments~\cite{hosking1990lmoments}, qui résume la distribution par un coefficient d'asymétrie
-noté $\tau_3$. La loi log-logistique exige une asymétrie positive. Or environ
-\SI{27}{\percent} des mailles présentent une asymétrie négative — une distribution du bilan
-hydrique dont la queue s'étend vers les valeurs basses — et aucune taille d'échantillon ne
-corrige cela : la loi ne peut structurellement pas représenter cette forme.
+\subsection{Pourquoi}
 
-La logistique généralisée lève la limite : son paramètre de forme vaut $k = -\tau_3$ et accepte
-donc les deux signes. C'est également la loi retenue par l'implémentation de référence du
-SPEI~\cite{begueria_spei_package}. La couverture atteint \SI{100}{\percent}.
+Une distribution peut pencher d'un côté ou de l'autre. Sur certaines mailles, les valeurs de
+bilan hydrique s'étalent vers le haut, avec quelques mois exceptionnellement humides qui tirent
+la queue de la distribution ; sur d'autres, elles s'étalent vers le bas. Cette inclinaison porte
+un nom, l'\emph{asymétrie}, et elle se mesure~\cite{hosking1990lmoments}.
 
-\begin{resultat}[title={Un changement additif, non destructif}]
-La log-logistique est exactement la logistique généralisée reparamétrée. Le remplacement laisse
-donc les valeurs inchangées partout où la loi d'origine convergeait — vérifié à un écart maximal
-de \num{0,000} sur \num{35614} mailles — et ne fait qu'ajouter les valeurs manquantes.
-\end{resultat}
+La loi log-logistique ne sait représenter que le premier cas, celui d'une distribution penchée
+vers le haut. Or environ \SI{27}{\percent} des mailles françaises penchent dans l'autre sens.
+Sur celles-là, l'ajustement ne pouvait pas aboutir, et augmenter la quantité de données n'y
+aurait rien changé : ce n'est pas un problème d'échantillon, c'est une forme que la loi ne sait
+pas décrire.
+
+La logistique généralisée est une version élargie de la même loi, qui accepte les deux
+inclinaisons. C'est d'ailleurs celle qu'emploie l'implémentation de référence du
+SPEI~\cite{begueria_spei_package}. La couverture passe à \SI{100}{\percent}.
+
+\subsection{Ce que cela change}
+
+La carte de sécheresse couvre désormais tout le territoire, au lieu d'en laisser un quart en
+blanc. Et comme le montre la vérification ci-dessous, cette extension ne s'est pas payée d'une
+modification des valeurs déjà calculées.
+
+Le remplacement est purement additif. La log-logistique est exactement la logistique généralisée
+reparamétrée : les valeurs restent donc inchangées partout où la loi d'origine convergeait,
+vérifié à un écart maximal de \num{0,000} sur \num{35614} mailles, et le changement ne fait
+qu'ajouter les valeurs qui manquaient.
 
 \section{Troisième résultat : la validation des indices produits}
 
@@ -182,11 +242,9 @@ SPEI & 1/3/6/12 & $+0{,}004$ à $+0{,}006$ & \numrange{0,999}{1,013} & \numrange
 \end{tabularx}
 \end{center}
 
-\begin{resultat}[title={Conclusion}]
 Les trois indices satisfont le critère d'acceptation sur les quatre fenêtres. La couverture du
 SPEI est uniforme à \SI{100}{\percent}, ce qui signifie que la calibration n'est pas seulement
 préservée mais mesurée sur l'ensemble du domaine.
-\end{resultat}
 
 \section{Deux lectures à ne pas faire}
 
@@ -198,8 +256,8 @@ naturelle.
 \SI{54,8}{\percent} des valeurs au lieu des \SI{59,9}{\percent} attendus d'une gaussienne, alors
 même que l'écart-type vaut \num{1,008}. La distribution conserve des épaules légèrement plus
 lourdes. Cet écart est une propriété de la transformation au voisinage des bornes de classe. Il
-n'a pas de conséquence opérationnelle — les seuils employés sont ceux, communs, des autres
-indices — et il ne doit surtout \textbf{pas} être lu comme une anomalie de sécheresse.
+n'a pas de conséquence opérationnelle, les seuils employés étant ceux, communs, des autres
+indices, et il ne doit surtout \textbf{pas} être lu comme une anomalie de sécheresse.
 
 \paragraph{Une décroissance décennale est un signal climatique, non une dérive de méthode.} La
 moyenne du SPEI sur fenêtre d'un mois décroît de manière monotone d'une décennie à l'autre :
@@ -212,8 +270,8 @@ biais.
 
 La classification en sept classes existe en deux endroits : dans l'entrepôt, qui produit les
 indicateurs, et dans la plateforme, qui les affiche et les compare aux prévisions. Cette
-duplication est délibérée — elle évite un couplage fort entre deux systèmes déployés séparément
-— mais elle crée un risque de divergence silencieuse.
+duplication est délibérée, car elle évite un couplage fort entre deux systèmes déployés
+séparément, mais elle crée un risque de divergence silencieuse.
 
 Le risque est traité par un \textbf{contrat testé} : chaque dépôt possède une table de référence
 associant des valeurs d'entrée aux classes attendues, et ces deux tables sont identiques par
@@ -222,12 +280,12 @@ mécanisme est simple, et c'est sa vertu : il rend la contrainte exécutable plu
 documentaire.
 
 \begin{acquisouvert}
-\textbf{Acquis} — Une famille d'indicateurs normalisés, produite à l'échelle nationale, validée
+\textbf{Acquis.} Une famille d'indicateurs normalisés, produite à l'échelle nationale, validée
 selon un protocole à critère pré-établi, et dont deux décisions méthodologiques structurantes
 sont documentées avec leurs mesures. Ces indicateurs sont directement utilisables par les
 hydrogéologues et constituent des variables candidates pour la modélisation.
 
-\textbf{Ouvert} — Une incohérence connue subsiste entre la chaîne « grille » et la chaîne
+\textbf{Ouvert.} Une incohérence connue subsiste entre la chaîne « grille » et la chaîne
 « station » sur l'évapotranspiration : la seconde expose encore la variable d'origine, car elle
 constitue l'entrée de forçage des modèles métier déjà calibrés et sa modification les
 invaliderait. Cet arbitrage est explicite et documenté ; sa résolution suppose une

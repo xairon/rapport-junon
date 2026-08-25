@@ -8,9 +8,9 @@ le cadre du programme \textsc{Junon}, portait initialement sur \textbf{l'explica
 modèles de prévision appliqués aux eaux souterraines}. Il s'est heurté d'emblée à un obstacle
 qui n'était pas de nature méthodologique : \textbf{le terrain expérimental n'existait pas}.
 
-La donnée hydrologique française est ouverte — Hub'Eau expose les chroniques piézométriques et
+La donnée hydrologique française est ouverte. Hub'Eau expose les chroniques piézométriques et
 hydrométriques, Copernicus diffuse la réanalyse climatique ERA5-Land, le BRGM publie le
-référentiel hydrogéologique BDLISA — mais elle est dispersée entre des services hétérogènes,
+référentiel hydrogéologique BDLISA. Mais elle est dispersée entre des services hétérogènes,
 jamais jointe au forçage climatique, dépourvue d'historique consolidé et d'indicateurs
 normalisés. Expliquer un modèle suppose d'abord qu'un modèle puisse être entraîné, donc qu'un
 jeu de données existe. Construire ce jeu de données est devenu le premier travail, et une
@@ -23,8 +23,8 @@ pilotage.
 \vspace{0.4em}
 \noindent
 \textbf{Un entrepôt de données hydro-climatiques} (\hubeau{}) organise l'ingestion automatisée
-de quatre jeux de données publics — piézométrie et hydrométrie depuis 1967, réanalyse ERA5-Land
-depuis 1950, référentiel hydrogéologique — selon une architecture médaillon (Bronze, Silver,
+de quatre jeux de données publics (piézométrie et hydrométrie depuis 1967, réanalyse ERA5-Land
+depuis 1950, référentiel hydrogéologique) selon une architecture médaillon (Bronze, Silver,
 Gold) sur PostgreSQL, TimescaleDB et PostGIS, orchestrée par Dagster. Les stations sont
 rattachées à leur maille climatique par jointure spatiale et enrichies du référentiel
 hydrogéologique. Les tables analytiques finales sont directement interrogeables en SQL, ce qui
@@ -90,11 +90,10 @@ mobilisable pour les jumeaux numériques de la ressource en eau.
 Le dernier chapitre argumente en quoi cet ensemble forme un \textbf{socle réutilisable} pour les
 travaux d'explicabilité qui prendront la suite, et à quelles conditions.
 
-\begin{limite}[title={Portée et limites de ce rapport}]
-Les expériences d'apprentissage profond sont rapportées au niveau de leurs protocoles, de leurs
-capacités et de leurs choix de conception. Les jeux de données et les points de sauvegarde de
-modèles ont été purgés des dépôts lors de la passation ; aucun tableau de performances n'est
-donc avancé, par choix d'honnêteté plutôt que par reconstitution approximative. Les valeurs
-chiffrées présentées dans ce rapport sont exclusivement celles mesurées et consignées dans les
-dépôts au cours des travaux.
-\end{limite}
+\vspace{0.6em}
+\noindent
+Une précision sur ce qui suit. Les expériences d'apprentissage profond sont rapportées au niveau
+de leurs protocoles et de leurs choix de conception : les jeux de données et les modèles
+entraînés ayant été purgés des dépôts lors de la passation, aucun tableau de performances n'est
+avancé, et rien n'a été reconstitué de mémoire. Toutes les valeurs chiffrées de ce rapport
+proviennent de mesures consignées dans les dépôts au cours des travaux.

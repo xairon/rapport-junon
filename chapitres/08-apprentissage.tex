@@ -9,7 +9,7 @@ ne sont pas tous spécialistes de l'apprentissage ?}
 
 Prévoir un niveau de nappe est un problème de série temporelle multivariée avec covariables
 exogènes : la cible est le niveau, les entrées sont la précipitation, la température et
-l'évapotranspiration. Les difficultés propres au domaine sont connues — inertie très variable
+l'évapotranspiration. Les difficultés propres au domaine sont connues : inertie très variable
 d'un aquifère à l'autre, non-stationnarité liée aux prélèvements, lacunes d'observation,
 événements extrêmes rares donc sous-représentés dans l'apprentissage.
 
@@ -23,12 +23,12 @@ La plateforme donne accès à une douzaine d'architectures de prévision profond
 bibliothèque Darts~\cite{darts}, couvrant les grandes familles de l'état de l'art :
 
 \begin{itemize}
-  \item \textbf{à mécanisme d'attention} — \emph{temporal fusion transformer}~\cite{lim2021tft},
+  \item \textbf{à mécanisme d'attention} : \emph{temporal fusion transformer}~\cite{lim2021tft},
   transformeur classique ;
-  \item \textbf{à décomposition par blocs} — N-BEATS, N-HiTS ;
-  \item \textbf{récurrentes} — LSTM, GRU, réseaux récurrents par blocs ;
-  \item \textbf{convolutives} — réseaux convolutifs temporels ;
-  \item \textbf{récentes à faible coût} — TiDE, TSMixer, DLinear, NLinear.
+  \item \textbf{à décomposition par blocs} : N-BEATS, N-HiTS ;
+  \item \textbf{récurrentes} : LSTM, GRU, réseaux récurrents par blocs ;
+  \item \textbf{convolutives} : réseaux convolutifs temporels ;
+  \item \textbf{récentes à faible coût} : TiDE, TSMixer, DLinear, NLinear.
 \end{itemize}
 
 L'inclusion des dernières est délibérée : les modèles linéaires ou quasi linéaires constituent
@@ -82,12 +82,10 @@ plutôt que par architecture : prévision piézométrique à court terme (sept j
 Chacune fixe une architecture et un jeu d'hyperparamètres cohérents, choisis à partir des
 recommandations de la bibliothèque et des références publiées sur séries piézométriques.
 
-\begin{encadre}[title={Une distinction assumée}]
-Ces configurations sont des \emph{points de départ raisonnables}, non des réglages optimisés
-pour une station donnée. La documentation le dit explicitement, et oriente vers la recherche
-automatisée d'hyperparamètres pour aller plus loin. Il aurait été facile — et trompeur — de les
-présenter comme optimales.
-\end{encadre}
+Ces configurations sont des points de départ raisonnables, non des réglages optimisés pour une
+station donnée. La documentation le dit explicitement et oriente vers la recherche automatisée
+d'hyperparamètres pour aller plus loin. Il aurait été facile, et trompeur, de les présenter
+comme optimales.
 
 \section{Ce qui est établi, et ce qui ne l'est pas}
 
@@ -102,26 +100,24 @@ hydrogéologique. Les campagnes d'entraînement conduites au cours des travaux o
 valider le dispositif et à orienter les développements ; les jeux de données préparés et les
 points de sauvegarde ont été purgés des dépôts lors de la passation. Reconstituer a posteriori
 un tableau de performances à partir de souvenirs ne serait pas un résultat scientifique. La
-campagne d'évaluation comparative — modèles appris contre modèles métier du
-chapitre~\ref{ch:metier}, sur un échantillon représentatif de stations et de familles
-d'aquifères — reste donc à conduire, et l'outillage nécessaire est en place pour la mener.
+campagne d'évaluation comparative, qui opposerait les modèles appris aux modèles métier du
+chapitre~\ref{ch:metier} sur un échantillon représentatif de stations et de familles
+d'aquifères, reste donc à conduire, et l'outillage nécessaire est en place pour la mener.
 
-\begin{limite}[title={Une limite d'ingénierie à corriger}]
-La suite de tests de la plateforme compte \num{552} tests, dont \num{547} passent (mesuré le
-24 août 2026). Aucun ne s'exécute automatiquement : le dépôt est hébergé sur une forge dont la
-chaîne d'intégration continue ne comporte qu'une étape de construction d'image, tandis que la
-définition de tests existante cible une autre forge. Parmi les quatre échecs, deux exigent un
-entrepôt peuplé et relèvent en réalité de l'intégration, un lit un fichier absent de tout autre
-poste, et le dernier est mis en défaut par la base en mémoire employée pour les tests, qui ne
-conserve pas le fuseau horaire. Aucun ne signale un défaut applicatif, mais la purge des
-journaux se trouve de fait non testée. C'est le premier correctif à apporter par toute personne
-reprenant ces travaux.
-\end{limite}
+\paragraph{Une limite d'ingénierie à corriger.} La suite de tests de la plateforme compte
+\num{552} tests, dont \num{547} passent (mesuré le 24 août 2026). Aucun ne s'exécute
+automatiquement : le dépôt est hébergé sur une forge dont la chaîne d'intégration continue ne
+comporte qu'une étape de construction d'image, tandis que la définition de tests existante cible
+une autre forge. Parmi les quatre échecs, deux exigent un entrepôt peuplé et relèvent en réalité
+de l'intégration, un lit un fichier absent de tout autre poste, et le dernier est mis en défaut
+par la base en mémoire employée pour les tests, qui ne conserve pas le fuseau horaire. Aucun ne
+signale un défaut applicatif, mais la purge des journaux se trouve de fait non testée. C'est le
+premier correctif à apporter par toute personne reprenant ces travaux.
 
 \begin{acquisouvert}
-\textbf{Acquis} — Un laboratoire d'expérimentation opérationnel, traçable et accessible, dont le
+\textbf{Acquis.} Un laboratoire d'expérimentation opérationnel, traçable et accessible, dont le
 cœur de calcul est indépendant de l'interface et donc réutilisable.
 
-\textbf{Ouvert} — L'évaluation comparative systématique, et l'automatisation de la suite de
+\textbf{Ouvert.} L'évaluation comparative systématique, et l'automatisation de la suite de
 tests.
 \end{acquisouvert}

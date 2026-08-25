@@ -19,8 +19,8 @@ d'ancrage à tout le travail d'explicabilité qui suivra. On sait ce qu'il repr�
 confronter les explications produites sur un modèle appris à ce que le modèle physique affirme.
 
 Enfin, \textbf{c'est le langage des interlocuteurs}. Le BRGM développe et emploie sa propre
-famille de modèles à réservoirs — GARDÉNIA~\cite{gardenia} pour la simulation des niveaux et des
-débits d'un bassin, EROS~\cite{eros} pour les relations entre bassins — fédérés par une interface
+famille de modèles à réservoirs : GARDÉNIA~\cite{gardenia} pour la simulation des niveaux et des
+débits d'un bassin, EROS~\cite{eros} pour les relations entre bassins, fédérés par une interface
 Python commune. Un outil qui ignorerait cette pratique ne serait pas adopté, quelles que soient
 ses performances.
 
@@ -28,8 +28,8 @@ ses performances.
 
 L'approche retenue est celle des modèles \emph{transfer function-noise}, mise en œuvre par la
 bibliothèque Pastas~\cite{pastas}. Son principe : le niveau piézométrique simulé est la somme des
-contributions de plusieurs facteurs de forçage — au minimum la recharge, dérivée de la
-précipitation et de l'évapotranspiration — chaque contribution étant obtenue par convolution du
+contributions de plusieurs facteurs de forçage, au minimum la recharge dérivée de la
+précipitation et de l'évapotranspiration. Chaque contribution est obtenue par convolution du
 forçage avec une \emph{fonction de réponse impulsionnelle} dont la forme et les paramètres sont
 calibrés. Un modèle de bruit rend compte de la structure résiduelle.
 
@@ -55,8 +55,8 @@ gestion des eaux souterraines :
   \item \textbf{La variance expliquée} dépasse un seuil (\SI{70}{\percent} par défaut) ;
   \item \textbf{les résidus sont aléatoires}, vérifié par un test de séquences ;
   \item \textbf{le temps de réponse} à \SI{95}{\percent} de la réponse indicielle reste inférieur
-  à la moitié de la période de calibration — un modèle dont la mémoire excède ses données
-  n'est pas identifiable ;
+  à la moitié de la période de calibration, car un modèle dont la mémoire excède ses
+  données n'est pas identifiable ;
   \item \textbf{le gain est statistiquement significatif}, son rapport à son erreur type
   dépassant le seuil usuel.
 \end{enumerate}
@@ -93,20 +93,18 @@ Composite & Quatre paramètres & ARMA & Milieu hétérogène, modèle flexible \
 
 Le cas karstique est le plus parlant. Un système karstique se comporte comme deux réservoirs
 couplés : des conduits qui réagissent en quelques heures et une matrice qui réagit en mois. Une
-réponse impulsionnelle à un seul temps caractéristique ne peut pas représenter cette dualité —
-d'où la double exponentielle, et un modèle de bruit plus riche pour absorber ce que la
+réponse impulsionnelle à un seul temps caractéristique ne peut pas représenter cette dualité.
+D'où la double exponentielle, et un modèle de bruit plus riche pour absorber ce que la
 structure ne capte pas.
 
 Cette table recoupe la typologie discutée lors de la réunion de cadrage avec les hydrogéologues,
 qui distinguait les nappes inertielles à cycles longs, les nappes réactives à effets de seuil et
 les nappes influencées par une rivière ou des prélèvements~\cite{reunion_cadrage}.
 
-\begin{encadre}[title={Ce que cette table représente réellement}]
-Elle est le point de contact entre deux disciplines : elle encode une connaissance qui ne
+Cette table est un point de contact entre deux disciplines. Elle encode une connaissance qui ne
 s'obtient pas par validation croisée, et la rend disponible à un utilisateur qui ne la possède
 pas. C'est une forme concrète de transfert d'expertise, et elle réduit le coût d'entrée à la
 modélisation pour un non-spécialiste.
-\end{encadre}
 
 Ces configurations amorcent la recherche ; elles ne la contraignent pas. Une grille de référence
 est systématiquement évaluée en parallèle, de sorte qu'une station atypique n'est jamais
@@ -117,8 +115,8 @@ enfermée dans la recommandation de sa famille.
 La calibration est accompagnée d'un dispositif de vérification qui va au-delà de l'ajustement.
 
 \paragraph{Séparation calibration/validation.} Le modèle est calibré sur une période et évalué
-sur une période distincte, avec les indicateurs usuels en hydrologie — efficience de
-Nash-Sutcliffe, critère de Kling-Gupta, erreur quadratique moyenne — complétés par l'examen de
+sur une période distincte, avec les indicateurs usuels en hydrologie (efficience de
+Nash-Sutcliffe, critère de Kling-Gupta, erreur quadratique moyenne), complétés par l'examen de
 l'autocorrélation et de la normalité des résidus.
 
 \paragraph{Diagnostics préalables.} Avant même la calibration, la chronique est examinée :
@@ -128,8 +126,8 @@ détecter en amont les situations où la modélisation est vouée à l'échec, p
 découvrir dans un mauvais ajustement.
 
 \paragraph{Analyse multi-stations.} Les résidus peuvent être examinés conjointement sur
-plusieurs stations, ce qui fait apparaître les structures communes — donc d'origine régionale ou
-climatique — et les distingue des particularités locales.
+plusieurs stations, ce qui fait apparaître les structures communes, donc d'origine régionale ou
+climatique, et les distingue des particularités locales.
 
 \section{Scénarios prospectifs}
 
@@ -137,25 +135,25 @@ Le modèle calibré n'est pas seulement descriptif : il permet de répondre à d
 forme \emph{« que se passerait-il si »}, qui sont précisément celles des gestionnaires.
 
 Trois familles de scénarios sont outillées : l'\textbf{ajout d'un prélèvement} selon des profils
-réalistes par type d'usage — alimentation en eau potable, irrigation, industrie — chacun ayant
+réalistes par type d'usage (alimentation en eau potable, irrigation, industrie), chacun ayant
 sa saisonnalité propre ; l'\textbf{application d'une tendance climatique} ; et la
 \textbf{modulation de l'intensité} d'un forçage existant.
 
 Un mécanisme mérite d'être détaillé : les \textbf{bornes adaptatives}. Lorsqu'un utilisateur
 simule un prélèvement, la question « quel débit est plausible ici ? » n'a pas de réponse
-universelle — elle dépend de la transmissivité de l'aquifère, donc de la réponse calibrée. Le
+universelle : elle dépend de la transmissivité de l'aquifère, donc de la réponse calibrée. Le
 rabattement attendu est estimé à partir de la réponse indicielle du modèle lui-même, et des
 bornes physiquement plausibles en sont dérivées pour guider la saisie. L'utilisateur n'est pas
 laissé libre de simuler un pompage qui viderait la nappe en un mois, ni contraint par une borne
 arbitraire identique partout.
 
 \begin{acquisouvert}
-\textbf{Acquis} — Un laboratoire de modélisation métier complet : calibration automatisée
+\textbf{Acquis.} Un laboratoire de modélisation métier complet : calibration automatisée
 guidée par l'expertise hydrogéologique, évaluation selon un standard reconnu, diagnostics
 préalables et postérieurs, scénarisation prospective bornée par la physique du système. Il
 constitue la référence à laquelle comparer toute approche apprise.
 
-\textbf{Ouvert} — La comparaison systématique modèle métier / modèle appris, sur un large
+\textbf{Ouvert.} La comparaison systématique modèle métier / modèle appris, sur un large
 échantillon de stations, reste à conduire : l'outillage des deux côtés est en place, la campagne
 d'évaluation ne l'est pas. Un rapprochement avec les modèles à réservoirs du BRGM constitue une
 seconde voie de comparaison, identifiée mais non explorée.

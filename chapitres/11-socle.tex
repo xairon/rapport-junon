@@ -31,8 +31,8 @@ elle qui distingue une infrastructure d'un script.
 
 \subsection{Un cœur de calcul indépendant de toute interface}
 
-Le cœur métier de la plateforme — préparation des données, modèles métier, entraînement,
-explicabilité, contrefactuels — ne comporte aucune dépendance à l'interface graphique. Le même
+Le cœur métier de la plateforme (préparation des données, modèles métier, entraînement,
+explicabilité, contrefactuels) ne comporte aucune dépendance à l'interface graphique. Le même
 code est appelé depuis l'API web, depuis un script ou depuis un carnet de calcul.
 
 Cette contrainte, tenue depuis l'origine et vérifiée, a un effet direct sur la valeur résiduelle
@@ -51,15 +51,16 @@ comparabilité que l'on ne peut pas rattraper après coup.
 
 \subsection{Des contrats exécutables entre composants}
 
-Là où une duplication était nécessaire — la classification en classes de sévérité, présente dans
-les deux dépôts —, elle est gardée par des tables de référence identiques et des tests qui
+Là où une duplication était nécessaire, comme la classification en classes de sévérité présente
+dans les deux dépôts, elle est gardée par des tables de référence identiques et des tests qui
 échouent en cas de divergence. La contrainte n'est pas documentaire mais exécutable : elle
 résiste à l'oubli, ce qu'aucune note ne fait.
 
 \subsection{Une infrastructure reproductible}
 
 L'ensemble est conteneurisé, les volumes de données sont déclarés en dehors du cycle de vie des
-conteneurs — une commande d'arrêt ne peut pas les détruire —, et le chargement initial complet
+conteneurs, de sorte qu'une commande d'arrêt ne peut pas les détruire, et le chargement initial
+complet
 est interruptible et redémarrable, son avancement étant persisté en base. Les procédures de
 sauvegarde et de restauration ont été vérifiées à l'échelle réelle. Une réinstallation complète
 est une procédure documentée, éprouvée, et non une reconstitution.
@@ -68,7 +69,7 @@ est une procédure documentée, éprouvée, et non une reconstitution.
 
 La documentation des deux dépôts a été refondue en fin de période dans une perspective explicite
 de passation : cartographie des documents, procédures vérifiées par exécution réelle, et
-consignation des pièges rencontrés — y compris ceux qui produisent des résultats faux sans
+consignation des pièges rencontrés, y compris ceux qui produisent des résultats faux sans
 émettre d'erreur. Ce dernier point est le plus utile à un successeur, et le plus rarement écrit.
 
 \section{Le patron généralisable}
@@ -180,8 +181,8 @@ tous sont des décisions d'investissement.
   C'est le chantier le moins coûteux et le plus rentable.
 
   \item \textbf{Un accès élargi et gouverné.} L'accès nominatif convient à un outil de projet, non
-  à un environnement partagé. Une politique d'accès — qui, pour quels usages, avec quelle
-  responsabilité sur les données — conditionne tout élargissement.
+  à un environnement partagé. Une politique d'accès, précisant qui accède, pour quels usages et avec quelle
+  responsabilité sur les données, conditionne tout élargissement.
 
   \item \textbf{Un catalogue de données.} L'entrepôt est documenté pour qui sait où chercher.
   Un environnement d'outils suppose un catalogue décrivant les jeux disponibles, leur origine,
@@ -221,15 +222,15 @@ La contribution la plus spécifique est la troisième ligne. Un jumeau numériqu
 expliquer n'est qu'un simulateur ; ce qui en fait un instrument de décision est la capacité à
 répondre « pourquoi » et « que se passerait-il si » dans les termes du métier. Les contrefactuels
 sous contrainte physique décrits en section~\ref{sec:physcf} sont directement conçus pour cet
-usage : ils produisent des scénarios énonçables — « un hiver plus sec et plus chaud d'un degré »
-— plutôt que des perturbations numériques.
+usage : ils produisent des scénarios énonçables, du type « un hiver plus sec et plus chaud d'un
+degré », plutôt que des perturbations numériques.
 
 \begin{acquisouvert}
-\textbf{Acquis} — Les propriétés qui distinguent une infrastructure d'un prototype sont
+\textbf{Acquis.} Les propriétés qui distinguent une infrastructure d'un prototype sont
 identifiées et effectivement tenues : interface stable, cœur indépendant, indicateurs
 centralisés, contrats exécutables, reproductibilité, documentation de reprise. Le patron mis en
 œuvre est transposable à d'autres compartiments environnementaux.
 
-\textbf{Ouvert} — Cinq chantiers séparent ce socle d'un environnement d'outils partagé, et la
+\textbf{Ouvert.} Cinq chantiers séparent ce socle d'un environnement d'outils partagé, et la
 démonstration par un résultat scientifique reste à produire.
 \end{acquisouvert}

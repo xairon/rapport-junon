@@ -11,7 +11,8 @@ Trois sources publiques couvrent, en principe, l'essentiel du besoin.
 
 \textbf{Hub'Eau} est la plateforme d'accès aux données sur l'eau opérée dans le cadre du système
 d'information sur l'eau~\cite{hubeau}. Elle expose par interfaces web les chroniques
-\emph{piézométriques} — niveaux de nappe mesurés aux ouvrages de surveillance — et les données
+\emph{piézométriques}, c'est-à-dire les niveaux de nappe mesurés aux ouvrages de
+surveillance, et les données
 \emph{hydrométriques} de débit des cours d'eau, organisées en sites, stations et observations
 élaborées. Le parc compte \num{23333} ouvrages piézométriques et \num{6468} stations
 hydrométriques réparties sur \num{9283} sites.
@@ -23,7 +24,7 @@ réanalyse climatique sur grille d'environ \ang{0.1}, continue depuis
 tout modèle hydrologique : précipitations, températures, évaporation.
 
 \textbf{BDLISA}, le référentiel hydrogéologique du BRGM~\cite{bdlisa}, décrit les entités
-aquifères du territoire — leur nature, leur géométrie, leur organisation. C'est ce qui permet de
+aquifères du territoire : leur nature, leur géométrie, leur organisation. C'est ce qui permet de
 savoir si un piézomètre observe une nappe alluviale, un aquifère sédimentaire poreux, un système
 karstique ou un socle fracturé, distinction dont on verra au chapitre~\ref{ch:metier} qu'elle
 commande le comportement du signal.
@@ -31,14 +32,13 @@ commande le comportement du signal.
 Chacune de ces sources est ouverte, documentée et interrogeable. Le verrou n'est pas
 l'accessibilité.
 
-\begin{encadre}[title={Un arbitrage sur la source climatique}]
-Une alternative existait. Le BRGM dispose d'une licence pour la réanalyse SAFRAN~\cite{safran}, mieux adaptée
-au territoire français qu'ERA5-Land. Elle a été écartée pour une raison qui n'est pas
-technique : les données SAFRAN ne sont pas redistribuables, ce qui interdisait de les verser
-dans un entrepôt destiné à être partagé entre équipes et documenté publiquement. ERA5-Land est
-libre, mondial et versionné. Le choix privilégie la reproductibilité et le partage sur la
-finesse de la source — arbitrage qu'il faut connaître pour interpréter les résultats.
-\end{encadre}
+Le choix d'ERA5-Land mérite d'être justifié, car une alternative existait. Le BRGM dispose d'une
+licence pour la réanalyse SAFRAN~\cite{safran}, mieux adaptée au territoire français. Elle a été
+écartée pour une raison qui n'est pas technique : les données SAFRAN ne sont pas
+redistribuables, ce qui interdisait de les verser dans un entrepôt destiné à être partagé entre
+équipes et documenté publiquement. ERA5-Land est libre, mondial et versionné. Le choix
+privilégie donc la reproductibilité et le partage sur la finesse de la source, arbitrage qu'il
+faut connaître pour interpréter les résultats.
 
 \section{Ce qui manque}
 
@@ -50,8 +50,8 @@ propres à l'aquifère. Prédire une nappe suppose donc de disposer, \emph{pour 
 chaque jour}, du signal climatique correspondant.
 
 Or Hub'Eau ne fournit aucune variable météorologique, et ERA5 ignore l'existence des
-piézomètres. Rattacher les deux exige une jointure spatiale — associer chaque station à la
-maille climatique qui la contient ou l'approche le plus — puis une jointure temporelle sur un
+piézomètres. Rattacher les deux exige une jointure spatiale, qui associe chaque station à la
+maille climatique la plus proche, puis une jointure temporelle sur un
 pas de temps commun. Ce travail n'est fourni par personne.
 
 \subsection{L'historique n'est pas consolidé, et la volumétrie est réelle}
@@ -83,13 +83,51 @@ l'autre reconstruite à partir des vingt-quatre pas horaires.
 Rien dans la donnée ne signale cette différence. Elle se paie en résultats faux, silencieux et
 plausibles.
 
+\subsection{Des sources publiques, mais pas des sources stables}
+
+Un point mérite d'être dit franchement, car il a coûté un temps considérable et n'apparaît dans
+aucune documentation officielle : \textbf{les interfaces publiques sont ouvertes, elles ne sont
+pas pour autant fiables}. Il a fallu composer avec leurs défauts plutôt que les supposer
+absents.
+
+\paragraph{La disponibilité n'est pas garantie.} Les services répondent en erreur lorsqu'ils
+sont sollicités intensément, ce qui est précisément le régime d'une collecte historique. Toute
+ingestion doit donc intégrer des tentatives successives avec temporisation croissante, et être
+capable de reprendre là où elle s'est arrêtée. Une extraction naïve échoue au bout de quelques
+heures et laisse un jeu de données incomplet sans le signaler.
+
+\paragraph{Les conventions varient d'un point d'accès à l'autre, au sein d'une même source.}
+Le paramètre qui identifie une station n'est pas le même selon l'interface interrogée : les
+observations élaborées d'hydrométrie s'obtiennent par un identifiant d'entité, là où le
+référentiel des stations emploie un identifiant de station. Employer le mauvais ne provoque pas
+d'erreur explicite, mais un résultat vide. De même, une des interfaces ne prend pas en charge le
+paramètre de taille de page, une autre plafonne à cent codes par requête, et la longueur maximale
+d'une adresse impose une limite supplémentaire qui n'est documentée nulle part. Chacune de ces
+contraintes a été découverte à l'usage.
+
+\paragraph{Les données elles-mêmes présentent des incohérences.} Deux cas rencontrés suffisent à
+illustrer le problème. D'une part, le service d'observations hydrométriques retourne des mesures
+rattachées à des stations qui sont \emph{absentes de son propre référentiel de stations} : la
+source se contredit elle-même, et une jointure naïve échoue sur une violation de clé étrangère.
+D'autre part, le champ identifiant la station est vide dans environ \SI{46}{\percent} des
+observations, ce qui interdit de l'utiliser comme clé de filtrage et oblige à s'appuyer sur
+l'identifiant de site, puis à rétablir le lien une couche plus loin.
+
+Ces défauts ont une conséquence directe sur l'architecture décrite au
+chapitre~\ref{ch:entrepot}. Le nettoyage ne peut pas être une formalité que l'on expédie : il
+devient une fonction de premier plan, et surtout il doit \textbf{rendre compte de ce qu'il
+écarte}. C'est la raison d'être des tables de rejets, qui conservent chaque ligne exclue avec le
+motif de son exclusion. Sans elles, il serait impossible de distinguer une station réellement
+absente du terrain d'une station perdue en route par un défaut de la source ou par un critère de
+filtrage trop strict.
+
 \subsection{Aucun indicateur normalisé n'est fourni}
 
 Un hydrogéologue ne raisonne pas sur un niveau brut en mètres, qui n'a de sens que rapporté à
 l'historique de l'ouvrage. Il raisonne sur des \textbf{indicateurs standardisés} qui situent la
 mesure du jour par rapport à la distribution de référence du même mois : est-on dans la normale,
-en situation modérément sèche, en sécheresse sévère~? Ces indicateurs — indices standardisés de
-niveau, de débit, de précipitation, de bilan hydrique — ne sont fournis par aucune des trois
+en situation modérément sèche, en sécheresse sévère~? Ces indicateurs, qu'il s'agisse des indices standardisés de
+niveau, de débit, de précipitation ou de bilan hydrique, ne sont fournis par aucune des trois
 sources. Ils doivent être calculés, ce qui suppose une période de référence, un ajustement
 statistique et une validation.
 
@@ -123,21 +161,21 @@ Le temps consacré à la collecte est prélevé sur le temps de recherche, et il
 de fois qu'il y a de chercheurs.
 
 La réunion de cadrage du 13 février 2026 dresse le même constat en termes opérationnels. Elle
-recense trois jeux de données candidats de provenances distinctes — un ensemble d'environ
+recense trois jeux de données candidats de provenances distinctes : un ensemble d'environ
 \num{220} piézomètres réputés peu influencés par les prélèvements, un ensemble d'environ
 \num{170} piézomètres annotés par des experts, et un jeu reconstitué dans le cadre de travaux de
-thèse — puis conclut à la nécessité de consolider et de qualifier ces jeux, et de centraliser
+thèse. Elle conclut à la nécessité de consolider et de qualifier ces jeux, et de centraliser
 données, modèles, expériences et scripts sur un espace commun~\cite{reunion_cadrage}.
 
 C'est ce coût, réparti et invisible, que l'entrepôt décrit au chapitre~\ref{ch:entrepot}
 supprime.
 
 \begin{acquisouvert}
-\textbf{Acquis} — Le verrou est caractérisé : la donnée est ouverte, mais ni jointe, ni
+\textbf{Acquis.} Le verrou est caractérisé : la donnée est ouverte, mais ni jointe, ni
 consolidée, ni normalisée, ni prête pour l'apprentissage. La question qui organise la suite est
 donc : \emph{quelle infrastructure faut-il construire pour que la recherche en intelligence
 artificielle appliquée aux eaux souterraines devienne seulement possible ?}
 
-\textbf{Ouvert} — Le périmètre retenu couvre la quantité (niveaux, débits). La qualité de l'eau,
+\textbf{Ouvert.} Le périmètre retenu couvre la quantité (niveaux, débits). La qualité de l'eau,
 également visée par le programme, n'a pas été traitée.
 \end{acquisouvert}

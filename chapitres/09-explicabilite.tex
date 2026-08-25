@@ -14,11 +14,11 @@ L'exigence d'explication ne relève pas, dans ce domaine, d'une préférence mé
 niveaux de nappe conditionnent des décisions administratives contraignantes : restrictions
 d'usage, autorisations de prélèvement, dimensionnement d'ouvrages d'alimentation. Une décision
 publique doit pouvoir être motivée. Un modèle dont on ne sait pas dire pourquoi il annonce une
-baisse ne sera pas — et ne devrait pas être — invoqué à l'appui d'un arrêté.
+baisse ne sera pas invoqué à l'appui d'un arrêté, et ne devrait pas l'être.
 
 S'y ajoute une condition d'adoption. L'interlocuteur d'un modèle de nappe est un hydrogéologue
 qui possède une compréhension physique du système. Il n'accordera sa confiance qu'à un modèle
-dont les explications sont compatibles avec ce qu'il sait — et, réciproquement, une explication
+dont les explications sont compatibles avec ce qu'il sait. Réciproquement, une explication
 qui contredit sa compréhension est une information précieuse : soit le modèle a capté quelque
 chose, soit il s'est trompé, et dans les deux cas il faut le savoir.
 
@@ -54,7 +54,7 @@ ces composantes \\
 L'intérêt de disposer de plusieurs familles dans un même outil n'est pas l'exhaustivité mais la
 \textbf{confrontation} : des méthodes qui reposent sur des principes différents et convergent
 donnent une explication crédible ; des méthodes qui divergent signalent que l'explication est
-fragile, ce qui est en soi une information utile — et qu'une méthode unique aurait masquée.
+fragile, ce qui est en soi une information utile, et qu'une méthode unique aurait masquée.
 
 \section{Que se passerait-il si : les contrefactuels sous contrainte physique}
 \label{sec:physcf}
@@ -78,7 +78,7 @@ inutilisable : on ne peut pas dire à un gestionnaire que l'étiage aurait été
 climat qui ne peut pas exister.
 
 La réunion de cadrage de février 2026 énonce ce constat dans les termes du métier. Elle relève
-que les métriques standard — validité, proximité, compacité — ne captent pas la physique, que le
+que les métriques standard (validité, proximité, compacité) ne captent pas la physique, que le
 risque est de « générer des scénarios mathématiquement valides mais physiquement absurdes », et
 elle propose deux critères spécifiques : la plausibilité du bilan de masse et la cohérence
 temporelle avec les échelles de réponse des aquifères~\cite{reunion_cadrage}.
@@ -113,7 +113,7 @@ traduction du premier critère demandé, la plausibilité du bilan de masse ; la
 saisonnière des facteurs de pluie et le décalage temporel traduisent le second.
 
 L'ensemble reste différentiable, donc optimisable par descente de gradient à travers le modèle
-de prévision, quel que soit ce modèle — une couche d'adaptation permet d'appliquer la méthode
+de prévision, quel que soit ce modèle : une couche d'adaptation permet d'appliquer la méthode
 aux architectures du catalogue du chapitre~\ref{ch:apprentissage}. Une variante par optimisation
 bayésienne est également disponible pour les cas où le gradient n'est pas exploitable.
 
@@ -123,24 +123,22 @@ Contraindre l'espace de recherche améliore l'interprétabilité ; encore faut-i
 ne se paie pas d'une perte de qualité rédhibitoire. Une méthode de référence inspirée des
 contrefactuels pour séries temporelles multivariées~\cite{ates2021comte} a donc été implémentée
 pour la comparaison : elle optimise directement la perturbation brute, avec contraintes souples,
-sans couplage physique — soit un nombre de paramètres libres égal à trois fois la longueur de la
+sans couplage physique, soit un nombre de paramètres libres égal à trois fois la longueur de la
 fenêtre, contre sept pour l'approche contrainte.
 
-\begin{encadre}[title={Ce que cette comparaison met à l'épreuve}]
-Avec deux à trois ordres de grandeur de paramètres libres en plus, la référence non contrainte
-atteindra presque toujours la cible plus facilement. La question n'est donc pas laquelle des deux
-optimise mieux — c'est réglé d'avance — mais si \textbf{davantage de degrés de liberté produit
-une meilleure explication}. C'est précisément ce que le dispositif permet de discuter, plutôt que
-de le supposer.
-\end{encadre}
+Cette comparaison met à l'épreuve une hypothèse précise. Avec deux à trois ordres de grandeur de
+paramètres libres en plus, la référence non contrainte atteindra presque toujours la cible plus
+facilement. La question n'est donc pas laquelle des deux optimise mieux, ce qui est réglé
+d'avance, mais si \textbf{davantage de degrés de liberté produit une meilleure explication}. Le
+dispositif permet d'en discuter sur pièces plutôt que de le supposer.
 
 \subsection{Une validation par un modèle indépendant}
 
 Un contrefactuel produit par optimisation à travers un modèle appris peut n'être valide que pour
 ce modèle : il exploiterait alors une particularité de l'approximation plutôt qu'une propriété du
 système. Pour écarter cette possibilité, le scénario contrefactuel est rejoué dans un modèle
-métier calibré indépendamment — le modèle à fonction de transfert du chapitre~\ref{ch:metier} —
-et l'on vérifie que l'effet annoncé s'y retrouve.
+métier calibré indépendamment, celui du chapitre~\ref{ch:metier}, et l'on vérifie que l'effet
+annoncé s'y retrouve.
 
 Cette validation croisée n'était possible que parce que les deux familles de modèles cohabitent
 dans le même outil, sur les mêmes données. C'est un bénéfice direct de l'architecture retenue,
@@ -150,7 +148,7 @@ et une raison supplémentaire d'avoir commencé par le modèle métier.
 
 La troisième question renverse la perspective. Une chronique piézométrique qu'aucun modèle
 climatique ne parvient à reproduire n'est pas nécessairement le signe d'un mauvais modèle : elle
-peut porter la trace d'une \textbf{influence anthropique} — un pompage — que le forçage
+peut porter la trace d'une \textbf{influence anthropique}, un pompage, que le forçage
 climatique ne contient pas.
 
 L'enjeu est double, et il a été formulé comme tel lors du cadrage. Il s'agit d'abord d'écarter
@@ -160,9 +158,9 @@ elle-même : l'annotation automatique des piézomètres selon leur caractère in
 influencé figure parmi les cas d'usage identifiés avec le BRGM.
 
 Le problème est difficile car \textbf{non supervisé} : on ne dispose pas d'un historique
-étiqueté des prélèvements. La démarche retenue croise trois regards indépendants — l'analyse des
-résidus d'un modèle métier calibré, une détection de ruptures et une analyse d'écart par
-apprentissage, une lecture par représentation apprise —, puis fusionne leurs verdicts. La couche
+étiqueté des prélèvements. La démarche retenue croise trois regards indépendants, à savoir l'analyse des
+résidus d'un modèle métier calibré, une détection de ruptures accompagnée d'une analyse d'écart
+par apprentissage, et une lecture par représentation apprise, puis fusionne leurs verdicts. La couche
 d'explicabilité y joue un rôle inhabituel : elle ne sert pas à justifier une prédiction mais à
 détecter une \textbf{dérive dans les attributions}, un changement de ce sur quoi le modèle
 s'appuie, qui signale que le régime du système a changé.
@@ -171,16 +169,16 @@ Le résultat est confronté, quand elle existe, à l'information publique sur le
 prélèvement déclarés.
 
 \begin{acquisouvert}
-\textbf{Acquis} — Un dispositif d'explicabilité complet et confrontable, articulant attribution,
+\textbf{Acquis.} Un dispositif d'explicabilité complet et confrontable, articulant attribution,
 contrefactuels et détection d'influence. La contribution originale porte sur les
 \textbf{contrefactuels sous contrainte physique} : en réduisant l'espace de perturbation à sept
 paramètres interprétables couplés par une relation thermodynamique, la méthode ne produit que des
-scénarios formulables dans le langage du domaine — « un hiver \SI{20}{\percent} plus sec et
-\SI{1}{\celsius} plus chaud » — au lieu de perturbations sans signification physique. Elle met
+scénarios formulables dans le langage du domaine, du type « un hiver \SI{20}{\percent} plus sec
+et \SI{1}{\celsius} plus chaud », au lieu de perturbations sans signification physique. Elle met
 en œuvre les deux critères demandés par les hydrogéologues, sa validité est éprouvée par un
 modèle indépendant et sa qualité mise en regard d'une référence non contrainte.
 
-\textbf{Ouvert} — L'évaluation quantitative comparée des deux approches contrefactuelles, sur un
+\textbf{Ouvert.} L'évaluation quantitative comparée des deux approches contrefactuelles, sur un
 échantillon large et selon des métriques de qualité d'explication établies, reste à conduire.
 C'est la suite naturelle et immédiate de ces travaux, et probablement leur débouché publiable.
 \end{acquisouvert}
