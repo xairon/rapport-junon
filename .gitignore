@@ -1,0 +1,17 @@
+# Fichiers intermédiaires LaTeX
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+
+# Le PDF compilé — décommenter pour le versionner
+# main.pdf

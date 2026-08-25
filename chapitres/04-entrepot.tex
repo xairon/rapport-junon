@@ -1,0 +1,271 @@
+\chapter{L'entrepôt : architecture et garanties}
+\label{ch:entrepot}
+
+\questionchapitre{Comment transformer quatre jeux de données hétérogènes, volumineux et
+piégeux en une ressource interrogeable, reproductible et digne de confiance ?}
+
+Ce chapitre porte le résultat principal du travail. Il ne s'agit pas d'un choix d'outils mais
+d'un ensemble de propriétés à garantir, dont dépend la possibilité même de comparer deux
+expériences.
+
+\section{Le principe : trois couches de qualité croissante}
+
+La donnée traverse trois couches, matérialisées par trois schémas d'une même base
+PostgreSQL~\cite{postgresql}. Ce patron répond à une exigence : ne jamais perdre la donnée
+telle qu'elle a été reçue, et rendre chaque transformation ultérieure explicite, versionnée et
+rejouable.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\sffamily,
+  src/.style={draw=black!55, fill=white, minimum width=2.45cm, minimum height=0.95cm,
+              align=center, font=\sffamily\scriptsize},
+  couche/.style={draw=black!80, fill=white, minimum width=9.6cm, minimum height=1.25cm,
+                 align=left, font=\sffamily\small, inner xsep=10pt},
+  cote/.style={draw=black!55, fill=black!4, minimum width=4.1cm, minimum height=1.25cm,
+               align=left, font=\sffamily\scriptsize, inner xsep=8pt},
+  fl/.style={-{Stealth[length=2.6mm]}, draw=black!75, very thick},
+  outil/.style={font=\sffamily\scriptsize\itshape, color=black!65},
+]
+
+% --- Sources -------------------------------------------------------------
+\node[src] (s1) {Hub'Eau\\piézométrie};
+\node[src, right=0.28cm of s1] (s2) {Hub'Eau\\hydrométrie};
+\node[src, right=0.28cm of s2] (s3) {Copernicus\\ERA5-Land};
+\node[src, right=0.28cm of s3] (s4) {BDLISA};
+
+% --- Couches -------------------------------------------------------------
+\node[couche] (bronze) at ($(s1.south)!0.5!(s4.south)+(0,-2.05)$)
+  {\textbf{Bronze} \quad \scriptsize charges utiles brutes, colonnes texte\\[2pt]
+   \scriptsize\itshape on n'interprète rien};
+
+\node[couche, below=1.15cm of bronze] (silver)
+  {\textbf{Silver} \quad \scriptsize typé, nettoyé, dédupliqué\\[2pt]
+   \scriptsize\itshape toute ligne écartée garde le motif de son exclusion};
+
+\node[couche, below=1.15cm of silver] (gold)
+  {\textbf{Gold} \quad \scriptsize stations jointes au climat et au référentiel\\[2pt]
+   \scriptsize\itshape interrogeable en SQL, sans rien savoir de l'amont};
+
+% --- Rejets, à côté de Silver -------------------------------------------
+\node[cote, right=0.5cm of silver] (rejets)
+  {\textbf{Rejets}\\[2pt] date absente, code nul,\\station orpheline\ldots};
+
+% --- Consommateurs -------------------------------------------------------
+\node[src, below=1.1cm of gold.south, anchor=north, minimum width=5.2cm, minimum height=0.8cm] (conso)
+  {Consommateurs : plateforme,\\carnets de calcul, outils tiers};
+
+% --- Flèches -------------------------------------------------------------
+% Les quatre sources descendent sur une ligne de collecte commune, d'où part
+% une flèche unique : le trajet reste lisible quel que soit le nombre de sources.
+\coordinate (collecte) at ($(s1.south)!0.5!(s4.south)+(0,-0.5)$);
+\foreach \s in {s1,s2,s3,s4} \draw[draw=black!75, very thick] (\s.south) -- (\s.south |- collecte);
+\draw[draw=black!75, very thick] (s1.south |- collecte) -- (s4.south |- collecte);
+\draw[fl] (collecte) -- node[outil, right=3pt]{dlt} (bronze.north);
+
+\draw[fl] (bronze) -- node[outil, right=3pt]{dbt} (silver);
+\draw[fl] (silver) -- node[outil, right=3pt]{dbt} (gold);
+\draw[fl] (gold) -- (conso);
+\draw[fl, densely dashed, thick] (silver.east) -- (rejets.west);
+
+\end{tikzpicture}
+\caption{Les trois couches de l'entrepôt. La donnée brute n'est jamais écrasée, et les lignes
+écartées au nettoyage sont conservées à part avec le motif de leur exclusion : le filtrage se
+vérifie par une requête au lieu d'être silencieux.}
+\label{fig:medaillon}
+\end{figure}
+
+\section{Ingestion : ne rien décider}
+
+Chaque source est ingérée par une bibliothèque d'extraction déclarative~\cite{dlt} qui prend en
+charge la pagination, les tentatives successives avec temporisation exponentielle sur erreur
+serveur, l'inférence de schéma et la déduplication par fusion sur clé primaire. Les séries
+temporelles sont partitionnées par année, chaque tranche restant rechargeable indépendamment.
+Les partitions couvrent la période 1967 à aujourd'hui pour la piézométrie comme pour
+l'hydrométrie, la profondeur effectivement disponible variant d'une station à l'autre.
+
+Le principe de la couche est de ne rien interpréter : les colonnes restent textuelles, les
+valeurs sont celles reçues. Toute interprétation appartient aux couches suivantes, où elle est
+lisible et modifiable.
+
+Le cas d'ERA5 fait exception sur un point imposé par la nature du produit. Les fichiers NetCDF
+ne sont jamais archivés en base : ils sont téléchargés en stockage temporaire, extraits en
+mémoire~\cite{xarray} et insérés directement. Deux chemins d'ingestion coexistent, l'un pour
+les séries issues du pas de \SI{00}{\hour}~UTC, l'autre pour les statistiques journalières de
+température agrégées localement sur les vingt-quatre pas horaires, pour la raison exposée au
+chapitre~\ref{ch:verrou}.
+
+\begin{center}
+\captionof{table}{Volumétrie de la couche brute, mesurée le 24 août 2026.}
+\begin{tabularx}{\textwidth}{@{}Xr@{}}
+\toprule
+\textbf{Table} & \textbf{Lignes} \\
+\midrule
+Statistiques journalières de température ERA5 & $\approx$ \num{320000000} \\
+Séries temporelles ERA5 & $\approx$ \num{300000000} \\
+Mesures piézométriques & $\approx$ \num{23000000} \\
+Observations hydrométriques élaborées & $\approx$ \num{15000000} \\
+Ouvrages piézométriques & \num{23333} \\
+Sites hydrométriques & \num{9283} \\
+Stations hydrométriques & \num{6468} \\
+Entités hydrogéologiques BDLISA & \num{3716} \\
+\midrule
+\textbf{Total} & $\approx$ \num{658000000} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Nettoyage : filtrer en rendant compte}
+
+Chaque modèle de la couche intermédiaire~\cite{dbt} sélectionne les colonnes utiles, convertit
+les types, déduplique et écarte les lignes invalides. La caractéristique importante n'est pas
+le nettoyage mais sa traçabilité : les lignes écartées ne disparaissent pas, elles sont écrites
+dans un schéma dédié avec le motif de leur exclusion, par exemple une date de mesure absente,
+un code de station manquant ou une station orpheline de son site.
+
+Cette décision a un coût de stockage négligeable et une valeur méthodologique élevée. Un
+filtrage silencieux est invérifiable : rien ne distingue une station réellement absente d'une
+station éliminée par un critère trop strict. Ici, la question se tranche par une requête.
+
+Huit modèles de nettoyage et trois modèles de rejets composent cette couche. Les modèles de
+séries temporelles sont incrémentaux, avec une fenêtre de recouvrement de sept jours qui
+absorbe les corrections tardives publiées par les producteurs.
+
+\section{Couche analytique : joindre, enrichir, exposer}
+
+C'est ici que se résout le verrou central du chapitre précédent.
+
+\paragraph{Le rattachement climatique.} Chaque station est associée à sa maille ERA5 la plus
+proche par une jointure spatiale du plus proche voisin, exécutée par l'extension
+géospatiale~\cite{postgis} au moyen d'une jointure latérale et de l'opérateur de distance
+indexé. Cette opération, effectuée une fois et matérialisée, transforme deux jeux de données
+étrangers l'un à l'autre en une chronique unique où le niveau et son forçage climatique
+figurent sur la même ligne, au même jour.
+
+\paragraph{L'enrichissement hydrogéologique.} Les entités du référentiel BDLISA sont rattachées
+aux stations, rendant disponible la nature de l'aquifère observé, information que le
+chapitre~\ref{ch:metier} exploitera pour paramétrer les modèles métier.
+
+\paragraph{Les tables finales.} La couche expose des faits journaliers, des faits agrégés
+mensuels et annuels, des dimensions de description (calendrier, géographie, stations) et les
+grilles climatiques, soit dix-huit modèles de transformation complétés par des tables
+d'indicateurs calculées en Python. Les faits journaliers sont stockés en tables partitionnées
+dans le temps et compressées~\cite{timescaledb}, ce qui maintient les performances
+d'interrogation sur plusieurs dizaines de millions de lignes.
+
+L'ensemble est interrogeable en SQL. C'est le contrat d'interface : un consommateur n'a besoin
+de connaître ni la chaîne d'ingestion, ni les outils employés, seulement le schéma des tables
+finales.
+
+\section{Orchestration : planifier l'ingestion, déclencher la transformation}
+
+L'ingestion est \textbf{planifiée}~\cite{dagster} : mise à jour quotidienne des chroniques et
+du climat, rafraîchissement mensuel du référentiel, contrôle hebdomadaire de complétude,
+recalcul hebdomadaire des références statistiques. La transformation est \textbf{déclenchée par
+événement} : dès que de nouvelles données brutes sont disponibles, un capteur lance la chaîne
+de transformation, laquelle déclenche à son tour le recalcul des indicateurs et les contrôles
+de qualité. L'ensemble compte huit traitements planifiés et trois capteurs.
+
+Ce choix évite le défaut des chaînes entièrement planifiées, où la transformation s'exécute à
+heure fixe sur des données parfois absentes et produit des résultats partiels sans que rien ne
+le signale.
+
+\begin{remarque}[title={Les contrôles de qualité ne bloquent pas le rafraîchissement}]
+Les tests s'exécutent en parallèle du recalcul des indicateurs, et non en amont. Un test en
+échec fait échouer sa propre exécution, donc alerte, mais n'empêche pas la donnée d'être mise à
+jour. L'arbitrage est délibéré : sur une chaîne de surveillance, une donnée imparfaite mais
+fraîche vaut mieux qu'une donnée absente, à condition que le défaut soit signalé.
+\end{remarque}
+
+\section{Les garanties recherchées, et ce que leur mise à l'épreuve a coûté}
+
+Trois propriétés ont été recherchées, puis vérifiées par l'exploitation réelle. Les incidents
+qui suivent sont rapportés parce qu'ils constituent le contenu concret du travail d'ingénierie :
+une architecture n'est pas correcte parce qu'elle est bien dessinée, elle le devient une fois
+ses modes de défaillance rencontrés et traités.
+
+\subsection{Idempotence}
+
+Relancer une ingestion sur une période déjà chargée ne doit rien dupliquer. La propriété est
+obtenue par fusion sur clé primaire à l'ingestion, et par suppression puis réinsertion de la
+plage concernée pour les chargements historiques.
+
+Elle a été mise en défaut de deux manières. D'abord par six modèles dont le prédicat de
+suppression incrémentale était ancré sur la date courante alors que leur sélection l'était sur
+le maximum de la table : sur un jeu plus ancien que la fenêtre, la suppression ne trouvait rien
+et l'insertion répétait des lignes déjà présentes, jusqu'à violation de contrainte d'unicité.
+Le prédicat, qui n'était qu'une optimisation d'élagage, a été retiré plutôt que réparé.
+Ensuite par le lancement d'une matérialisation depuis la ligne de commande, qui contourne la
+file d'exécution : le client interrompu, le traitement continuait d'insérer côté serveur. Des
+doublons ont été observés ainsi le 7 juillet 2026.
+
+\subsection{Maîtrise de la concurrence}
+
+Les exécutions ne sont pas globalement sérialisées, ce qui serait simple mais inutilement lent.
+Elles sont contraintes par clés de concurrence, chaque clé plafonnant le nombre d'exécutions
+simultanées d'une même nature : une seule ingestion par source à la fois, une seule chaîne de
+transformation, mais trois partitions climatiques en vol pour le débit.
+
+Une de ces clés est partagée entre la mise à jour nocturne des températures et le rechargement
+historique. La table concernée ne porte pas de contrainte d'unicité et son remplacement n'est
+pas atomique : lorsque la partition de l'année courante recouvrait la fenêtre nocturne, les
+deux traitements dupliquaient des lignes. Le partage de clé rend ce recouvrement impossible, au
+prix d'un seul créneau d'exécution sur cinq, de sorte que le rechargement historique n'affame
+jamais la production.
+
+\subsection{Reprise}
+
+Le chargement initial complet est interruptible et redémarrable, son avancement étant persisté
+en base. C'est une nécessité pratique : le chargement se compte en jours et en dizaines de
+gigaoctets, et aucune exécution de cette durée ne se déroule sans incident.
+
+\subsection{Les défaillances silencieuses, et pourquoi elles sont les plus coûteuses}
+
+Trois situations produisent des résultats faux sans émettre la moindre erreur. Elles sont
+documentées dans le dépôt parce qu'elles sont invisibles à l'exécution et coûteuses à
+diagnostiquer.
+
+\begin{itemize}
+  \item \textbf{Une colonne entièrement nulle.} Si les séries climatiques sont chargées avant
+  les statistiques journalières de température pour la même période, la garde incrémentale du
+  modèle intermédiaire ne trouve aucune ligne nouvelle, la jointure externe rend des valeurs
+  nulles, et la température est absente de toutes les lignes. Aucun test n'échoue, puisque la
+  jointure est externe et qu'aucune contrainte ne porte sur la colonne. Mesuré le 24 août
+  2026 : \SI{0}{\percent} de lignes renseignées en température, contre \SI{95,4}{\percent}
+  après reconstruction complète du modèle intermédiaire.
+  \item \textbf{Un rechargement historique qui n'atteint pas la couche intermédiaire.} Le
+  modèle de nettoyage des températures fonctionne par ajout avec un filtre sur son propre
+  maximum. Le traitement nocturne ayant déjà renseigné l'année courante, toute ligne
+  rétrospective est silencieusement ignorée.
+  \item \textbf{Un modèle incrémental qui ne produit rien.} Sur un jeu de données arrêté dans
+  le passé, la fenêtre de recalcul glissante ne couvre aucune donnée. L'exécution est déclarée
+  réussie et la table ne grandit pas.
+\end{itemize}
+
+\begin{remarque}[title={Ce que ces incidents enseignent}]
+Une chaîne correcte en régime nominal peut être fausse en régime de recouvrement ou de
+rattrapage. Les garanties d'unicité doivent être portées par le schéma quand c'est possible et
+par l'orchestration quand ce ne l'est pas, jamais par l'hypothèse implicite que deux
+traitements ne se croiseront pas. Surtout, une vérification qui ne peut pas échouer ne vérifie
+rien : les trois cas ci-dessus passent tous les tests existants.
+\end{remarque}
+
+\section{Infrastructure}
+
+Sept services conteneurisés composent le déploiement. Le code métier et l'orchestrateur sont
+séparés en deux images communiquant par appel de procédure distante : l'image métier, lourde,
+embarque le code Python et les bibliothèques géospatiales ; l'image d'orchestration, légère, ne
+contient aucun code métier et n'est reconstruite que lors d'un changement de version de
+l'ordonnanceur. Les volumes de données sont déclarés hors du cycle de vie des conteneurs, de
+sorte qu'une commande d'arrêt ne peut pas les détruire.
+
+\begin{acquisouvert}
+\textbf{Acquis.} Une chaîne complète, automatisée, idempotente, documentée et éprouvée par
+l'exploitation, dont les tables finales sont consommables en SQL sans connaissance de l'amont.
+Le coût d'entrée à l'expérimentation passe de plusieurs semaines à une requête.
+
+\textbf{Ouvert.} L'entrepôt couvre la quantité d'eau ; l'extension à la qualité supposerait de
+nouvelles sources et de nouveaux modèles, sans remettre en cause l'architecture. La supervision
+de production reste à instrumenter au-delà des contrôles existants.
+\end{acquisouvert}

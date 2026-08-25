@@ -1,0 +1,131 @@
+\chapter{Bilan, limites et passation}
+\label{ch:bilan}
+
+\questionchapitre{Que reste-t-il, une fois le contrat achevé, et dans quel état ?}
+
+\section{Récapitulatif}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{3.3cm}X@{}}
+\toprule
+\textbf{Domaine} & \textbf{Réalisation} \\
+\midrule
+Données & Chaîne d'ingestion automatisée de quatre jeux de données issus de trois fournisseurs
+publics ; entrepôt en trois couches sur base relationnelle étendue au temporel et au
+géospatial ; rattachement spatial des stations à leur maille climatique ; enrichissement par le
+référentiel hydrogéologique ; environ \num{658} millions de lignes en couche brute \\
+Fiabilité & Idempotence des traitements, traçabilité des lignes écartées, contraintes de
+concurrence par clés, reprise après interruption, procédures de sauvegarde et de restauration
+vérifiées à l'échelle réelle \\
+Indicateurs & Indices standardisés de niveau, de débit, de précipitation, de température et de
+bilan hydrique ; production nationale sur quatre fenêtres ; protocole de validation à critère
+préétabli ; deux décisions méthodologiques établies par la mesure \\
+Exploration & Observatoire des nappes et des rivières ; module climatique national avec
+historique depuis 1950, épisodes de sécheresse et export \\
+Modélisation métier & Laboratoire de modèles à fonction de transfert ; calibration automatique
+guidée par la nature de l'aquifère ; évaluation selon quatre critères normalisés ; diagnostics
+préalables et postérieurs ; scénarios à bornes physiquement dérivées \\
+Apprentissage & Douze architectures de prévision profonde ; optimisation d'hyperparamètres ;
+traçabilité des expériences ; suivi d'entraînement en temps réel ; configurations prêtes à
+l'emploi par cas d'usage \\
+Explicabilité & Attribution multi-méthodes ; contrefactuels sous contrainte physique avec
+couplage thermodynamique et validation par modèle indépendant ; détection non supervisée
+d'influence anthropique \\
+Ingénierie & Deux dépôts conteneurisés, reproductibles et documentés pour la reprise ; environ
+\num{1400} contributions ; environnements de développement et de production séparés \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Bilan au regard de la mission}
+
+La mission consistait à amorcer, dans le cadre de \textsc{Junon}, les outils et les données sans
+lesquels les travaux d'explicabilité d'\textsc{Aida} ne pourraient être menés.
+
+\textbf{Ce qui est atteint} : l'infrastructure complète, de l'ingestion des sources ouvertes
+jusqu'aux méthodes d'explication, avec une contribution originale sur les contrefactuels sous
+contrainte physique qui répond précisément à la difficulté identifiée avec les hydrogéologues,
+à savoir qu'une explication physiquement incohérente n'est pas une explication.
+
+\textbf{Ce qui n'est pas atteint} : l'évaluation quantitative comparée des méthodes, faute de
+temps une fois l'infrastructure construite. C'est le regret principal de la période. C'est aussi
+le travail le plus immédiatement accessible à qui reprendra ces développements, parce que tout
+ce qu'il suppose existe désormais.
+
+\begin{remarque}[title={Un arbitrage à assumer}]
+Consacrer l'essentiel d'un postdoctorat à construire l'infrastructure d'un sujet plutôt qu'à
+publier sur ce sujet est défavorable à court terme et favorable à long terme. Le jeu de données,
+les indicateurs validés et les outils demeurent, et ils rendent possibles des travaux qui ne
+l'étaient pas. La question posée au chapitre~\ref{ch:verrou} a reçu une réponse construite
+plutôt qu'argumentée.
+\end{remarque}
+
+\section{Limites assumées}
+
+Elles sont énumérées sans atténuation, parce qu'un successeur doit les connaître et qu'un
+rapport qui n'en comporterait aucune ne serait pas crédible.
+
+\begin{enumerate}
+  \item \textbf{Aucun résultat de performance comparée n'est établi.} Les campagnes
+  d'entraînement ont validé le dispositif, non classé les méthodes. Les jeux préparés et les
+  points de sauvegarde ont été purgés lors de la passation.
+
+  \item \textbf{Une incohérence connue subsiste sur l'évapotranspiration} entre la chaîne de
+  grille et la chaîne de station. La seconde conserve la variable d'origine parce qu'elle
+  constitue l'entrée de forçage des modèles métier déjà calibrés et que sa modification les
+  invaliderait. L'arbitrage est explicite et documenté ; sa résolution suppose une recalibration
+  d'ensemble.
+
+  \item \textbf{Les tests ne s'exécutent pas automatiquement} sur la plateforme, la chaîne
+  d'intégration de la forge hébergeante ne comportant qu'une étape de construction. Quatre des
+  \num{552} tests échouent, pour des raisons documentées et sans rapport avec un défaut
+  applicatif, mais la purge des journaux se trouve de fait non testée.
+
+  \item \textbf{Certaines températures agrégées au niveau des stations} sont des extrêmes de
+  moyennes journalières et non de véritables extrêmes journaliers ; les exposer supposerait de
+  modifier une table partitionnée.
+
+  \item \textbf{La source climatique retenue est un compromis.} ERA5-Land a été préféré à une
+  réanalyse plus fine mais non redistribuable, au bénéfice de la reproductibilité et du partage.
+
+  \item \textbf{L'usage reste circonscrit au cercle du projet}, faute d'une politique d'accès
+  élargie.
+
+  \item \textbf{Le périmètre couvre la quantité, non la qualité} des eaux, également visée par
+  le programme.
+\end{enumerate}
+
+\section{État de passation}
+
+Le contrat s'est achevé le 30 juin 2026. Les travaux se sont poursuivis jusqu'au 24 août 2026
+dans le seul but de rendre les réalisations exploitables sans leur auteur :
+
+\begin{itemize}
+  \item refonte complète de la documentation des deux dépôts, organisée autour d'une
+  cartographie des documents et vérifiée par exécution réelle des procédures décrites ;
+  \item consignation des pièges susceptibles de produire des résultats faux sans émettre
+  d'erreur, développés au chapitre~\ref{ch:entrepot} ;
+  \item retrait des éléments sensibles, identifiants, clés d'accès, topologie interne et
+  adresses personnelles, et restriction par défaut de l'écoute des services à l'interface
+  locale ;
+  \item suppression du code mort et des scripts devenus inopérants ;
+  \item vérification à l'échelle réelle des procédures de sauvegarde et de restauration ;
+  \item explicitation du couplage entre les deux dépôts et de ses conditions de démarrage.
+\end{itemize}
+
+\section{Conclusion}
+
+Ces travaux répondent à une question préalable à celle qui les motivait : comment rendre
+possible la recherche en explicabilité sur les eaux souterraines françaises.
+
+La réponse tient en une chaîne complète, de quatre jeux de données publics et dispersés
+jusqu'à des scénarios contrefactuels énonçables dans le langage des hydrogéologues, dont chaque
+maillon est documenté, vérifié et réutilisable indépendamment des autres. Le coût d'entrée à
+l'expérimentation, qui se comptait en semaines et se payait autant de fois qu'il y avait
+d'équipes, se réduit à une requête.
+
+Ce qui a été construit dépasse le périmètre des eaux souterraines. L'enchaînement des sources
+consolidées vers les indicateurs validés, puis vers les modèles et l'explication, est
+transposable aux autres compartiments environnementaux visés par le programme. C'est en ce sens
+que ces développements constituent moins un aboutissement qu'un point de départ, ce qui était
+précisément leur objet.

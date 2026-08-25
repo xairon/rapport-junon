@@ -1,0 +1,201 @@
+\chapter{Un socle pour la suite}
+\label{ch:socle}
+
+\questionchapitre{Ces développements survivront-ils au projet qui les a financés, et
+remplissent-ils la mission qui leur était assignée, à savoir outiller les travaux
+d'explicabilité à venir ?}
+
+\section{La question posée franchement}
+
+Un logiciel de recherche est ordinairement écrit pour produire un résultat, puis abandonné. Il
+suppose un environnement particulier, mêle le traitement et son affichage, dépend de fichiers
+qui ne sont plus là, et sa reprise coûte plus cher que sa réécriture.
+
+Affirmer qu'un développement constitue un socle n'a donc de valeur que si l'on peut désigner les
+propriétés qui le rendent réutilisable et montrer qu'elles sont acquises. C'est l'objet de ce
+chapitre. La question est d'autant plus directe que la mission était explicitement de
+\emph{préparer} des travaux ultérieurs : un socle qui ne serait pas repris constituerait un
+échec de la mission, indépendamment de sa qualité technique.
+
+\section{Les propriétés acquises}
+
+\subsection{Un contrat d'interface qui découple l'amont de l'aval}
+
+La couche analytique de l'entrepôt se consomme en SQL. Cette interface est stable, universelle
+et documentée : un utilisateur n'a besoin de connaître ni les outils d'ingestion, ni les
+bibliothèques de transformation, ni l'orchestrateur. Un carnet de calcul, un tableur connecté,
+un outil de visualisation ou une application tierce s'y branchent également.
+
+La conséquence est structurante : l'amont peut être remplacé sans que l'aval s'en aperçoive. Si
+un outil d'ingestion devient obsolète, il est substituable sans affecter les consommateurs. Peu
+de logiciels de recherche offrent cette propriété, et c'est elle qui distingue une
+infrastructure d'un script.
+
+\subsection{Un c\oe ur de calcul indépendant de toute interface}
+
+Le c\oe ur métier de la plateforme ne comporte aucune dépendance à l'interface graphique
+(chapitre~\ref{ch:plateforme}). Le même code est appelé depuis le service web, un script ou un
+carnet de calcul. Même si l'application était abandonnée, les méthodes resteraient utilisables.
+La contribution scientifique n'est pas prisonnière de son emballage.
+
+\subsection{Des indicateurs validés une fois pour tous les usages}
+
+Les indicateurs du chapitre~\ref{ch:indicateurs} sont calculés dans l'entrepôt, validés selon un
+protocole documenté, et lus tels quels par tous les consommateurs. Il n'existe pas de second
+calcul susceptible de diverger. Cette centralisation garantit que deux études conduites à des
+dates différentes, ou par deux équipes, parlent de la même chose, condition de comparabilité que
+l'on ne peut pas rattraper après coup.
+
+\subsection{Des contrats exécutables entre composants}
+
+Là où une duplication était nécessaire, la classification en classes de sévérité présente dans
+les deux dépôts, elle est gardée par des tables de référence identiques et des tests qui
+échouent en cas de divergence. La contrainte est exécutable plutôt que documentaire : elle
+résiste à l'oubli, ce qu'aucune note ne fait.
+
+\subsection{Une infrastructure reproductible et éprouvée}
+
+L'ensemble est conteneurisé, les volumes de données sont déclarés hors du cycle de vie des
+conteneurs, et le chargement initial est interruptible et redémarrable. Les procédures de
+sauvegarde et de restauration ont été vérifiées à l'échelle réelle. Une réinstallation complète
+est une procédure documentée et testée, non une reconstitution.
+
+\subsection{Une documentation écrite pour la reprise}
+
+La documentation des deux dépôts a été refondue en fin de période dans une perspective explicite
+de passation : cartographie des documents, procédures vérifiées par exécution réelle, et
+consignation des pièges rencontrés, y compris ceux qui produisent des résultats faux sans
+émettre d'erreur. Ce dernier point est le plus utile à un successeur et le plus rarement écrit.
+
+\section{Le patron généralisable}
+
+Au-delà des deux dépôts, ces travaux instancient un enchaînement (figure~\ref{fig:patron}) qui
+n'a rien de spécifique aux eaux souterraines.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\sffamily\small,
+  et/.style={draw=black!70, fill=black!3, minimum width=2.6cm, minimum height=1.3cm,
+             align=center, font=\sffamily\scriptsize},
+  fl/.style={-{Stealth[length=2.4mm]}, draw=black!70, thick},
+  note/.style={font=\sffamily\scriptsize\itshape, color=black!55, align=center,
+               text width=2.55cm},
+]
+\node[et] (e1) {\textbf{Sources}\\ouvertes,\\hétérogènes};
+\node[et, right=0.7cm of e1] (e2) {\textbf{Entrepôt}\\consolidé,\\interrogeable};
+\node[et, right=0.7cm of e2] (e3) {\textbf{Indicateurs}\\normalisés\\et validés};
+\node[et, right=0.7cm of e3] (e4) {\textbf{Modèles}\\métier et\\appris};
+\node[et, right=0.7cm of e4, very thick, draw=black] (e5) {\textbf{Explication}\\et\\scénarisation};
+
+\foreach \a/\b in {e1/e2, e2/e3, e3/e4, e4/e5} \draw[fl] (\a) -- (\b);
+
+\node[note, below=0.32cm of e2] {coût payé une seule fois};
+\node[note, below=0.32cm of e3] {comparabilité garantie ici};
+\node[note, below=0.32cm of e5] {condition de l'usage en décision};
+\end{tikzpicture}
+\caption{L'enchaînement mis en \oe uvre. Chaque étape suppose la précédente ; escamoter l'une
+d'elles produit des résultats incomparables ou inutilisables.}
+\label{fig:patron}
+\end{figure}
+
+L'enseignement de la période tient dans la lecture de gauche à droite de cette figure : on ne
+peut pas commencer par la droite. C'est pourtant ce que font de nombreux projets d'intelligence
+artificielle appliquée à l'environnement, qui investissent dans le modèle et découvrent ensuite
+que la donnée ne permet pas de conclure.
+
+\section{Ce qui est transmis aux travaux d'explicabilité}
+
+La mission consistait à préparer le terrain d'\textsc{Aida}. Le tableau suivant confronte les
+besoins de ce projet à ce qui lui est effectivement transmis.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{4.6cm}X@{}}
+\toprule
+\textbf{Besoin} & \textbf{Disponible} \\
+\midrule
+Un jeu de données consolidé, joint au forçage climatique, sur lequel entraîner des modèles &
+Entrepôt national, historique depuis 1967 pour les stations et 1950 pour le climat,
+rattachement spatial effectué et matérialisé \\
+Des modèles à expliquer & Douze architectures de prévision profonde sous interface unique, avec
+traçabilité des expériences \\
+Une référence interprétable à laquelle confronter les explications & Modèles à fonction de
+transfert calibrés, dont les paramètres ont un sens hydrogéologique \\
+Des méthodes d'attribution & Cinq familles complémentaires, confrontables entre elles \\
+Des explications actionnables & Contrefactuels sous contrainte physique, mettant en \oe uvre les
+critères formulés par les hydrogéologues \\
+Un moyen de valider une explication & Rejeu du scénario dans un modèle métier indépendant \\
+Des cas d'étude qualifiés & Détection non supervisée d'influence anthropique, permettant
+d'écarter les chroniques impropres \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Ce qui n'est pas transmis doit être dit avec la même netteté : aucun résultat de performance
+comparée, aucune évaluation quantitative des méthodes contrefactuelles, et aucune campagne
+d'expériences consolidée. Le socle rend ces travaux possibles ; il ne les a pas menés.
+
+\section{Extensions, par coût croissant}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Extension} & \textbf{Ce qu'elle suppose} & \textbf{Coût} \\
+\midrule
+Nouvelles stations, autre territoire & Rien : la couverture est nationale et la chaîne est
+paramétrée par configuration & nul \\
+Nouveaux indicateurs standardisés & Un ajustement statistique et sa validation, selon le
+protocole existant & faible \\
+Nouvelles architectures de prévision & Une entrée au catalogue ; la fabrique de modèles et la
+traçabilité sont génériques & faible \\
+Qualité des eaux souterraines & De nouvelles sources et de nouveaux modèles de transformation ;
+l'architecture est inchangée & moyen \\
+Eaux de surface & La chaîne hydrométrique existe déjà ; l'extension porte sur la modélisation &
+moyen \\
+Autre compartiment environnemental & Les sources et les indicateurs diffèrent, le patron tient &
+moyen \\
+Couplage à un modèle physique distribué & Une interface avec un simulateur externe et
+l'assimilation de ses sorties & élevé \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Le tableau appelle une lecture précise : ce qui est peu coûteux l'est \emph{parce que}
+l'infrastructure existe. Le coût élevé de l'année écoulée a été payé une fois et ne se
+représente pas à chaque extension. C'est la définition d'un socle.
+
+\section{Ce qui manque pour un environnement d'outils partagé}
+
+Cinq chantiers séparent l'état actuel d'un environnement partagé. Aucun n'est un verrou de
+recherche ; tous sont des décisions d'investissement.
+
+\begin{enumerate}
+  \item \textbf{L'automatisation des vérifications.} La suite de tests de la plateforme n'est
+  pas exécutée automatiquement (chapitre~\ref{ch:apprentissage}). Tant que les vérifications
+  dépendent d'une initiative humaine, la confiance dans les évolutions décroît avec le temps.
+  C'est le chantier le moins coûteux et le plus rentable.
+
+  \item \textbf{Un accès élargi et gouverné.} L'accès nominatif convient à un outil de projet,
+  non à un environnement partagé. Une politique d'accès conditionne tout élargissement.
+
+  \item \textbf{Un catalogue de données.} L'entrepôt est documenté pour qui sait où chercher. Un
+  environnement d'outils suppose un catalogue décrivant les jeux disponibles, leur origine, leur
+  fraîcheur et leurs conditions d'usage.
+
+  \item \textbf{Le calcul mutualisé.} L'entraînement s'appuie sur un serveur unique. Un usage
+  partagé suppose une file d'attente et un partage de ressources.
+
+  \item \textbf{La campagne d'évaluation comparative.} Le socle sera d'autant plus crédible
+  qu'il aura servi à établir un résultat. L'outillage est prêt de part et d'autre.
+\end{enumerate}
+
+\begin{acquisouvert}
+\textbf{Acquis.} Les propriétés qui distinguent une infrastructure d'un prototype sont
+identifiées et tenues : interface stable, c\oe ur indépendant, indicateurs centralisés, contrats
+exécutables, reproductibilité, documentation de reprise. Le patron mis en \oe uvre est
+transposable à d'autres compartiments environnementaux, et les besoins des travaux
+d'explicabilité à venir sont couverts point par point.
+
+\textbf{Ouvert.} Cinq chantiers séparent ce socle d'un environnement partagé, et la
+démonstration par un résultat scientifique reste à produire.
+\end{acquisouvert}

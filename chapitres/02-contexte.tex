@@ -1,0 +1,96 @@
+\chapter{Contexte et mission}
+\label{ch:contexte}
+
+\questionchapitre{Dans quel dispositif ces travaux s'inscrivent-ils, et quelle mission leur
+avait été confiée ?}
+
+\section{Le programme JUNON}
+
+\textsc{Junon} est l'un des programmes \emph{Ambition Recherche et Développement} financés par
+la Région Centre-Val de Loire. Le BRGM le coordonne. Sur cinq ans, il mobilise plus de
+\SI{12,3}{\mega\euro}, dont \SI{6}{\mega\euro} apportés par la Région, et réunit dix-neuf
+partenaires : universités d'Orléans et de Tours, CNRS, INRAE, INSA Centre-Val de Loire, pôle de
+compétitivité DREAM Eau et Milieux, collectivités et entreprises du
+territoire~\cite{brgm_junon_programme,brgm_junon_lancement}.
+
+Son objectif est de construire des jumeaux numériques des milieux naturels continentaux, l'eau,
+le sol et l'air, et les services qui vont avec. Le programme se décline en projets
+collaboratifs. Trois portent sur un compartiment : \textsc{Juneau} pour les eaux souterraines,
+\textsc{PrevizO} pour les eaux de surface, \textsc{Januss} pour l'air et les zones humides.
+Trois autres fournissent les moyens communs : \textsc{Data} pour la gestion des observations,
+\textsc{Prediction} pour la modélisation, et le volet qui assemble les jumeaux.
+
+Le LIFAT participe à ces trois volets transversaux sur 2022--2026~\cite{lifat_junon}. Le volet
+\textsc{Prediction}, dont Nicolas Labroche a la responsabilité, traite la prédiction sur séries
+temporelles environnementales. C'est là que s'inscrit ce postdoctorat.
+
+\section{Le sujet, et ce qu'il supposait}
+
+Le sujet portait sur l'explicabilité des modèles de prévision appliqués aux nappes. La question
+est bien posée. Un réseau de neurones qui prévoit un niveau piézométrique produit un nombre, et
+ce nombre ne vaut rien tant qu'on ne sait pas répondre à trois questions que tout hydrogéologue
+posera : sur quoi le modèle s'appuie-t-il, que se passerait-il dans d'autres conditions, et
+jusqu'où peut-on lui faire confiance en dehors de ce qu'il a vu.
+
+Ces questions ne sont pas théoriques. Les niveaux de nappe déclenchent des arrêtés de
+restriction, conditionnent des autorisations de prélèvement, dimensionnent des ouvrages
+d'alimentation en eau potable. Une prévision qu'on ne sait pas justifier ne sera pas utilisée, et
+elle ne devrait pas l'être.
+
+Mais l'explicabilité s'applique à un modèle, et un modèle s'entraîne sur des données. Au
+démarrage des travaux, aucun jeu de données n'associait les chroniques piézométriques françaises
+à leur forçage climatique. Le chapitre~\ref{ch:verrou} décrit ce manque en détail. Il a
+déterminé toute la trajectoire de l'année.
+
+\section{Une mission d'ingénierie, assumée et actée}
+
+Le travail a donc pris une forme que le sujet initial ne laissait pas prévoir : identifier et
+qualifier les sources, construire l'entrepôt, produire et valider les indicateurs, puis
+seulement outiller la modélisation et l'explicabilité.
+
+Ce n'est pas une reconstruction après coup. La réunion de cadrage du 13 février 2026 entre le
+BRGM et l'université de Tours inscrit parmi ses prochaines étapes la « mise en place d'une stack
+pérenne pour stocker et harmoniser les données communes », et en attribue nommément le pilotage
+à l'auteur de ce rapport~\cite{reunion_aida}.
+
+L'ordre choisi n'est pas un détour. C'est le seul dans lequel les résultats obtenus en bout de
+chaîne restent comparables et rejouables. Un modèle entraîné sur une extraction faite pour
+l'occasion produit un chiffre que personne ne pourra confronter à un autre.
+
+\begin{remarque}[title={Le fil de ce rapport}]
+Le document suit l'ordre dans lequel les obstacles se sont présentés, de la donnée dispersée
+jusqu'à la prévision explicable, et non l'ordre des dépôts logiciels. Chaque chapitre s'ouvre
+sur la question qu'il traite et se referme sur ce qui est acquis et ce qui reste ouvert.
+\end{remarque}
+
+\section{Périmètre}
+
+Deux réalisations logicielles sont couvertes, développées intégralement pendant la période.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Dépôt} & \textbf{Objet} \\
+\midrule
+\hubeau{}~\cite{depot_entrepot} & L'entrepôt : ingestion, transformation et exposition des
+données piézométriques, hydrométriques, climatiques et hydrogéologiques. Premier commit le
+23 septembre 2025. \\
+\junonrepo{}~\cite{depot_plateforme} & La plateforme : observatoire cartographique, laboratoire
+de modèles métier, laboratoire d'apprentissage, explicabilité. Premier commit le 6 novembre
+2025. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Les deux dépôts totalisent environ \num{1400} contributions. Le contrat s'est achevé le 30 juin
+2026. La documentation, la neutralisation des éléments sensibles et la passation se sont
+poursuivies jusqu'au 24 août 2026, pour que ces réalisations restent exploitables une fois leur
+auteur parti.
+
+\begin{acquisouvert}
+\textbf{Acquis.} La mission est claire et sourcée : construire l'infrastructure de données et
+d'expérimentation qui manquait, avant de pouvoir traiter le sujet d'explicabilité.
+
+\textbf{Ouvert.} Les travaux d'explicabilité eux-mêmes se poursuivront au-delà de cette période.
+Le chapitre~\ref{ch:socle} précise ce qui leur est transmis.
+\end{acquisouvert}

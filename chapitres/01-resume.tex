@@ -1,0 +1,66 @@
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+\markboth{Résumé}{Résumé}
+
+\noindent
+Ce postdoctorat s'est déroulé au LIFAT (université de Tours) du 15 septembre 2025 au 30 juin
+2026, dans le cadre du programme \textsc{Junon} de la Région Centre-Val de
+Loire~\cite{brgm_junon_programme}. Le sujet portait sur l'explicabilité des modèles de prévision
+appliqués aux nappes. Il s'est heurté d'emblée à un obstacle qui n'avait rien de
+méthodologique : le terrain expérimental n'existait pas.
+
+La donnée hydrologique française est pourtant publique. Hub'Eau diffuse les chroniques
+piézométriques et hydrométriques~\cite{hubeau}, Copernicus la réanalyse climatique
+ERA5-Land~\cite{cds}, le BRGM le référentiel hydrogéologique BDLISA~\cite{bdlisa}. Mais elle est
+éparpillée entre des services qui s'ignorent, jamais jointe au climat, sans historique
+consolidé ni indicateurs normalisés. Or on n'explique pas un modèle qu'on n'a pas pu entraîner,
+et on n'entraîne rien sans jeu de données. Construire ce jeu de données est devenu le premier
+travail, et une réunion de cadrage entre le BRGM et l'université de Tours en a confié le
+pilotage à l'auteur de ce rapport~\cite{reunion_aida}.
+
+\section*{Ce qui a été construit}
+
+\textbf{Un entrepôt de données hydro-climatiques}~\cite{depot_entrepot} ingère, transforme et
+expose quatre jeux de données publics. Trois couches de qualité croissante sur
+PostgreSQL~\cite{postgresql}, étendu au temporel~\cite{timescaledb} et au
+géospatial~\cite{postgis} ; ingestion déclarative~\cite{dlt}, transformation versionnée en
+SQL~\cite{dbt}, orchestration par actifs~\cite{dagster}. Chaque station est rattachée à sa maille
+climatique et enrichie du référentiel hydrogéologique. Les tables finales se lisent en SQL, sans
+rien connaître de ce qui précède.
+
+\textbf{Une plateforme d'exploration et de prévision}~\cite{depot_plateforme} exploite cet
+entrepôt. Un observatoire cartographique donne l'état des nappes, des rivières et du climat. Un
+laboratoire de modèles métier calibre des modèles à fonction de transfert~\cite{pastas}, évalués
+selon un standard reconnu~\cite{stowa2012} et paramétrés par famille d'aquifère. Un laboratoire
+d'apprentissage donne accès à douze architectures de prévision profonde~\cite{darts}, avec
+optimisation d'hyperparamètres~\cite{optuna} et traçabilité des expériences~\cite{mlflow}.
+L'explicabilité y tient une place centrale : attributions par gradients~\cite{sundararajan2017ig},
+valeurs de Shapley adaptées aux séries temporelles~\cite{bento2021timeshap}, poids d'attention,
+et des explications contrefactuelles qui refusent les scénarios physiquement absurdes.
+
+\section*{Ce que ça donne}
+
+Le résultat principal est une architecture. La chaîne absorbe \num{658} millions de lignes en
+couche brute, ne duplique rien quand on la relance, conserve les lignes qu'elle écarte avec le
+motif de leur exclusion, empêche deux traitements de se marcher dessus, et redémarre où elle
+s'était arrêtée. Ces propriétés décident si un jeu de données peut servir de référence commune à
+plusieurs équipes, ou seulement à l'expérience qui l'a produit.
+
+Trois décisions ont été tranchées par la mesure plutôt que par convention.
+L'évapotranspiration de référence est recalculée par la formule de
+Hargreaves~\cite{hargreaves1985,allen1998fao56} : celle que fournit la réanalyse vaut deux fois
+trop, et mettait la France entière en déficit hydrique permanent. L'indice de bilan hydrique est
+ajusté par une logistique généralisée, seule loi qui couvre tout le territoire, comme le fait
+l'implémentation de référence~\cite{begueria_spei_package}. Enfin, la conformité des indices
+produits a été vérifiée sur \num{41960400} valeurs, contre un critère fixé avant la mesure.
+
+\section*{Portée de ce rapport}
+
+Les expériences d'apprentissage sont décrites par leurs protocoles et leurs choix de conception.
+Les jeux préparés et les modèles entraînés ont été purgés des dépôts à la passation : aucun
+tableau de performances n'est donc avancé, et rien n'a été reconstitué de mémoire. Tous les
+chiffres cités proviennent de mesures consignées dans les dépôts.
+
+Ce qui a été construit dépasse le cadre de ce postdoctorat. Le chapitre~\ref{ch:socle} montre en
+quoi cet ensemble forme un socle pour les travaux d'explicabilité qui prendront la suite, et ce
+qu'il manque encore pour en faire un environnement partagé.

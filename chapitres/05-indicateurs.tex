@@ -1,0 +1,245 @@
+\chapter{Des mesures aux indicateurs}
+\label{ch:indicateurs}
+
+\questionchapitre{Une mesure brute ne dit rien de la situation qu'elle décrit. Comment produire
+des indicateurs normalisés, comparables entre stations et entre années, et comment établir
+qu'ils sont justes ?}
+
+\section{Pourquoi standardiser}
+
+Un niveau piézométrique de \SI{12,4}{\metre} n'est ni haut ni bas dans l'absolu. Il l'est
+relativement à ce que l'ouvrage observe habituellement à cette période de l'année. L'usage
+opérationnel, décider s'il faut restreindre les prélèvements ou comparer deux bassins, suppose
+donc de rapporter chaque mesure à sa distribution de référence.
+
+C'est l'objet des indices standardisés. Le principe est constant : ajuster une loi de
+probabilité sur la série de référence, puis transformer la valeur observée en un score exprimé
+en écarts-types d'une loi normale centrée réduite. Un score de $-2$ signifie alors la même
+chose partout, à savoir une situation dont la rareté correspond au seuil de sécheresse sévère.
+
+Deux familles ont été produites : les indices \emph{par station}, calculés sur les niveaux de
+nappe et les débits, et les indices \emph{sur grille}, calculés sur les variables climatiques
+pour chaque maille du territoire.
+
+\section{Les indices par station}
+
+L'indicateur piézométrique standardisé et son équivalent pour les débits situent le mois
+courant par rapport à sa normale saisonnière. La méthode est centralisée dans un unique module,
+et l'application ne la recalcule pas : elle lit les tables produites par l'entrepôt.
+
+\subsection{La méthode}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Étape} & \textbf{Détail} \\
+\midrule
+Référence & Fenêtre fixe 1991--2020, normale climatique retenue par l'Organisation
+météorologique mondiale et par le BRGM. Ce n'est pas une fenêtre glissante. \\
+Grille & Par mois calendaire, percentiles empiriques de 1 à 99 sur la fenêtre. Un mois
+comptant moins de dix observations est interpolé depuis son voisin circulaire. \\
+Score & Rang percentile dans la grille, borné à $[0{,}001\,;\,0{,}999]$, puis projeté sur la
+loi normale par sa fonction quantile. \\
+Classes & Sept classes délimitées par les seuils $z \in \{-1{,}75\,;\,-1{,}28\,;\,-0{,}84\,;\,
+0{,}84\,;\,1{,}28\,;\,1{,}75\}$, soit en percentiles $\{4{,}01\,;\,10{,}03\,;\,20{,}05\,;\,
+79{,}95\,;\,89{,}97\,;\,95{,}99\}$. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Deux décisions de conception}
+
+\paragraph{Une référence qui se dégrade explicitement.} Toutes les stations ne disposent pas de
+trente années d'historique. Plutôt que d'écarter les stations courtes ou de leur appliquer
+silencieusement une référence plus faible, la sélection de fenêtre se dégrade par paliers
+déclarés : la normale 1991--2020 si au moins quinze années sont disponibles, sinon la meilleure
+fenêtre trentenaire alignée sur les décennies, sinon l'historique complet. Le palier retenu est
+inscrit dans une colonne accompagnant chaque valeur, de sorte qu'un utilisateur sait toujours
+sur quelle base une station est classée.
+
+\paragraph{Une grille n'est jamais fabriquée.} Si aucun mois n'est exploitable, la grille reste
+nulle et l'indice prend la valeur \emph{inconnu}. C'est un choix explicite : produire une
+classe plutôt qu'un aveu d'ignorance reviendrait à inventer une information que l'utilisateur
+lirait comme une mesure.
+
+\subsection{Trois tables, trois rythmes}
+
+La table de référence est recalculée \emph{hebdomadairement}, et non chaque nuit ni une fois
+par décennie. La fenêtre de référence est fixe, mais les grilles par station ne le sont pas :
+une station accumule de l'historique, de nouvelles stations apparaissent, et une station
+classée en référence provisoire peut franchir le seuil des quinze années. Les deux tables qui
+en dérivent, la série mensuelle complète depuis 1967 et l'état courant de chaque station, sont
+reconstruites chaque nuit par la chaîne de capteurs.
+
+\section{Les indices climatiques sur grille}
+
+Trois indices sont calculés pour chaque maille de \ang{0.1}, sur quatre fenêtres d'agrégation
+de 1, 3, 6 et 12 mois correspondant à des inerties différentes du système hydrologique. Tous
+emploient la période de référence 1991--2020 et l'échelle à sept classes de
+McKee~\cite{mckee1993spi}.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Indice} & \textbf{Grandeur} & \textbf{Ajustement} \\
+\midrule
+SPI  & Précipitation & Loi gamma, mélangée à la probabilité de cumul nul \\
+STI  & Température & Loi normale, score centré réduit \\
+SPEI & Précipitation moins évapotranspiration & Loi logistique généralisée \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Première décision : recalculer l'évapotranspiration de référence}
+\label{sec:hargreaves}
+
+Le calcul du SPEI suppose un bilan hydrique, donc une évapotranspiration. ERA5-Land fournit
+directement une variable d'évaporation potentielle. L'employer semblait naturel, et c'est ce
+qui a été fait initialement.
+
+Le résultat était incohérent. Comparé sur \num{30888} couples maille-mois entre 2015 et 2025,
+sur les mêmes mailles :
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}Xrrr@{}}
+\toprule
+ & \textbf{Hargreaves} & \textbf{Variable ERA5-Land} & \textbf{Rapport} \\
+\midrule
+Évapotranspiration annuelle & \SI{818}{\milli\metre} & \SI{1756}{\milli\metre} &
+$\times\,\num{2,15}$ \\
+Bilan précipitation moins ETP & \SI{+146}{\milli\metre\per\an} &
+\SI{-793}{\milli\metre\per\an} & \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+La seconde colonne place l'intégralité du territoire en déficit hydrique permanent, y compris
+les années humides, ce qui est physiquement faux. La valeur de \SI{818}{\milli\metre\per\an} se
+situe dans l'intervalle des références publiées pour la France, entre \num{700} et
+\SI{900}{\milli\metre\per\an} ; celle de \SI{1756}{\milli\metre\per\an} n'y est pas.
+
+L'explication tient à la définition des grandeurs, et c'est le point à retenir. La variable
+d'ERA5 n'est pas une évapotranspiration \emph{de référence} au sens de la FAO. Elle mesure
+l'évaporation d'une surface sans stress hydrique, calculée avec la résistance aérodynamique du
+modèle atmosphérique, dont la littérature documente la surestimation. Les deux grandeurs
+portent des noms voisins et ne décrivent pas la même chose.
+
+La formule de Hargreaves~\cite{hargreaves1985} est le repli recommandé par la
+FAO-56~\cite{allen1998fao56} lorsque le rayonnement, le vent et l'humidité ne sont pas
+disponibles. Elle ne requiert que les températures extrêmes journalières et le rayonnement
+extraterrestre, lequel se dérive analytiquement de la latitude et du jour de l'année. Elle est
+implémentée directement en SQL dans le modèle de grille mensuelle, avec le calcul complet du
+rayonnement extraterrestre.
+
+\begin{mesure}[title={Décision}]
+L'évapotranspiration de référence est recalculée par la formule de Hargreaves à partir des
+températures journalières vraies. La variable ERA5 d'origine reste exposée pour la traçabilité,
+avec une consigne explicite de non-consommation.
+\end{mesure}
+
+\section{Deuxième décision : la loi statistique du SPEI}
+\label{sec:glo}
+
+La formulation de référence du SPEI~\cite{vicenteserrano2010spei} ajuste une loi log-logistique
+à trois paramètres. Appliquée à la grille française, elle ne converge que sur
+\SI{74,6}{\percent} des triplets maille, mois et fenêtre. Un quart du domaine restait sans
+valeur, ce qui est inacceptable pour une couche cartographique nationale.
+
+Plutôt que de constater ce taux d'échec, les rejets ont été instrumentés pour en identifier la
+cause. Le résultat est net : la totalité des rejets provient de la garde portant sur le
+paramètre de forme, et aucun d'une insuffisance de données.
+
+L'explication est la suivante. L'ajustement se fait par la méthode des L-moments~\cite{hosking1990lmoments},
+qui résume la distribution par un coefficient d'asymétrie noté $\tau_3$. La loi log-logistique
+exige une asymétrie positive. Or environ \SI{27}{\percent} des mailles présentent une asymétrie
+négative, c'est-à-dire une distribution du bilan hydrique dont la queue s'étend vers les
+valeurs basses. Aucune taille d'échantillon ne corrige cela : la loi ne peut structurellement
+pas représenter cette forme.
+
+La logistique généralisée lève la limite, son paramètre de forme valant $k = -\tau_3$ et
+acceptant donc les deux signes. C'est aussi la loi retenue par l'implémentation de référence du
+SPEI~\cite{begueria_spei_package}. La couverture atteint \SI{100}{\percent}.
+
+\begin{mesure}[title={Un changement additif}]
+La log-logistique est exactement la logistique généralisée reparamétrée. Le remplacement laisse
+donc les valeurs inchangées partout où la loi d'origine convergeait, vérifié à un écart maximal
+de \num{0,000} sur \num{35614} mailles, et ne fait qu'ajouter les valeurs manquantes.
+\end{mesure}
+
+\section{Validation des indices produits}
+
+Un indice standardisé doit, par construction, suivre approximativement une loi normale centrée
+réduite sur sa propre période de référence. C'est une propriété vérifiable, et elle a été
+vérifiée.
+
+\paragraph{Protocole.} Le critère d'acceptation a été fixé avant la mesure : moyenne voisine de
+zéro à $\pm\,\num{0,05}$, écart-type voisin de un à $\pm\,\num{0,05}$, et taux de saturation aux
+bornes inférieur à \SI{1}{\percent}. Fixer le critère avant de mesurer évite l'ajustement
+rétrospectif du seuil au résultat obtenu.
+
+\paragraph{Mesure.} Effectuée sur \num{41960400} valeurs couvrant \num{11496} mailles.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXrrrr@{}}
+\toprule
+\textbf{Indice} & \textbf{Fenêtres} & \textbf{Moyenne} & \textbf{Écart-type} &
+\textbf{Médiane} & \textbf{Saturation} \\
+\midrule
+SPI  & 1/3/6/12 & $-0{,}008$ à $+0{,}002$ & \numrange{0,985}{1,031} & \numrange{0,00}{0,04} &
+\SIrange{0,05}{0,51}{\percent} \\
+STI  & 1/3/6/12 & $0{,}000$ & \num{0,983} & $-0{,}09$ à $-0{,}02$ &
+\SIrange{0,00}{0,04}{\percent} \\
+SPEI & 1/3/6/12 & $+0{,}004$ à $+0{,}006$ & \numrange{0,999}{1,013} & \numrange{0,01}{0,03} &
+\SIrange{0,012}{0,035}{\percent} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{mesure}[title={Conclusion}]
+Les trois indices satisfont le critère sur les quatre fenêtres. La couverture du SPEI est
+uniforme à \SI{100}{\percent}, ce qui signifie que la calibration est mesurée sur l'ensemble du
+domaine et non sur sa partie commode.
+\end{mesure}
+
+\section{Deux lectures à ne pas faire}
+
+La validation autorise l'usage des indices, elle n'autorise pas toutes les interprétations.
+Deux mises en garde ont été consignées parce que l'erreur correspondante est naturelle.
+
+\paragraph{La classe normale ne couvre pas la proportion théorique.} Elle représente
+\SI{54,8}{\percent} des valeurs au lieu des \SI{59,9}{\percent} attendus d'une gaussienne, alors
+que l'écart-type vaut \num{1,008}. La distribution conserve des épaules légèrement plus lourdes.
+Cet écart est une propriété de la transformation au voisinage des bornes de classe. Il n'a pas
+de conséquence opérationnelle, les seuils employés étant ceux des autres indices, et il ne doit
+pas être lu comme une anomalie de sécheresse.
+
+\paragraph{Une décroissance décennale est un signal climatique, non une dérive de méthode.} La
+moyenne du SPEI sur fenêtre d'un mois décroît de façon monotone d'une décennie à l'autre :
+$+\num{0,038}$ dans les années 1990, $+\num{0,007}$ dans les années 2000, $-\num{0,016}$ dans
+les années 2010, $-\num{0,117}$ depuis 2020. Cette évolution avait été anticipée avant d'être
+mesurée, ce qui la distingue d'un artefact d'ajustement.
+
+\section{Un contrat entre les deux dépôts}
+
+La classification en sept classes existe en deux endroits, dans l'entrepôt qui produit les
+indicateurs et dans la plateforme qui les affiche et les compare aux prévisions. Cette
+duplication est délibérée, car elle évite un couplage fort entre deux systèmes déployés
+séparément, mais elle crée un risque de divergence silencieuse.
+
+Le risque est traité par un contrat exécutable : chaque dépôt possède une table de référence
+associant des valeurs d'entrée aux classes attendues, et ces deux tables sont identiques par
+construction. Toute modification de l'une sans l'autre fait échouer une suite de tests. Le
+mécanisme est simple, et c'est sa vertu : il rend la contrainte exécutable plutôt que
+documentaire.
+
+\begin{acquisouvert}
+\textbf{Acquis.} Une famille d'indicateurs normalisés produite à l'échelle nationale, validée
+selon un protocole à critère préétabli, dont deux décisions méthodologiques structurantes sont
+documentées avec leurs mesures. Ces indicateurs sont utilisables par les hydrogéologues et
+constituent des variables candidates pour la modélisation.
+
+\textbf{Ouvert.} Une incohérence connue subsiste entre la chaîne de grille et la chaîne de
+station sur l'évapotranspiration : la seconde expose encore la variable d'origine, car elle
+constitue l'entrée de forçage des modèles métier déjà calibrés et sa modification les
+invaliderait. L'arbitrage est explicite ; sa résolution suppose une recalibration d'ensemble.
+\end{acquisouvert}

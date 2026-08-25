@@ -1,0 +1,186 @@
+\chapter{Expliquer : préparer le terrain d'AIDA}
+\label{ch:xai}
+
+\questionchapitre{Une prévision de niveau de nappe n'est mobilisable que si l'on peut dire sur
+quoi elle repose et ce qu'elle deviendrait dans d'autres conditions. Comment produire de telles
+explications sans qu'elles soient elles-mêmes trompeuses ?}
+
+\section{Pourquoi l'explicabilité commande le reste}
+
+Ce chapitre expose la finalité du travail. L'infrastructure des chapitres précédents a été
+construite pour qu'il devienne abordable.
+
+L'exigence d'explication ne relève pas d'une préférence méthodologique. Les niveaux de nappe
+conditionnent des décisions administratives contraignantes, restrictions d'usage, autorisations
+de prélèvement, dimensionnement d'ouvrages d'alimentation. Une décision publique doit pouvoir
+être motivée : un modèle dont on ne sait pas dire pourquoi il annonce une baisse ne sera pas, et
+ne devrait pas être, invoqué à l'appui d'un arrêté.
+
+S'y ajoute une condition d'adoption. L'interlocuteur d'un modèle de nappe est un hydrogéologue
+qui possède une compréhension physique du système. Il n'accordera sa confiance qu'à un modèle
+dont les explications sont compatibles avec ce qu'il sait. Réciproquement, une explication qui
+contredit sa compréhension est une information précieuse : soit le modèle a capté quelque chose,
+soit il se trompe, et dans les deux cas il faut le savoir.
+
+Cette exigence est le c\oe ur du projet ANR \textsc{Aida}~\cite{anr_aida}, qui vise des
+explications \emph{actionnables}. Trois questions organisent le dispositif construit ici : sur
+quoi le modèle s'appuie-t-il, que se passerait-il dans d'autres conditions, et cette chronique
+est-elle seulement explicable par le climat.
+
+\section{Sur quoi le modèle s'appuie-t-il : les méthodes d'attribution}
+
+Le premier volet mobilise les familles usuelles d'attribution, chacune répondant à une facette
+différente de la question.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Famille} & \textbf{Ce qu'elle apporte} \\
+\midrule
+Importance par perturbation & Mesure la dégradation de la prévision quand une entrée est
+brouillée, sans hypothèse sur le modèle \\
+Valeurs de Shapley~\cite{lundberg2017shap} & Répartition de la contribution entre entrées sur
+des bases axiomatiques, avec une variante attribuant aussi dans le
+temps~\cite{bento2021timeshap} \\
+Attributions par gradients~\cite{sundararajan2017ig,captum} & Saillance temporelle et gradients
+intégrés : quels pas de temps de la fenêtre d'entrée pèsent sur la sortie \\
+Poids d'attention & Pour les architectures qui en possèdent, lecture directe de ce que le modèle
+regarde \\
+Décomposition du signal & Sépare tendance, saisonnalité et résidu, et rapporte la prévision à
+ces composantes \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Disposer de plusieurs familles dans un même outil ne vise pas l'exhaustivité mais la
+\textbf{confrontation}. Des méthodes reposant sur des principes différents et qui convergent
+donnent une explication crédible ; des méthodes qui divergent signalent une explication fragile,
+information utile qu'une méthode unique aurait masquée.
+
+\section{Que se passerait-il si : les contrefactuels sous contrainte physique}
+\label{sec:physcf}
+
+C'est l'apport le plus original de ces travaux, et il répond à un problème formulé avec les
+hydrogéologues avant d'être traité.
+
+\subsection{Le problème, tel qu'il a été posé}
+
+Une explication contrefactuelle~\cite{wachter2018counterfactual} répond à la question suivante :
+quelle modification minimale des entrées changerait la prévision de telle manière ? Appliquée à
+une nappe, quel régime climatique aurait évité l'étiage annoncé ?
+
+Les approches existantes pour les séries temporelles~\cite{ates2021comte,wang2023forecastcf}
+optimisent la perturbation des entrées sous contrainte de proximité. Sur des données
+climatiques, elles produisent des réponses correctes au sens de l'optimisation et physiquement
+absurdes : augmenter la température sans modifier l'évapotranspiration, faire varier la pluie
+d'un jour à l'autre de façon incohérente, ou construire un régime saisonnier qui n'existe nulle
+part.
+
+La réunion de cadrage de février 2026 énonce ce constat dans les termes du métier. Elle relève
+que les métriques standard, validité, proximité et compacité, ne captent pas la physique, que le
+risque est de « générer des scénarios mathématiquement valides mais physiquement absurdes », et
+elle propose deux critères spécifiques : la plausibilité du bilan de masse et la cohérence
+temporelle avec les échelles de réponse des aquifères~\cite{reunion_aida}. La méthode décrite
+ci-dessous met en \oe uvre ces deux critères.
+
+\subsection{La solution retenue}
+
+L'approche développée renonce à perturber librement les entrées. Elle optimise à la place un
+petit nombre de paramètres interprétables, dont chacun a un sens physique et une plage de
+validité.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lllX@{}}
+\toprule
+\textbf{Paramètre} & \textbf{Plage} & \textbf{Neutre} & \textbf{Interprétation} \\
+\midrule
+Facteur de pluie, un par saison & \numrange{0,3}{2,0} & \num{1,0} & Régime pluviométrique
+saisonnier, de \SI{-70}{\percent} au double \\
+Décalage de température & \SIrange{-5}{5}{\celsius} & \num{0} & Réchauffement ou
+refroidissement global \\
+Résidu d'évapotranspiration & \numrange{-0,03}{0,03} & \num{0} & Écart fractionnaire résiduel \\
+Décalage temporel & \SIrange{-30}{30}{\day} & \num{0} & Avance ou retard de la saison \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Ces paramètres ne sont pas indépendants. L'évapotranspiration est couplée à la température par
+la relation de Clausius-Clapeyron, au taux d'environ \SI{7}{\percent} par degré qui gouverne la
+capacité de l'air à contenir de la vapeur d'eau. Élever la température dans le scénario
+contrefactuel élève donc mécaniquement la demande évaporative : le scénario reste
+thermodynamiquement cohérent \emph{par construction}, et non par pénalisation d'une incohérence
+après coup. C'est la traduction du premier critère demandé, la plausibilité du bilan de masse.
+La structure saisonnière des facteurs de pluie et le décalage temporel traduisent le second, la
+cohérence avec les échelles de réponse naturelles.
+
+L'ensemble reste différentiable, donc optimisable par descente de gradient à travers le modèle
+de prévision, quel qu'il soit : une couche d'adaptation permet d'appliquer la méthode aux
+architectures du catalogue du chapitre~\ref{ch:apprentissage}. Une variante par optimisation
+bayésienne est disponible lorsque le gradient n'est pas exploitable.
+
+\subsection{Une comparaison avec une référence non contrainte}
+
+Contraindre l'espace de recherche améliore l'interprétabilité ; encore faut-il montrer que le
+prix payé reste acceptable. Une méthode de référence inspirée des contrefactuels pour séries
+temporelles multivariées~\cite{ates2021comte} a donc été implémentée pour la comparaison. Elle
+optimise directement la perturbation brute sous contraintes souples, sans couplage physique,
+soit un nombre de paramètres libres égal à trois fois la longueur de la fenêtre, contre sept
+pour l'approche contrainte.
+
+\begin{remarque}[title={Ce que cette comparaison met à l'épreuve}]
+Avec deux à trois ordres de grandeur de paramètres libres en plus, la référence non contrainte
+atteindra presque toujours la cible plus facilement. La question n'est donc pas laquelle des
+deux optimise mieux, ce qui est réglé d'avance, mais si davantage de degrés de liberté produit
+une \emph{meilleure explication}. Le dispositif permet d'en discuter sur pièces plutôt que de le
+supposer.
+\end{remarque}
+
+\subsection{Une validation par un modèle indépendant}
+
+Un contrefactuel produit par optimisation à travers un modèle appris peut n'être valide que pour
+ce modèle : il exploiterait alors une particularité de l'approximation plutôt qu'une propriété
+du système. Pour écarter cette possibilité, le scénario est rejoué dans un modèle métier calibré
+indépendamment, celui du chapitre~\ref{ch:metier}, et l'on vérifie que l'effet annoncé s'y
+retrouve.
+
+Cette validation croisée n'était possible que parce que les deux familles de modèles cohabitent
+dans le même outil, sur les mêmes données. C'est un bénéfice direct de l'architecture retenue et
+une raison supplémentaire d'avoir commencé par le modèle métier.
+
+\section{Cette chronique est-elle explicable par le climat ?}
+
+La troisième question renverse la perspective. Une chronique piézométrique qu'aucun modèle
+climatique ne parvient à reproduire n'est pas nécessairement le signe d'un mauvais modèle : elle
+peut porter la trace d'une influence anthropique, un prélèvement, que le forçage climatique ne
+contient pas.
+
+L'enjeu est double, et il a été formulé comme tel lors du cadrage. Il s'agit d'abord d'écarter
+les stations impropres à l'apprentissage, préoccupation qui rejoint directement la constitution
+d'un jeu de données de piézomètres peu influencés. Il s'agit ensuite de produire une information
+utile en elle-même, l'annotation automatique des piézomètres selon leur caractère inertiel,
+réactif ou influencé figurant parmi les cas d'usage identifiés avec le
+BRGM~\cite{reunion_aida}.
+
+Le problème est difficile car non supervisé : on ne dispose pas d'un historique étiqueté des
+prélèvements. La démarche retenue croise trois regards indépendants, l'analyse des résidus d'un
+modèle métier calibré, une détection de ruptures accompagnée d'une analyse d'écart par
+apprentissage, et une lecture par représentation apprise, puis fusionne leurs verdicts. La
+couche d'explicabilité y joue un rôle inhabituel : elle ne sert pas à justifier une prédiction
+mais à détecter une \emph{dérive dans les attributions}, un changement de ce sur quoi le modèle
+s'appuie, qui signale que le régime du système a changé. Le résultat est confronté, lorsqu'elle
+existe, à l'information publique sur les ouvrages de prélèvement déclarés.
+
+\begin{acquisouvert}
+\textbf{Acquis.} Un dispositif d'explicabilité complet et confrontable, articulant attribution,
+contrefactuels et détection d'influence. La contribution originale porte sur les contrefactuels
+sous contrainte physique : en réduisant l'espace de perturbation à sept paramètres
+interprétables couplés par une relation thermodynamique, la méthode ne produit que des scénarios
+formulables dans le langage du domaine, un hiver plus sec de \SI{20}{\percent} et plus chaud
+d'un degré, au lieu de perturbations sans signification physique. Elle met en \oe uvre les deux
+critères demandés par les hydrogéologues, sa validité est éprouvée par un modèle indépendant et
+sa qualité mise en regard d'une référence non contrainte.
+
+\textbf{Ouvert.} L'évaluation quantitative comparée des deux approches, sur un échantillon large
+et selon des métriques de qualité d'explication établies, reste à conduire. C'est la suite
+immédiate de ces travaux et elle relève du projet \textsc{Aida}.
+\end{acquisouvert}
