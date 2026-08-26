@@ -1,0 +1,409 @@
+% ===========================================================================
+% Bibliographie du rapport de clôture JUNON
+% Quatre familles : programme et projets, sources de données, outils et
+% bibliothèques, littérature scientifique.
+% ===========================================================================
+
+% ---------------------------------------------------------------------------
+% 1. Programme, projets, dépôts
+% ---------------------------------------------------------------------------
+
+@misc{brgm_junon_programme,
+  author       = {{BRGM}},
+  title        = {{JUNON} : des jumeaux numériques au service des ressources naturelles},
+  howpublished = {Programme scientifique, Bureau de recherches géologiques et minières},
+  year         = {2023},
+  url          = {https://www.brgm.fr/fr/programme-scientifique/junon-jumeaux-numeriques-au-service-ressources-naturelles},
+}
+
+@misc{brgm_junon_lancement,
+  author       = {{BRGM}},
+  title        = {Lancement du programme {JUNON} en région Centre-Val de Loire},
+  howpublished = {Communiqué de presse},
+  year         = {2023},
+  url          = {https://www.brgm.fr/fr/actualite/communique-presse/lancement-programme-junon-centre-val-loire},
+}
+
+@misc{lifat_junon,
+  author       = {{LIFAT}},
+  title        = {Projet {JUNON} (2022--2026), volets {DATA}, {PREDICTION} et jumeaux numériques},
+  howpublished = {Laboratoire d'informatique fondamentale et appliquée de Tours, université de Tours},
+  year         = {2022},
+  url          = {https://lifat.univ-tours.fr/projects/regional/recent/bdtin/2022-2026-junon-project},
+}
+
+
+@misc{depot_entrepot,
+  author       = {Ringuet, Nicolas},
+  title        = {\code{hubeau\_data\_integration} : entrepôt de données hydro-climatiques},
+  howpublished = {Dépôt logiciel, forge de l'université de Tours},
+  year         = {2026},
+  url          = {https://scm.univ-tours.fr/ringuet/hubeau_data_integration},
+}
+
+@misc{depot_plateforme,
+  author       = {Ringuet, Nicolas},
+  title        = {\code{time-serie-explo} : plateforme d'exploration, de modélisation et de prévision piézométrique},
+  howpublished = {Dépôt logiciel, forge de l'université de Tours},
+  year         = {2026},
+  url          = {https://scm.univ-tours.fr/ringuet/time-serie-explo},
+}
+
+
+% ---------------------------------------------------------------------------
+% 2. Sources de données
+% ---------------------------------------------------------------------------
+
+@misc{hubeau,
+  author       = {{Office français de la biodiversité}},
+  title        = {{Hub'Eau} : les {API} du système d'information sur l'eau},
+  howpublished = {Services web \emph{niveaux\_nappes} et \emph{hydrometrie}},
+  year         = {2026},
+  url          = {https://hubeau.eaufrance.fr/},
+}
+
+@misc{bdlisa,
+  author       = {{BRGM} and {Sandre}},
+  title        = {{BDLISA} : base de données des limites des systèmes aquifères},
+  howpublished = {Référentiel hydrogéologique français},
+  year         = {2026},
+  url          = {https://bdlisa.eaufrance.fr/},
+}
+
+@misc{cds,
+  author       = {{Copernicus Climate Change Service}},
+  title        = {{Climate} {Data} {Store} : {ERA5-Land} hourly data from 1950 to present},
+  howpublished = {Centre européen pour les prévisions météorologiques à moyen terme},
+  year         = {2026},
+  url          = {https://cds.climate.copernicus.eu/},
+}
+
+@article{hersbach2020era5,
+  author  = {Hersbach, Hans and Bell, Bill and Berrisford, Paul and Hirahara, Shoji and
+             Horányi, András and Muñoz-Sabater, Joaquín and Nicolas, Julien and Peubey, Carole and others},
+  title   = {The {ERA5} global reanalysis},
+  journal = {Quarterly Journal of the Royal Meteorological Society},
+  volume  = {146},
+  number  = {730},
+  pages   = {1999--2049},
+  year    = {2020},
+}
+
+@article{munozsabater2021era5land,
+  author  = {Muñoz-Sabater, Joaquín and Dutra, Emanuel and Agustí-Panareda, Anna and
+             Albergel, Clément and Arduini, Gabriele and Balsamo, Gianpaolo and Boussetta, Souhail and others},
+  title   = {{ERA5-Land} : a state-of-the-art global reanalysis dataset for land applications},
+  journal = {Earth System Science Data},
+  volume  = {13},
+  number  = {9},
+  pages   = {4349--4383},
+  year    = {2021},
+}
+
+% ---------------------------------------------------------------------------
+% 3. Outils et bibliothèques
+% ---------------------------------------------------------------------------
+
+@misc{dagster,
+  author       = {{Dagster Labs}},
+  title        = {{Dagster} : an orchestrator for data assets},
+  howpublished = {Logiciel, version 1.11},
+  year         = {2026},
+  url          = {https://dagster.io/},
+}
+
+@misc{dbt,
+  author       = {{dbt Labs}},
+  title        = {{dbt} : data build tool},
+  howpublished = {Logiciel, version 1.7},
+  year         = {2026},
+  url          = {https://www.getdbt.com/},
+}
+
+@misc{dlt,
+  author       = {{dltHub}},
+  title        = {{dlt} : data load tool, a Python library for declarative data ingestion},
+  howpublished = {Logiciel, version 0.4},
+  year         = {2026},
+  url          = {https://dlthub.com/},
+}
+
+@misc{postgresql,
+  author       = {{PostgreSQL Global Development Group}},
+  title        = {{PostgreSQL} 16},
+  howpublished = {Système de gestion de base de données relationnelle},
+  year         = {2026},
+  url          = {https://www.postgresql.org/},
+}
+
+@misc{timescaledb,
+  author       = {{Timescale}},
+  title        = {{TimescaleDB} : time-series extension for {PostgreSQL}},
+  howpublished = {Logiciel},
+  year         = {2026},
+  url          = {https://www.timescale.com/},
+}
+
+@misc{postgis,
+  author       = {{PostGIS Project}},
+  title        = {{PostGIS} : spatial and geographic objects for {PostgreSQL}},
+  howpublished = {Logiciel},
+  year         = {2026},
+  url          = {https://postgis.net/},
+}
+
+@article{pastas,
+  author  = {Collenteur, Raoul A. and Bakker, Mark and Caljé, Ruben and Klop, Stijn A. and
+             Schaars, Frans},
+  title   = {Pastas : open source software for the analysis of groundwater time series},
+  journal = {Groundwater},
+  volume  = {57},
+  number  = {6},
+  pages   = {877--885},
+  year    = {2019},
+}
+
+@article{darts,
+  author  = {Herzen, Julien and Lässig, Francesco and Piazzetta, Samuele Giuliano and
+             Neuer, Thomas and Tafti, Léo and Raille, Guillaume and Van Pottelbergh, Tomas and others},
+  title   = {Darts : user-friendly modern machine learning for time series},
+  journal = {Journal of Machine Learning Research},
+  volume  = {23},
+  number  = {124},
+  pages   = {1--6},
+  year    = {2022},
+}
+
+@inproceedings{optuna,
+  author    = {Akiba, Takuya and Sano, Shotaro and Yanase, Toshihiko and Ohta, Takeru and
+               Koyama, Masanori},
+  title     = {Optuna : a next-generation hyperparameter optimization framework},
+  booktitle = {Proceedings of the 25th {ACM} {SIGKDD} International Conference on Knowledge
+               Discovery and Data Mining},
+  pages     = {2623--2631},
+  year      = {2019},
+}
+
+@article{mlflow,
+  author  = {Zaharia, Matei and Chen, Andrew and Davidson, Aaron and Ghodsi, Ali and
+             Hong, Sue Ann and Konwinski, Andy and Murching, Siddharth and others},
+  title   = {Accelerating the machine learning lifecycle with {MLflow}},
+  journal = {IEEE Data Engineering Bulletin},
+  volume  = {41},
+  number  = {4},
+  pages   = {39--45},
+  year    = {2018},
+}
+
+@misc{pytorch_lightning,
+  author       = {Falcon, William and {the PyTorch Lightning team}},
+  title        = {{PyTorch} {Lightning}},
+  howpublished = {Logiciel},
+  year         = {2019},
+  url          = {https://www.pytorchlightning.ai/},
+}
+
+@misc{fastapi,
+  author       = {Ramírez, Sebastián},
+  title        = {{FastAPI} : a modern, fast web framework for building {API}s with {Python}},
+  howpublished = {Logiciel},
+  year         = {2026},
+  url          = {https://fastapi.tiangolo.com/},
+}
+
+@misc{react,
+  author       = {{Meta Open Source}},
+  title        = {{React} 19 : a {JavaScript} library for building user interfaces},
+  howpublished = {Logiciel},
+  year         = {2026},
+  url          = {https://react.dev/},
+}
+
+@misc{xarray,
+  author  = {Hoyer, Stephan and Hamman, Joseph},
+  title   = {xarray : {N-D} labeled arrays and datasets in {Python}},
+  howpublished = {Journal of Open Research Software, 5(1), 10},
+  year    = {2017},
+  url     = {https://xarray.dev/},
+}
+
+@misc{captum,
+  author       = {Kokhlikyan, Narine and Miglani, Vivek and Martin, Miguel and Wang, Edward
+                  and Alsallakh, Bilal and Reynolds, Jonathan and Melnikov, Alexander and others},
+  title        = {Captum : a unified and generic model interpretability library for {PyTorch}},
+  howpublished = {arXiv:2009.07896},
+  year         = {2020},
+  url          = {https://captum.ai/},
+}
+
+% ---------------------------------------------------------------------------
+% 4. Modèles métier et jeux de données du BRGM
+% ---------------------------------------------------------------------------
+
+@misc{gardenia,
+  author       = {{BRGM}},
+  title        = {{GARDÉNIA} : modèle global à réservoirs pour la simulation des débits et
+                  des niveaux de nappe},
+  howpublished = {Logiciel, Bureau de recherches géologiques et minières},
+  year         = {2026},
+  url          = {https://www.brgm.fr/fr/logiciel/gardenia-logiciel-modelisation-hydrologique-globale-bassin-versant},
+}
+
+@misc{eros,
+  author       = {{BRGM}},
+  title        = {{EROS} : modèle hydrologique global multi-bassins},
+  howpublished = {Logiciel, Bureau de recherches géologiques et minières},
+  year         = {2026},
+  url          = {https://www.brgm.fr/fr/logiciel/eros-logiciel-modelisation-hydrologique-semi-globale-bassin-versant-decoupe-sous-bassins},
+}
+
+@misc{safran,
+  author       = {{Météo-France}},
+  title        = {{SAFRAN} : système d'analyse atmosphérique à méso-échelle sur la France},
+  howpublished = {Réanalyse météorologique sous licence, non redistribuable},
+  year         = {2026},
+}
+
+
+% ---------------------------------------------------------------------------
+% 5. Indices standardisés et évapotranspiration
+% ---------------------------------------------------------------------------
+
+@inproceedings{mckee1993spi,
+  author    = {McKee, Thomas B. and Doesken, Nolan J. and Kleist, John},
+  title     = {The relationship of drought frequency and duration to time scales},
+  booktitle = {Proceedings of the 8th Conference on Applied Climatology},
+  pages     = {179--184},
+  address   = {Anaheim, Californie},
+  year      = {1993},
+}
+
+@article{vicenteserrano2010spei,
+  author  = {Vicente-Serrano, Sergio M. and Beguería, Santiago and López-Moreno, Juan I.},
+  title   = {A multiscalar drought index sensitive to global warming : the standardized
+             precipitation evapotranspiration index},
+  journal = {Journal of Climate},
+  volume  = {23},
+  number  = {7},
+  pages   = {1696--1718},
+  year    = {2010},
+}
+
+@misc{begueria_spei_package,
+  author       = {Beguería, Santiago and Vicente-Serrano, Sergio M.},
+  title        = {{SPEI} : calculation of the standardised precipitation-evapotranspiration index},
+  howpublished = {Paquet {R}, fonction \code{parglo} d'ajustement de la logistique généralisée},
+  year         = {2023},
+  url          = {https://cran.r-project.org/package=SPEI},
+}
+
+@article{hosking1990lmoments,
+  author  = {Hosking, Jonathan R. M.},
+  title   = {{L}-moments : analysis and estimation of distributions using linear combinations
+             of order statistics},
+  journal = {Journal of the Royal Statistical Society, Series B},
+  volume  = {52},
+  number  = {1},
+  pages   = {105--124},
+  year    = {1990},
+}
+
+@article{hargreaves1985,
+  author  = {Hargreaves, George H. and Samani, Zohrab A.},
+  title   = {Reference crop evapotranspiration from temperature},
+  journal = {Applied Engineering in Agriculture},
+  volume  = {1},
+  number  = {2},
+  pages   = {96--99},
+  year    = {1985},
+}
+
+@book{allen1998fao56,
+  author    = {Allen, Richard G. and Pereira, Luis S. and Raes, Dirk and Smith, Martin},
+  title     = {Crop evapotranspiration : guidelines for computing crop water requirements},
+  series    = {{FAO} Irrigation and Drainage Paper 56},
+  publisher = {Organisation des Nations unies pour l'alimentation et l'agriculture},
+  address   = {Rome},
+  year      = {1998},
+}
+
+@techreport{stowa2021,
+  author      = {Von Asmuth, Jos and Baggelaar, Paul and Bakker, Mark and Brakenhoff, Davíd and
+                 Collenteur, Raoul and Ebbens, Onno and Mondeel, Harry and Klop, Stijn and
+                 Schaars, Frans},
+  title       = {Handleiding tijdreeksanalyse},
+  institution = {Stichting Toegepast Onderzoek Waterbeheer ({STOWA})},
+  address     = {Amersfoort, Pays-Bas},
+  number      = {2021-32},
+  year        = {2021},
+  note        = {Manuel de référence de l'analyse de séries temporelles pour la gestion des
+                 eaux souterraines, et critères d'acceptation des modèles},
+}
+
+% ---------------------------------------------------------------------------
+% 6. Apprentissage et explicabilité
+% ---------------------------------------------------------------------------
+
+@article{lim2021tft,
+  author  = {Lim, Bryan and Arık, Sercan Ö. and Loeff, Nicolas and Pfister, Tomas},
+  title   = {Temporal fusion transformers for interpretable multi-horizon time series forecasting},
+  journal = {International Journal of Forecasting},
+  volume  = {37},
+  number  = {4},
+  pages   = {1748--1764},
+  year    = {2021},
+}
+
+@inproceedings{lundberg2017shap,
+  author    = {Lundberg, Scott M. and Lee, Su-In},
+  title     = {A unified approach to interpreting model predictions},
+  booktitle = {Advances in Neural Information Processing Systems 30},
+  pages     = {4765--4774},
+  year      = {2017},
+}
+
+@inproceedings{bento2021timeshap,
+  author    = {Bento, João and Saleiro, Pedro and Cruz, André F. and Figueiredo, Mário A. T.
+               and Bizarro, Pedro},
+  title     = {{TimeSHAP} : explaining recurrent models through sequence perturbations},
+  booktitle = {Proceedings of the 27th {ACM} {SIGKDD} Conference on Knowledge Discovery and
+               Data Mining},
+  pages     = {2565--2573},
+  year      = {2021},
+}
+
+@inproceedings{sundararajan2017ig,
+  author    = {Sundararajan, Mukund and Taly, Ankur and Yan, Qiqi},
+  title     = {Axiomatic attribution for deep networks},
+  booktitle = {Proceedings of the 34th International Conference on Machine Learning},
+  pages     = {3319--3328},
+  year      = {2017},
+}
+
+@article{wachter2018counterfactual,
+  author  = {Wachter, Sandra and Mittelstadt, Brent and Russell, Chris},
+  title   = {Counterfactual explanations without opening the black box : automated decisions
+             and the {GDPR}},
+  journal = {Harvard Journal of Law and Technology},
+  volume  = {31},
+  number  = {2},
+  pages   = {841--887},
+  year    = {2018},
+}
+
+@inproceedings{ates2021comte,
+  author    = {Ates, Emre and Aksar, Burak and Leung, Vitus J. and Coskun, Ayse K.},
+  title     = {Counterfactual explanations for multivariate time series},
+  booktitle = {International Conference on Applied Artificial Intelligence ({ICAPAI})},
+  pages     = {1--8},
+  publisher = {IEEE},
+  year      = {2021},
+}
+
+@inproceedings{wang2023forecastcf,
+  author    = {Wang, Zhendong and Miliou, Ioanna and Samsten, Isak and Papapetrou, Panagiotis},
+  title     = {Counterfactual explanations for time series forecasting},
+  booktitle = {IEEE International Conference on Data Mining ({ICDM})},
+  pages     = {1391--1396},
+  year      = {2023},
+}

@@ -1,0 +1,326 @@
+\chapter{Des mesures aux indicateurs : construction et validation}
+\label{ch:indicateurs}
+
+\questionchapitre{Une mesure brute ne dit rien de la situation qu'elle décrit. Comment produire
+des indicateurs normalisés, comparables entre stations et entre années, et comment établir
+qu'ils sont justes ?}
+
+\section{Pourquoi standardiser}
+
+Un niveau piézométrique de \SI{12,4}{\metre} n'est ni haut ni bas dans l'absolu : il l'est
+relativement à ce que l'ouvrage observe habituellement à cette période de l'année. La même
+remarque vaut pour un cumul de pluie ou une température. L'usage opérationnel suppose donc de rapporter chaque mesure à sa \textbf{distribution de
+référence} : décider s'il faut restreindre les prélèvements, comparer deux bassins, situer un
+épisode dans l'histoire climatique.
+
+C'est l'objet des indices standardisés. Leur principe est constant : ajuster une loi de
+probabilité sur la série de référence, puis transformer la valeur observée en un score exprimé
+en écarts-types d'une loi normale centrée réduite. Un score de $-2$ signifie alors la même chose
+partout : une situation d'une rareté que les échelles usuelles rangent parmi les sécheresses les
+plus marquées.
+
+Deux familles ont été produites : les indices \emph{par station}, calculés sur les niveaux de
+nappe et les débits, et les indices \emph{sur grille}, calculés sur les variables climatiques
+pour chaque maille du territoire.
+
+\section{Les indices par station}
+
+L'indicateur piézométrique standardisé et son équivalent pour les débits situent le mois courant
+par rapport à sa normale saisonnière. La méthode est centralisée dans un unique module, et
+l'application ne la recalcule pas : elle lit les tables produites par l'entrepôt.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Étape} & \textbf{Détail} \\
+\midrule
+Référence & Fenêtre fixe 1991--2020, normale climatique retenue par l'Organisation
+météorologique mondiale et par le BRGM. Ce n'est pas une fenêtre glissante. \\
+Grille & Par mois calendaire, percentiles empiriques de 1 à 99 sur la fenêtre. Un mois comptant
+moins de dix observations est interpolé depuis son voisin circulaire. \\
+Score & Rang percentile dans la grille, borné à $[0{,}001\,;\,0{,}999]$, puis projeté sur la loi
+normale par sa fonction quantile. \\
+Classes & Sept classes délimitées par les seuils $z \in \{-1{,}75\,;\,-1{,}28\,;\,-0{,}84\,;\,
+0{,}84\,;\,1{,}28\,;\,1{,}75\}$. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\paragraph{Une référence qui se dégrade explicitement.} Toutes les stations ne disposent pas de
+trente années d'historique. Plutôt que d'écarter les stations courtes ou de leur appliquer
+silencieusement une référence plus faible, la sélection de fenêtre se dégrade par paliers
+déclarés : la normale 1991--2020 si au moins quinze années sont disponibles, sinon la meilleure
+fenêtre trentenaire alignée sur les décennies, sinon l'historique complet. Le palier retenu est
+inscrit dans une colonne accompagnant chaque valeur, de sorte qu'un utilisateur sait toujours
+sur quelle base une station est classée.
+
+\paragraph{Une limite de portée à connaître.} L'indicateur piézométrique standardisé a été
+conçu pour les nappes libres, dont le niveau suit une cyclicité annuelle marquée. Il est ici
+calculé pour toutes les stations sans distinction, faute d'une information fiable permettant
+d'identifier les ouvrages captant une nappe captive. Les échanges avec les hydrogéologues ont
+confirmé qu'aucun indicateur équivalent n'existe aujourd'hui pour ces nappes, et que le sujet
+fait l'objet de travaux dédiés. La valeur produite pour une station captive doit donc être lue
+avec prudence : elle est calculée correctement, mais l'indicateur n'a pas été pensé pour ce cas.
+
+\paragraph{Une grille n'est jamais fabriquée.} Si aucun mois n'est exploitable, la grille reste
+nulle et l'indice prend la valeur \emph{inconnu}. Produire une classe plutôt qu'un aveu
+d'ignorance reviendrait à inventer une information que l'utilisateur lirait comme une mesure.
+
+La table de référence est recalculée \emph{hebdomadairement}, et non chaque nuit ni une fois par
+décennie. La fenêtre est fixe, mais les grilles par station ne le sont pas : une station
+accumule de l'historique, de nouvelles stations apparaissent, et une station classée en
+référence provisoire peut franchir le seuil des quinze années.
+
+\section{Les indices climatiques sur grille}
+
+Trois indices sont calculés pour chaque maille de \ang{0.1}, sur quatre fenêtres d'agrégation de
+1, 3, 6 et 12 mois correspondant à des inerties différentes du système hydrologique. Tous
+emploient la période de référence 1991--2020 et l'échelle à sept classes de
+McKee~\cite{mckee1993spi}, adoptée par l'Organisation météorologique mondiale.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Indice} & \textbf{Grandeur} & \textbf{Ajustement} \\
+\midrule
+SPI  & Précipitation & Loi gamma, mélangée à la probabilité de cumul nul \\
+STI  & Température & Loi normale (score centré réduit) \\
+SPEI & Précipitation moins évapotranspiration & Loi logistique généralisée \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Premier arbitrage : quelle évapotranspiration employer}
+\label{sec:hargreaves}
+
+\subsection{De quoi il est question}
+
+L'indice de bilan hydrique, le SPEI, compare ce que le ciel apporte à ce que l'atmosphère
+reprend. L'apport, c'est la pluie, et elle se mesure. Le prélèvement, c'est
+l'\textbf{évapotranspiration} : l'eau qui repart vers l'atmosphère, à la fois par évaporation
+directe du sol et par transpiration des plantes. Cette seconde grandeur ne se mesure pas
+partout, il faut donc la calculer.
+
+Or « calculer l'évapotranspiration » n'a pas de sens tant qu'on n'a pas dit \emph{de quelle
+surface}. Un lac, une forêt et un champ de blé n'évaporent pas la même quantité d'eau sous le
+même ciel. Pour rendre les chiffres comparables d'un pays à l'autre, l'Organisation des Nations
+unies pour l'alimentation et l'agriculture, la \textbf{FAO}, a fixé une convention dans un
+document de référence appelé FAO-56~\cite{allen1998fao56} : on calcule ce qu'évaporerait une
+surface conventionnelle, un gazon ras et bien alimenté en eau. C'est
+l'\textbf{évapotranspiration de référence}, et c'est elle qu'emploient les hydrologues,
+les agronomes et les indices de sécheresse publiés.
+
+\subsection{Ce qui s'est passé}
+
+ERA5-Land fournit directement une variable nommée « évaporation potentielle ». L'employer
+semblait naturel, et c'est ce qui a été fait initialement.
+
+Les valeurs obtenues étaient incompatibles avec ce que l'on sait du climat français. Comparé
+sur \num{30888} couples maille-mois entre 2015 et 2025, sur les mêmes mailles :
+
+\begin{center}\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+ & \textbf{Hargreaves} & \textbf{Variable ERA5-Land} & \textbf{Rapport} \\
+ & \small(référence FAO-56) & \small(« évaporation potentielle ») & \\
+\midrule
+Évapotranspiration annuelle & \SI{818}{\milli\metre} & \SI{1756}{\milli\metre} &
+$\times\,\num{2,15}$ \\
+Bilan précipitation moins ETP & \SI{+146}{\milli\metre\per\an} & \SI{-793}{\milli\metre\per\an} &
+\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+La seconde colonne place \textbf{l'intégralité du territoire français en déficit hydrique
+permanent}, y compris les années humides, ce qui est physiquement faux. La valeur de
+\SI{818}{\milli\metre\per\an} se situe dans l'intervalle des références publiées pour la
+France (\SIrange{700}{900}{\milli\metre\per\an}) ; celle de \SI{1756}{\milli\metre\per\an}
+n'y est pas.
+
+\subsection{Pourquoi}
+
+Les deux grandeurs portent des noms voisins et ne décrivent pas la même chose. C'est tout le
+problème, et il n'y a d'erreur nulle part : la variable d'ERA5 est correctement définie et
+conforme à ce qu'elle annonce, elle ne correspond simplement pas à la grandeur dont le SPEI a
+besoin. Le travail à faire n'était donc pas de corriger un défaut, mais d'identifier la bonne
+grandeur et de la produire.
+
+La variable d'ERA5 répond à la question : \emph{combien cette surface pourrait-elle évaporer si
+l'eau ne manquait jamais}, dans les conditions du modèle atmosphérique qui l'a produite. C'est
+une borne haute théorique, et la littérature documente qu'elle dépasse largement la demande
+réelle d'un couvert végétal. La grandeur de la FAO répond à une autre question : \emph{combien
+évapore la surface conventionnelle de référence}. La première n'est pas la seconde, et aucune
+des deux n'est fausse : elles ne mesurent simplement pas le même objet.
+
+Pour obtenir la seconde, la FAO-56 prévoit une méthode complète, qui exige le rayonnement, le
+vent et l'humidité. Ces variables n'étaient pas ingérées. Le même document recommande alors une
+méthode de repli, la formule de Hargreaves~\cite{hargreaves1985}, qui n'a besoin que des
+températures journalières minimale, maximale et moyenne, plus le rayonnement reçu au sommet de
+l'atmosphère, lequel se calcule à partir de la seule latitude et du jour de l'année. C'est cette
+formule qui a été implémentée, directement en SQL.
+
+\subsection{Ce que cela change}
+
+Le choix de la grandeur décide de la justesse de tout ce qui en découle. Avec la variable brute,
+les indices de bilan hydrique auraient reposé sur un déficit d'eau surestimé de plus du double,
+et la carte nationale aurait affiché une France en sécheresse quasi permanente, y compris
+pendant les années pluvieuses. L'anomalie aurait été lue comme un signal climatique alors
+qu'elle n'aurait tenu qu'à une confusion entre deux définitions.
+
+C'est le genre de piège qu'aucun test logiciel ne détecte, et c'est ce qui le rend coûteux : le
+calcul était juste, le code sans faute, seule la grandeur employée n'était pas la bonne. Seule
+la confrontation des valeurs obtenues aux ordres de grandeur connus pour la France pouvait le
+révéler.
+
+\subsection{Où cela se joue dans l'entrepôt}
+
+La correction ne consiste pas à remplacer une valeur en cours de route : les deux grandeurs
+coexistent dans l'entrepôt et suivent des trajectoires distinctes. La variable brute est ingérée
+telle quelle, sans jamais être transformée, tandis que l'évapotranspiration de référence est
+calculée en couche analytique à partir d'une autre source, les températures journalières. Les
+deux figurent côte à côte dans la table finale, ce qui a d'ailleurs rendu possible la mesure
+comparative présentée plus haut : les valeurs de \num{818} et \num{1756} millimètres par an
+s'obtiennent par une simple requête, et quiconque doute de l'arbitrage peut le refaire.
+L'annexe~\ref{ann:etp} donne le détail des colonnes concernées, couche par couche.
+
+\subsection{Une incohérence connue, et ce qu'elle coûte}
+
+Cet arbitrage ne vaut que pour la chaîne climatique sur grille. La chaîne des stations expose
+encore, sous le nom \code{potential\_evaporation}, la variable brute d'origine. C'est elle qui
+alimente les modèles métier du chapitre~\ref{ch:metier}, et il faut le dire sans détour :
+\textbf{les modèles calibrés sur les stations ne reçoivent pas l'évapotranspiration de
+référence}, mais une grandeur environ deux fois plus élevée. Mesuré sur les données en base, le
+forçage station vaut \SI{1839}{\milli\metre\per\an} là où l'ET0 de référence se situe autour de
+\SI{818}{\milli\metre\per\an}.
+
+L'effet de cet écart a été mesuré plutôt que supposé. Sur une station de contrôle, un même
+modèle a été calibré deux fois, avec la variable brute puis avec une évaporation ramenée à
+l'ordre de grandeur de référence. Deux enseignements en ressortent.
+
+D'abord, \textbf{le modèle n'absorbe pas l'erreur d'échelle}. On pouvait espérer que le
+paramètre qui pondère l'évaporation dans la recharge s'ajuste et compense, laissant la prévision
+inchangée. Il n'en est rien : ce paramètre est borné, et la calibration le pousse à sa borne
+dans les deux cas. Il ne lui reste aucune marge pour corriger quoi que ce soit.
+
+Ensuite, l'ajustement en dépend réellement : la variance expliquée passe de \SI{72,2}{\percent}
+à \SI{68,5}{\percent} entre les deux jeux de forçage. Le fait que la variable brute donne le
+meilleur ajustement ne signifie pas qu'elle soit la bonne. Un paramètre collé à sa borne indique
+au contraire un modèle qui réclame davantage d'évaporation que son forçage ne lui en fournit,
+c'est-à-dire le symptôme d'une entrée mal dimensionnée.
+
+La portée de cette mesure doit être précisée : elle porte sur une seule station et sur une
+période de \num{385} jours, seule profondeur disponible dans la base au moment de la
+vérification. Le protocole et les valeurs obtenues sont consignés dans le dépôt de la plateforme,
+afin que la mesure puisse être rejouée plutôt que crue sur parole. Elle établit que l'écart a un effet, non son ampleur générale. Une évaluation sur
+un historique long et un échantillon de stations reste à conduire.
+
+Pourquoi cette incohérence n'a-t-elle pas été corrigée ? Parce que la correction n'est pas un
+changement de colonne. La chaîne station ne transporte que la température moyenne, alors que la
+formule de Hargreaves exige aussi les extrêmes journaliers. Il faudrait donc les ajouter, y
+calculer l'évapotranspiration au pas journalier, puis propager le résultat dans deux tables
+partitionnées, ce qui impose une reconstruction complète, et enfin recalibrer les modèles
+existants. Engager cette chaîne d'opérations sans pouvoir la valider sur un historique complet
+aurait remplacé une incohérence documentée par une incertitude non mesurée.
+
+C'est donc le premier chantier que ces travaux laissent à leur suite, et il est prioritaire sur
+toute campagne de calibration : tant qu'il n'est pas traité, les paramètres des modèles métier
+n'ont pas d'interprétation physique directe, même si leur pouvoir prédictif reste utilisable.
+
+\section{Deuxième arbitrage : quelle loi ajuster pour le SPEI}
+\label{sec:glo}
+
+Un indice standardisé transforme une valeur en score de rareté, ce qui suppose d'ajuster une loi
+de probabilité sur la série de référence. Le choix de cette loi détermine sur quelles mailles
+l'indice pourra être calculé.
+
+L'article fondateur du SPEI~\cite{vicenteserrano2010spei} emploie une loi log-logistique, et
+c'est elle qui avait été retenue au départ. Appliquée à la grille française, elle ne s'ajuste que
+sur \SI{74,6}{\percent} des combinaisons de maille, de mois et de fenêtre. Le manque n'est pas
+uniforme : selon la fenêtre d'agrégation, la couverture va d'environ deux tiers à un peu moins de
+neuf dixièmes, ce qui laisse des trous mouvants dans la carte nationale. L'instrumentation
+des rejets a montré que la cause était unique et structurelle : cette loi ne représente qu'un
+sens d'asymétrie, et environ \SI{27}{\percent} des mailles françaises présentent l'autre. Aucune
+quantité de données supplémentaire n'y aurait changé quoi que ce soit.
+
+L'implémentation de référence du SPEI~\cite{begueria_spei_package}, distribuée par les auteurs de
+la méthode, emploie quant à elle la logistique généralisée, qui accepte les deux sens. C'est
+elle qui a été retenue. Le choix n'a donc rien d'original : il consiste à suivre la pratique
+établie plutôt que la seule formulation de l'article. La couverture passe à \SI{100}{\percent}.
+
+Le remplacement est par ailleurs sans effet sur l'existant. Les deux lois étant équivalentes par
+reparamétrage, les valeurs restent inchangées partout où la première fonctionnait, ce qui a été
+vérifié à un écart maximal de \num{0,000} sur \num{35614} ajustements. La carte se complète là où elle était trouée, sans que rien d'autre ne bouge.
+
+\section{La vérification des indices produits}
+
+Un indice standardisé doit, par construction, suivre approximativement une loi normale centrée
+réduite \emph{sur sa propre période de référence}. C'est une propriété vérifiable, et elle a été
+vérifiée.
+
+\paragraph{Protocole.} Le critère d'acceptation a été fixé \textbf{avant} la mesure : moyenne
+voisine de zéro à $\pm\,\num{0,05}$, écart-type voisin de un à $\pm\,\num{0,05}$, et taux de
+saturation aux bornes inférieur à \SI{1}{\percent}. Fixer le critère avant de mesurer évite
+l'ajustement rétrospectif du seuil au résultat obtenu.
+
+\paragraph{Mesure.} Effectuée sur \num{41960400} valeurs couvrant \num{11496} mailles.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXrrrr@{}}
+\toprule
+\textbf{Indice} & \textbf{Fenêtres} & \textbf{Moyenne} & \textbf{Écart-type} & \textbf{Médiane}
+& \textbf{Saturation} \\
+\midrule
+SPI  & 1/3/6/12 & $-0{,}008$ à $+0{,}002$ & \numrange{0,985}{1,031} & \numrange{0,00}{0,04} & \SIrange{0,05}{0,51}{\percent} \\
+STI  & 1/3/6/12 & $0{,}000$               & \num{0,983}            & $-0{,}09$ à $-0{,}02$ & \SIrange{0,00}{0,04}{\percent} \\
+SPEI & 1/3/6/12 & $+0{,}004$ à $+0{,}006$ & \numrange{0,999}{1,013} & \numrange{0,01}{0,03} & \SIrange{0,012}{0,035}{\percent} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Les trois indices satisfont le critère d'acceptation sur les quatre fenêtres. La couverture du
+SPEI est uniforme à \SI{100}{\percent}, ce qui signifie que la calibration n'est pas seulement
+préservée mais mesurée sur l'ensemble du domaine.
+
+\section{Deux lectures à ne pas faire}
+
+La validation ci-dessus autorise l'usage des indices ; elle n'autorise pas toutes les
+interprétations. Deux mises en garde ont été consignées, parce que l'erreur correspondante est
+naturelle.
+
+\paragraph{La classe « normale » ne couvre pas la proportion théorique.} Elle représente
+\SI{54,8}{\percent} des valeurs au lieu des \SI{59,9}{\percent} attendus d'une gaussienne, alors
+même que l'écart-type vaut \num{1,008}. La distribution conserve des épaules légèrement plus
+lourdes. Cet écart est une propriété de la transformation au voisinage des bornes de classe. Il
+n'a pas de conséquence opérationnelle, les seuils employés étant ceux, communs, des autres
+indices, et il ne doit surtout \textbf{pas} être lu comme une anomalie de sécheresse.
+
+\paragraph{Une décroissance décennale est un signal climatique, non une dérive de méthode.} La
+moyenne du SPEI sur fenêtre d'un mois décroît de manière monotone d'une décennie à l'autre :
+$+\num{0,038}$ dans les années 1990, $+\num{0,007}$ dans les années 2000, $-\num{0,016}$ dans les
+années 2010, $-\num{0,117}$ depuis 2020. Cette évolution avait été anticipée avant d'être
+mesurée, ce qui la distingue d'un artefact d'ajustement : elle traduit un assèchement, non un
+biais.
+
+\section{Un contrat entre les deux dépôts}
+
+La classification en sept classes existe en deux endroits : dans l'entrepôt, qui produit les
+indicateurs, et dans la plateforme, qui les affiche et les compare aux prévisions. Cette
+duplication est délibérée, car elle évite un couplage fort entre deux systèmes déployés
+séparément, mais elle crée un risque de divergence silencieuse.
+
+Le risque est traité par un \textbf{contrat testé} : chaque dépôt possède une table de référence
+associant des valeurs d'entrée aux classes attendues, et ces deux tables sont identiques par
+construction. Toute modification de l'une sans l'autre fait échouer une suite de tests. Le
+mécanisme est simple, et c'est sa vertu : il rend la contrainte exécutable plutôt que
+documentaire.
+
+L'entrepôt produit désormais une famille d'indicateurs normalisés à l'échelle nationale, validée
+selon un protocole dont le critère avait été fixé avant la mesure, et dont les deux décisions
+méthodologiques structurantes sont documentées avec les chiffres qui les établissent. Ces
+indicateurs sont utilisables tels quels par les hydrogéologues et constituent des variables
+candidates pour la modélisation.
+
+Reste l'incohérence signalée plus haut entre la chaîne climatique et la chaîne des stations sur
+l'évapotranspiration, seule zone d'ombre de ce chapitre. Elle est documentée et son motif est
+assumé, mais elle demeure un piège pour qui comparerait les deux sans le savoir.

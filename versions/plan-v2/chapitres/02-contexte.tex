@@ -1,0 +1,87 @@
+\chapter{Contexte et positionnement}
+\label{ch:contexte}
+
+\questionchapitre{Dans quel dispositif de recherche ces travaux s'inscrivent-ils, et quelle
+mission leur avait été assignée au départ ?}
+
+\section{Le programme JUNON}
+
+\textsc{Junon} est un programme \emph{Ambition Recherche \& Développement} de la Région
+Centre-Val de Loire, coordonné par le BRGM et réunissant une vingtaine d'équipes de recherche du
+territoire~\cite{brgm_junon_programme,brgm_junon_lancement}. Son objectif est de développer des
+\textbf{jumeaux numériques} des milieux naturels continentaux, l'eau, le sol et l'air, et les
+services numériques qui les accompagnent. Un jumeau numérique ne se réduit pas à une
+visualisation : il vise à reproduire les structures et les processus réels tout au long de leur
+évolution, en s'appuyant notamment sur l'apprentissage automatique.
+
+À côté des projets consacrés à chaque compartiment environnemental, le programme comporte des
+volets transversaux qui fournissent les moyens communs, notamment la gestion des observations
+et la modélisation prédictive. Le LIFAT participe à ces volets transversaux sur la période
+2022--2026~\cite{lifat_junon}, sur les questions de prédiction à partir de séries temporelles
+environnementales : comment apprendre le comportement d'un système naturel à partir
+d'observations éparses, bruitées et déséquilibrées, et comment qualifier la confiance que l'on
+peut accorder à la prédiction obtenue.
+
+C'est dans ce cadre que s'inscrivent les présents travaux, menés du 15 septembre 2025 au 30 juin
+2026 sous la supervision de Nicolas Labroche.
+
+\section{La mission initiale : l'explicabilité}
+
+Le sujet assigné portait sur \textbf{l'explicabilité des modèles de prévision appliqués aux
+nappes d'eau souterraine}. Un modèle d'apprentissage
+profond qui prévoit un niveau piézométrique produit un nombre ; ce nombre n'a de valeur
+opérationnelle que si l'on peut répondre à trois questions que tout hydrogéologue posera :
+sur quoi le modèle s'appuie-t-il, que se passerait-il dans d'autres conditions, et jusqu'où
+peut-on lui faire confiance hors du régime observé.
+
+Ces questions ne sont pas académiques. Les niveaux de nappe conditionnent des décisions
+publiques : arrêtés de restriction d'usage, autorisations de prélèvement, planification de
+l'alimentation en eau potable. Une prédiction que l'on ne sait pas justifier ne sera pas
+mobilisée, et ne devrait pas l'être.
+
+\section{Le glissement de mission, et pourquoi il était nécessaire}
+
+L'explicabilité s'applique à un modèle ; un modèle s'entraîne sur des données. Or, au démarrage
+des travaux, \textbf{aucun jeu de données exploitable n'existait} pour les nappes françaises
+associées à leur forçage climatique. Ce constat, développé au chapitre~\ref{ch:verrou}, a
+déterminé la trajectoire de l'année.
+
+Le travail a donc pris la forme d'une \textbf{ingénierie de recherche assumée} : identifier les
+sources, construire l'entrepôt, produire les indicateurs, vérifier leur validité, puis seulement
+outiller la modélisation et l'explicabilité. Cette réorientation n'a pas dilué le sujet initial,
+elle en a conditionné la possibilité. En pratique, elle a produit un résultat plus durable
+qu'une étude d'explicabilité menée sur un jeu de données jetable : \textbf{l'infrastructure
+survit à l'expérience}.
+
+Cette réorientation n'a pas été décidée seul. Elle procède d'un travail de recadrage mené avec
+le BRGM au début de l'année 2026, associant les interlocuteurs techniques et les experts métier.
+Les échanges ont fait apparaître que le manque constaté n'était pas une difficulté propre à ce
+postdoctorat : le besoin d'un entrepôt de données consolidé, d'outils d'analyse et d'un
+environnement d'entraînement de modèles était partagé, aussi bien par les équipes du BRGM que
+par les projets du programme, chacun se heurtant au même obstacle de son côté. Ce constat
+commun a transformé une contrainte subie en objet de travail assumé, et il a orienté le reste
+de la période.
+
+\section{Périmètre du rapport}
+
+Deux réalisations logicielles sont couvertes, développées intégralement au cours de la période :
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Dépôt} & \textbf{Objet} \\
+\midrule
+\hubeau{}~\cite{depot_entrepot} & Entrepôt de données hydro-climatiques. Ingestion, transformation et exposition
+des données piézométriques, hydrométriques, climatiques et hydrogéologiques. Premier commit :
+23 septembre 2025. \\
+\junon{}~\cite{depot_plateforme} & Plateforme d'exploration, de modélisation et de prévision. Observatoire spatial,
+laboratoire de modèles métier, laboratoire d'apprentissage automatique, explicabilité. Premier
+commit : 6 novembre 2025. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Le contrat postdoctoral s'est achevé le 30 juin 2026. Les travaux de documentation, de
+neutralisation des éléments sensibles et de passation se sont poursuivis jusqu'au 24 août 2026,
+afin que ces réalisations restent exploitables après le départ de leur auteur.
+

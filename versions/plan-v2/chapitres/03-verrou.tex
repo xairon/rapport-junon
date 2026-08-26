@@ -1,0 +1,175 @@
+\chapter{Le verrou : une donnée ouverte mais inexploitable}
+\label{ch:verrou}
+
+\questionchapitre{La donnée hydrologique française est publique et accessible. Pourquoi
+faut-il malgré tout construire une infrastructure avant d'espérer entraîner le moindre
+modèle ?}
+
+\section{Ce que la donnée ouverte offre réellement}
+
+Trois sources publiques couvrent, en principe, l'essentiel du besoin.
+
+\textbf{Hub'Eau} est la plateforme d'accès aux données sur l'eau opérée dans le cadre du système
+d'information sur l'eau~\cite{hubeau}. Elle expose par interfaces web les chroniques
+\emph{piézométriques}, c'est-à-dire les niveaux de nappe mesurés aux ouvrages de
+surveillance, et les données
+\emph{hydrométriques} de débit des cours d'eau, organisées en sites, stations et observations
+élaborées. Le parc compte \num{23333} ouvrages piézométriques, \num{6468} stations
+hydrométriques et \num{9283} sites de référence, ces derniers ne portant pas tous une station en
+service.
+
+\textbf{ERA5-Land}, produit par le Centre européen pour les prévisions météorologiques à moyen
+terme et diffusé par le \emph{Climate Data Store} de Copernicus~\cite{cds}, fournit une
+réanalyse climatique sur grille d'environ \ang{0.1}, continue depuis
+1950~\cite{hersbach2020era5,munozsabater2021era5land}. C'est la source de forçage naturelle pour
+tout modèle hydrologique : précipitations, températures, évaporation.
+
+\textbf{BDLISA}, le référentiel hydrogéologique du BRGM~\cite{bdlisa}, décrit les entités
+aquifères du territoire : leur nature, leur géométrie, leur organisation. C'est ce qui permet de
+savoir si un piézomètre observe une nappe alluviale, un aquifère sédimentaire poreux, un système
+karstique ou un socle fracturé, distinction dont on verra au chapitre~\ref{ch:metier} qu'elle
+commande le comportement du signal.
+
+Chacune de ces sources est ouverte, documentée et interrogeable. Le verrou n'est pas
+l'accessibilité.
+
+Une alternative existait. Le BRGM dispose d'une
+licence pour la réanalyse SAFRAN~\cite{safran}, mieux adaptée au territoire français. Elle a été
+écartée pour une raison qui n'est pas technique : les données SAFRAN ne sont pas
+redistribuables, ce qui interdisait de les verser dans un entrepôt destiné à être partagé entre
+équipes et documenté publiquement. ERA5-Land est libre, mondial et versionné. Le choix
+privilégie donc la reproductibilité et le partage sur la finesse de la source, arbitrage qu'il
+faut connaître pour interpréter les résultats.
+
+\section{Ce qui manque}
+
+\subsection{La jointure au forçage climatique n'existe pas}
+
+Un niveau de nappe seul n'est pas modélisable. Il répond à la pluie efficace, c'est-à-dire à la
+différence entre précipitation et évapotranspiration, avec un retard et un amortissement
+propres à l'aquifère. Prédire une nappe suppose donc de disposer, \emph{pour chaque station et
+chaque jour}, du signal climatique correspondant.
+
+Or Hub'Eau ne fournit aucune variable météorologique, et ERA5 ignore l'existence des
+piézomètres. Rattacher les deux exige une jointure spatiale, qui associe chaque station à la
+maille climatique la plus proche, puis une jointure temporelle sur un
+pas de temps commun. Ce travail n'est fourni par personne.
+
+\subsection{L'historique n'est pas consolidé, et la volumétrie est réelle}
+
+Les interfaces web sont paginées et conçues pour la consultation, non pour la constitution
+d'un corpus. Récupérer six décennies de chroniques sur l'ensemble du parc de stations, puis
+sept décennies de réanalyse climatique sur l'ensemble du territoire, représente des dizaines de
+gigaoctets et plusieurs jours de collecte. Ce n'est pas une opération que l'on relance à chaque
+expérience.
+
+Le cas d'ERA5 illustre l'écart entre l'accès théorique et le coût pratique. Le produit dérivé
+de statistiques journalières proposé par le \emph{Climate Data Store} est calculé côté serveur,
+sur une file d'attente saturée : environ \textbf{43 heures par année demandée}. À ce rythme,
+reconstituer sept décennies se compte en mois. La même information, recalculée localement à
+partir de l'archive horaire brute, demande environ \textbf{vingt-cinq minutes par année}.
+L'équivalence des deux voies a été vérifiée maille par maille et jour par jour, à
+\SI{0.0000}{\celsius} sur les extrêmes journaliers et \SI{0.01}{\celsius} sur la moyenne.
+
+\subsection{La donnée brute recèle des pièges qui ne s'annoncent pas}
+
+Un exemple, parce qu'il a effectivement produit un diagnostic erroné avant d'être compris.
+Dans ERA5, les variables de précipitation et d'évaporation sont des \emph{flux cumulés} : la
+valeur au pas de \SI{00}{\hour}~UTC constitue bien le total journalier. La température, elle,
+est une \emph{grandeur instantanée} : prendre sa valeur à \SI{00}{\hour}~UTC comme moyenne
+journalière introduit un biais froid nocturne de l'ordre de \SIrange{2}{4}{\celsius}. Deux
+variables issues du même fichier, au même horodatage, dont l'une doit être lue telle quelle et
+l'autre reconstruite à partir des vingt-quatre pas horaires.
+
+Rien dans la donnée ne signale cette différence. Elle se paie en résultats faux, silencieux et
+plausibles.
+
+\subsection{Des sources publiques, mais pas des sources stables}
+
+\textbf{Les interfaces publiques sont ouvertes, elles ne sont pas pour autant fiables.} Ce point
+a coûté un temps considérable et n'apparaît dans aucune documentation officielle. Il a fallu composer avec leurs défauts plutôt que les supposer
+absents.
+
+\paragraph{La disponibilité n'est pas garantie.} Les services répondent en erreur lorsqu'ils
+sont sollicités intensément, ce qui est précisément le régime d'une collecte historique. Toute
+ingestion doit donc intégrer des tentatives successives avec temporisation croissante, et être
+capable de reprendre là où elle s'est arrêtée. Une extraction naïve échoue au bout de quelques
+heures et laisse un jeu de données incomplet sans le signaler.
+
+\paragraph{Les conventions varient d'un point d'accès à l'autre, au sein d'une même source.}
+Le paramètre qui identifie une station n'est pas le même selon l'interface interrogée : les
+observations élaborées d'hydrométrie s'obtiennent par un identifiant d'entité, là où le
+référentiel des stations emploie un identifiant de station. Employer le mauvais ne provoque pas
+d'erreur explicite, mais un résultat vide. De même, une des interfaces ne prend pas en charge le
+paramètre de taille de page, une autre plafonne à cent codes par requête, et la longueur maximale
+d'une adresse impose une limite supplémentaire qui n'est documentée nulle part. Chacune de ces
+contraintes a été découverte à l'usage.
+
+\paragraph{Les données elles-mêmes présentent des incohérences.} Deux cas rencontrés suffisent à
+illustrer le problème. D'une part, le service d'observations hydrométriques retourne des mesures
+rattachées à des stations qui sont \emph{absentes de son propre référentiel de stations} : la
+source se contredit elle-même, et une jointure naïve échoue sur une violation de clé étrangère.
+D'autre part, le champ identifiant la station est vide dans environ \SI{46}{\percent} des
+observations, ce qui interdit de l'utiliser comme clé de filtrage et oblige à s'appuyer sur
+l'identifiant de site, puis à rétablir le lien une couche plus loin.
+
+Ces défauts ont une conséquence directe sur l'architecture décrite au
+chapitre~\ref{ch:entrepot}. Le nettoyage ne peut pas être une formalité que l'on expédie : il
+devient une fonction de premier plan, et surtout il doit \textbf{rendre compte de ce qu'il
+écarte}. C'est la raison d'être des tables de rejets, qui conservent chaque ligne exclue avec le
+motif de son exclusion. Sans elles, il serait impossible de distinguer une station réellement
+absente du terrain d'une station perdue en route par un défaut de la source ou par un critère de
+filtrage trop strict.
+
+\subsection{Aucun indicateur normalisé n'est fourni}
+
+Un hydrogéologue ne raisonne pas sur un niveau brut en mètres, qui n'a de sens que rapporté à
+l'historique de l'ouvrage. Il raisonne sur des \textbf{indicateurs standardisés} qui situent la
+mesure du jour par rapport à la distribution de référence du même mois : est-on dans la normale,
+en situation modérément sèche, en sécheresse sévère~? Ces indicateurs, qu'il s'agisse des indices standardisés de
+niveau, de débit, de précipitation ou de bilan hydrique, ne sont fournis par aucune des trois
+sources. Ils doivent être calculés, ce qui suppose une période de référence, un ajustement
+statistique et une validation.
+
+\section{Ce que l'apprentissage automatique exige en plus}
+
+Les difficultés précédentes concernent tout usage de la donnée. L'apprentissage automatique en
+ajoute qui lui sont propres.
+
+\begin{itemize}
+  \item \textbf{Une couverture temporelle continue.} Un modèle de séries temporelles supporte
+  mal les lacunes ; encore faut-il savoir où elles sont, ce qui suppose une chronologie
+  régulière et explicite plutôt qu'une liste d'observations.
+  \item \textbf{Des covariables alignées.} Le forçage climatique doit être disponible sur
+  exactement la même chronologie que la cible, sans décalage ni trou différentiel.
+  \item \textbf{La reproductibilité.} Une expérience qui ne peut être rejouée sur les mêmes
+  données n'est pas un résultat. Cela interdit l'extraction ponctuelle et impose un stockage
+  versionné et interrogeable.
+  \item \textbf{Le volume.} Comparer une douzaine d'architectures sur des centaines de stations
+  suppose de lire les données des milliers de fois. Une chaîne d'extraction par interface web
+  rend l'exercice impraticable ; une base de données ne le rend pas seulement possible, elle le
+  rend rapide.
+\end{itemize}
+
+\section{Le coût collectif de l'absence d'infrastructure}
+
+Le constat déterminant n'est pas technique mais organisationnel. En l'absence d'entrepôt,
+\textbf{chaque chercheur refait l'extraction}, avec ses propres conventions de nettoyage, sa
+propre gestion des lacunes, son propre rattachement climatique. Les résultats deviennent
+incomparables, non par divergence de méthode, mais par divergence de préparation des données.
+Le temps consacré à la collecte est prélevé sur le temps de recherche, et il est prélevé autant
+de fois qu'il y a de chercheurs.
+
+Les équipes du BRGM faisaient le même constat, dans leurs termes : plusieurs jeux de données
+coexistaient, de provenances et de qualités différentes, sans base commune permettant de les
+comparer.
+
+C'est ce coût, réparti et invisible, que l'entrepôt décrit au chapitre~\ref{ch:entrepot}
+supprime.
+
+Le verrou est donc caractérisé : la donnée est ouverte, mais ni jointe, ni consolidée, ni
+normalisée, ni prête pour l'apprentissage. La question qui organise la suite de ce rapport
+découle de ce constat. Quelle infrastructure faut-il construire pour que la recherche en
+intelligence artificielle appliquée aux eaux souterraines devienne seulement possible ? Une
+précision de périmètre s'impose avant d'y répondre : les travaux portent sur la quantité d'eau,
+niveaux et débits. La qualité, également visée par le programme, n'a pas été abordée.

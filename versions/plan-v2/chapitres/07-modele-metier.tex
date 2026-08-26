@@ -1,0 +1,171 @@
+\chapter{Modéliser : le laboratoire de modèles métier}
+\label{ch:metier}
+
+\questionchapitre{Avant d'invoquer l'apprentissage profond, que sait déjà faire la modélisation
+hydrogéologique établie, et comment l'outiller pour qu'elle serve de référence ?}
+
+\section{Pourquoi commencer par le modèle métier}
+
+Il aurait été possible d'aller directement à l'apprentissage profond. Ce choix aurait été
+méthodologiquement fautif, pour trois raisons.
+
+D'abord, \textbf{sans référence, une performance ne signifie rien}. Annoncer qu'un réseau de
+neurones prévoit un niveau de nappe avec une certaine erreur n'a de sens que comparé à ce
+qu'obtient la méthode que les hydrogéologues emploient déjà. Une architecture profonde qui
+n'égale pas un modèle à quelques paramètres ne mérite pas d'être déployée.
+
+Ensuite, \textbf{le modèle métier est interprétable par construction}, et fournit donc un point
+d'ancrage à tout le travail d'explicabilité qui suivra. On sait ce qu'il représente ; on peut
+confronter les explications produites sur un modèle appris à ce que le modèle physique affirme.
+
+Enfin, \textbf{c'est le langage des interlocuteurs}. Le BRGM développe et emploie sa propre
+famille de modèles à réservoirs : GARDÉNIA~\cite{gardenia} pour la simulation des niveaux et des
+débits d'un bassin, EROS~\cite{eros} pour les relations entre bassins, fédérés par une interface
+Python commune. Un outil qui ignorerait cette pratique ne serait pas adopté, quelles que soient
+ses performances.
+
+\section{Les modèles à fonction de transfert et bruit}
+
+L'approche retenue est celle des modèles \emph{transfer function-noise}, mise en œuvre par la
+bibliothèque Pastas~\cite{pastas}. Son principe : le niveau piézométrique simulé est la somme des
+contributions de plusieurs facteurs de forçage, au minimum la recharge dérivée de la
+précipitation et de l'évapotranspiration. Chaque contribution est obtenue par convolution du
+forçage avec une \emph{fonction de réponse impulsionnelle} dont la forme et les paramètres sont
+calibrés. Un modèle de bruit rend compte de la structure résiduelle.
+
+L'intérêt pour la question posée est direct : la fonction de réponse \textbf{est} l'objet
+d'intérêt hydrogéologique. Sa forme dit comment l'aquifère amortit et retarde le signal
+climatique ; son intégrale dit de combien le niveau varie pour une sollicitation donnée. Ce ne
+sont pas des paramètres opaques, ce sont des grandeurs qui s'interprètent.
+
+La plateforme donne accès à quatre modèles de recharge, cinq formes de réponse impulsionnelle proposées à la sélection,
+deux modèles de bruit et deux solveurs, combinables librement.
+
+\section{Calibration automatique et critères de qualité}
+
+Choisir la bonne combinaison relève de l'expertise et de l'essai. Pour rendre cet essai
+systématique, un mécanisme de \textbf{calibration automatique} construit une grille de
+configurations candidates, calibre chacune, l'évalue et les classe.
+
+L'évaluation ne repose pas sur un unique indicateur d'erreur, mais sur les quatre critères
+d'acceptation STOWA~\cite{stowa2021}, standard néerlandais d'évaluation des modèles TFN pour la
+gestion des eaux souterraines :
+
+\begin{enumerate}
+  \item \textbf{La variance expliquée} dépasse un seuil (\SI{70}{\percent} par défaut) ;
+  \item \textbf{les résidus sont aléatoires}, vérifié par un test de séquences ;
+  \item \textbf{le temps de réponse} à \SI{95}{\percent} de la réponse indicielle reste inférieur
+  à la moitié de la période de calibration, car un modèle dont la mémoire excède ses
+  données n'est pas identifiable ;
+  \item \textbf{le gain est statistiquement significatif}, son rapport à son erreur type
+  dépassant le seuil usuel.
+\end{enumerate}
+
+Cette démarche recoupe la méthode de travail des hydrogéologues telle qu'ils l'ont décrite :
+partir du modèle le plus simple, examiner les résidus pour identifier ce qu'il ne capte pas,
+puis enrichir la structure en conséquence. La calibration automatique outille cet enchaînement,
+et les diagnostics de résidus présentés plus loin en fournissent la seconde étape.
+
+Le troisième critère capture une erreur fréquente et discrète :
+un modèle peut afficher une excellente variance expliquée tout en ayant ajusté une dynamique
+lente que la période d'observation ne permet pas de contraindre. Le critère l'écarte.
+
+\section{L'apport hydrogéologique : des configurations par famille d'aquifère}
+
+La grille de calibration automatique n'explore pas l'espace des configurations à l'aveugle. Elle
+est amorcée par des \textbf{configurations recommandées selon la nature de l'aquifère observé},
+lue dans le référentiel BDLISA rattaché à la station par l'entrepôt (chapitre~\ref{ch:entrepot}).
+
+Cette table est le produit direct des échanges avec l'expertise hydrogéologique du BRGM. Elle
+traduit en choix de modélisation ce qu'un spécialiste sait du comportement de chaque milieu.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lllX@{}}
+\toprule
+\textbf{Famille} & \textbf{Réponse} & \textbf{Bruit} & \textbf{Justification hydrogéologique} \\
+\midrule
+Alluvial & Exponentielle & AR & Réponse rapide, temps de réponse court, système simple \\
+Sédimentaire poreux & Gamma & AR & Réponse intermédiaire \\
+Sédimentaire, double porosité (craie) & Gamma & AR & Forte inertie, temps de réponse long \\
+Sédimentaire fracturé & Gamma & AR & Recharge complexe, modèle de recharge flexible \\
+Karstique & Double exponentielle & ARMA & Deux temps de réponse : conduits et matrice \\
+Socle, montagne & Gamma & AR & Fracturé, recharge non linéaire \\
+Volcanique & Gamma & AR & Système hétérogène \\
+Composite & Quatre paramètres & ARMA & Milieu hétérogène, modèle flexible \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Le cas karstique est le plus parlant. Un système karstique se comporte comme deux réservoirs
+couplés : des conduits qui réagissent en quelques heures et une matrice qui réagit en mois. Une
+réponse impulsionnelle à un seul temps caractéristique ne peut pas représenter cette dualité.
+D'où la double exponentielle, et un modèle de bruit plus riche pour absorber ce que la
+structure ne capte pas.
+
+Cette table recoupe la typologie employée par les hydrogéologues eux-mêmes, qui distinguent les
+nappes inertielles à cycles longs, les nappes réactives à effets de seuil et les nappes
+influencées par une rivière ou des prélèvements.
+
+Cette table est un point de contact entre deux disciplines. Elle encode une connaissance qui ne
+s'obtient pas par validation croisée, et la rend disponible à un utilisateur qui ne la possède
+pas. C'est une forme concrète de transfert d'expertise, et elle réduit le coût d'entrée à la
+modélisation pour un non-spécialiste.
+
+Ces configurations amorcent la recherche ; elles ne la contraignent pas. Une grille de référence
+est systématiquement évaluée en parallèle, de sorte qu'une station atypique n'est jamais
+enfermée dans la recommandation de sa famille.
+
+\section{Diagnostics et validation}
+
+La calibration est accompagnée d'un dispositif de vérification qui va au-delà de l'ajustement.
+
+\paragraph{Séparation calibration/validation.} Le modèle est calibré sur une période et évalué
+sur une période distincte, avec les indicateurs usuels en hydrologie (efficience de
+Nash-Sutcliffe, critère de Kling-Gupta, erreur quadratique moyenne), complétés par l'examen de
+l'autocorrélation et de la normalité des résidus.
+
+\paragraph{Diagnostics préalables.} Avant même la calibration, la chronique est examinée :
+qualité et continuité des entrées, valeurs aberrantes, corrélations croisées avec le forçage,
+décomposition du signal, analyse spectrale, analyse des tarissements. Ce faisceau permet de
+détecter en amont les situations où la modélisation est vouée à l'échec, plutôt que de le
+découvrir dans un mauvais ajustement.
+
+\paragraph{Analyse multi-stations.} Les résidus peuvent être examinés conjointement sur
+plusieurs stations, ce qui fait apparaître les structures communes, donc d'origine régionale ou
+climatique, et les distingue des particularités locales.
+
+\section{Scénarios prospectifs}
+
+Le modèle calibré n'est pas seulement descriptif : il permet de répondre à des questions de la
+forme \emph{« que se passerait-il si »}, qui sont précisément celles des gestionnaires.
+
+Quatre types de modification sont outillés. L'\textbf{ajout d'un prélèvement synthétique} suit
+des profils réalistes par type d'usage, alimentation en eau potable, irrigation ou industrie,
+chacun avec sa saisonnalité propre. L'\textbf{import d'une chronique de prélèvement réelle}
+permet de rejouer un pompage documenté plutôt que simulé. Enfin, une \textbf{tendance climatique}
+et une \textbf{mise à l'échelle} d'un forçage existant complètent la panoplie.
+
+Reste le mécanisme des \textbf{bornes adaptatives}. Lorsqu'un utilisateur
+simule un prélèvement, la question « quel débit est plausible ici ? » n'a pas de réponse
+universelle : elle dépend de la transmissivité de l'aquifère, donc de la réponse calibrée. Le
+rabattement attendu est estimé à partir de la réponse indicielle du modèle lui-même, et des
+bornes physiquement plausibles en sont dérivées pour guider la saisie. L'utilisateur n'est pas
+laissé libre de simuler un pompage qui viderait la nappe en un mois, ni contraint par une borne
+arbitraire identique partout.
+
+Le laboratoire de modélisation métier est ainsi outillé de bout en bout : calibration
+automatisée guidée par l'expertise hydrogéologique, évaluation selon un standard reconnu,
+diagnostics avant et après ajustement, et scénarisation prospective bornée par la physique du
+système. Il fournit la référence à laquelle comparer toute approche apprise.
+
+Une réserve doit accompagner tout usage de ce laboratoire : les modèles y sont calibrés sur
+l'évapotranspiration transportée par la chaîne des stations, qui n'est pas l'évapotranspiration
+de référence et vaut environ le double. La section~\ref{sec:hargreaves} détaille ce point et la
+mesure de son effet. Les calibrations restent exploitables pour la prévision, mais leurs
+paramètres ne s'interprètent pas physiquement tant que ce forçage n'a pas été corrigé.
+
+Ce chapitre décrit donc un instrument, non des résultats. Aucune campagne de calibration sur un
+large échantillon de stations n'a été conduite, et la comparaison avec les approches apprises
+reste à faire. Un rapprochement avec les modèles à réservoirs du BRGM ouvrirait une seconde voie
+de comparaison, identifiée mais non explorée. Ce que ce laboratoire apporte, c'est la
+possibilité de mener ces travaux sans les préparer.

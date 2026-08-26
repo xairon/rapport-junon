@@ -1,0 +1,177 @@
+\chapter{L'Observatoire : donner à voir}
+\label{ch:observatoire}
+
+\questionchapitre{Un entrepôt ne se consulte pas. Comment rendre la donnée consolidée
+immédiatement lisible par ceux qui en ont l'usage, sans enfermer les méthodes développées dans
+l'application qui les héberge ?}
+
+\section{Une contrainte d'architecture posée d'emblée}
+
+La plateforme comporte trois couches : une interface web en React~\cite{react}, un service
+applicatif FastAPI~\cite{fastapi}, et une bibliothèque métier en Python. La contrainte structurante porte sur la troisième : \textbf{la
+bibliothèque métier ne comporte aucune dépendance à l'interface}.
+
+Cette règle a une conséquence pratique déterminante pour un travail de recherche. Le code de
+préparation des données, de calibration des modèles métier, d'entraînement, d'explicabilité et
+de génération de contrefactuels s'exécute indifféremment depuis le service web, depuis un script
+ou depuis un carnet de calcul. Les méthodes développées ne sont donc pas prisonnières de
+l'application : si l'interface était abandonnée, elles resteraient utilisables.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\sffamily,
+  bande/.style={draw=black!70, fill=white, minimum width=10.6cm, minimum height=0.85cm,
+                align=center, font=\sffamily\footnotesize},
+  coeur/.style={draw=black, very thick, fill=black!3, minimum width=10.6cm,
+                minimum height=1.9cm, align=center, font=\sffamily\footnotesize},
+  mod/.style={draw=black!50, fill=white, minimum width=2.35cm, minimum height=0.7cm,
+              align=center, font=\sffamily\tiny},
+  res/.style={draw=black!55, fill=white, minimum width=3.3cm, minimum height=0.8cm,
+              align=center, font=\sffamily\scriptsize},
+  fl/.style={-{Stealth[length=2.2mm]}, draw=black!70, thick},
+  note/.style={font=\sffamily\scriptsize\itshape, color=black!60},
+]
+
+\node[bande] (spa) {\textbf{Interface web} \\[1pt]
+                    \scriptsize cartes, graphiques, suivi d'entraînement};
+\node[bande, below=0.75cm of spa] (api) {\textbf{Service applicatif} \\[1pt]
+                    \scriptsize API et flux d'événements};
+\node[coeur, below=0.75cm of api] (core) {};
+\node[anchor=north, font=\sffamily\footnotesize\bfseries, yshift=-3pt] at (core.north)
+     {Bibliothèque métier};
+\node[anchor=north, font=\sffamily\scriptsize, yshift=-17pt] at (core.north)
+     {aucune dépendance d'interface};
+
+\node[mod] (m1) at ($(core.center)+(-3.75,-0.42)$) {Préparation\\des données};
+\node[mod] (m2) at ($(core.center)+(-1.25,-0.42)$) {Modèles\\métier};
+\node[mod] (m3) at ($(core.center)+(1.25,-0.42)$)  {Prévision\\profonde};
+\node[mod] (m4) at ($(core.center)+(3.75,-0.42)$)  {Explicabilité\\contrefactuels};
+
+\node[res, below=0.95cm of core, xshift=-3.65cm] (cache) {Cache de réponses};
+\node[res, below=0.95cm of core, draw=black, very thick] (entrepot)
+     {Entrepôt \\[1pt] \scriptsize lecture SQL};
+\node[res, below=0.95cm of core, xshift=3.65cm] (registre) {Registre d'expériences};
+
+\draw[fl] (spa) -- (api);
+\draw[fl] (api) -- (core);
+\draw[fl] (core.south) -- (entrepot.north);
+\draw[fl] (core.south west) ++(1.1,0) -- ++(0,-0.3) -| (cache.north);
+\draw[fl] (core.south east) ++(-1.1,0) -- ++(0,-0.3) -| (registre.north);
+
+\node[note, below=0.14cm of entrepot] {dépôt de l'entrepôt, chapitre~\ref{ch:entrepot}};
+
+\end{tikzpicture}
+\caption{Architecture de la plateforme. La bibliothèque métier est appelable depuis le service
+web, un script ou un carnet de calcul, sans modification. C'est cette propriété qui rend les
+développements réutilisables au-delà de l'application.}
+\label{fig:archi-plateforme}
+\end{figure}
+
+\section{Le besoin : explorer avant de modéliser}
+
+Un entrepôt bien construit reste inerte tant qu'il n'est pas regardé. Deux publics le
+demandaient, pour des raisons différentes.
+
+Les \textbf{hydrogéologues} ont besoin de situer une station dans son contexte : quelle nappe
+observe-t-elle, comment se comporte-t-elle par rapport à ses voisines, où en est-elle dans son
+historique, et que faisait le climat pendant ce temps. Ce travail de mise en regard, fait
+manuellement, mobilise plusieurs sources et plusieurs outils.
+
+Les \textbf{modélisateurs} ont besoin de choisir leurs cas d'étude en connaissance de cause :
+une station dont la chronique est trop courte, trop lacunaire ou visiblement perturbée par un
+pompage ne fera pas un bon cas d'apprentissage. Repérer ces situations avant d'entraîner un
+modèle évite d'attribuer à la méthode ce qui relève de la donnée.
+
+L'Observatoire répond aux deux.
+
+\section{Organisation : deux compartiments}
+
+L'interface s'organise en deux volets correspondant aux deux compartiments du cycle observé.
+
+\paragraph{Nappes et rivières.} Exploration spatiale des stations piézométriques et
+hydrométriques sur fond cartographique, avec superposition des entités aquifères du référentiel
+BDLISA et d'un découpage en secteurs hydrogéologiques. Les indicateurs de situation y sont
+portés directement par les stations, ce qui donne une lecture immédiate de l'état du territoire.
+La comparaison entre stations est possible, avec conservation de la sélection d'une vue à
+l'autre.
+
+\paragraph{Climat.} Exploration de la grille nationale de \ang{0.1} selon trois vues : une vue de
+situation cartographique à l'échelle du pays, une vue par point ou par zone donnant l'historique
+d'une maille depuis 1950 (pluie comparée à la normale, indices sur plusieurs fenêtres, table des
+épisodes de sécheresse, export tabulaire), et une vue de comparaison inter-annuelle.
+
+Les deux volets communiquent : depuis la carte des nappes, un lien contextuel ouvre le climat de
+la maille correspondante ; depuis la fiche d'une station, on accède à son contexte climatique
+local.
+
+\section{Une règle de conception qui a structuré l'interface}
+
+Les couches cartographiques disponibles obéissent à une règle explicite, adoptée après
+discussion et maintenue depuis :
+
+\begin{quote}
+\emph{Soit un indicateur réellement standardisé, soit une valeur réelle affichée comme telle.
+Jamais un intermédiaire inventé.}
+\end{quote}
+
+Concrètement, les indices standardisés (précipitation, température, bilan hydrique) sont
+cartographiés sur l'échelle à sept classes, et les grandeurs journalières brutes (températures
+extrêmes, pluie du jour) le sont sur une échelle absolue. En revanche, les cumuls mensuels
+absolus de pluie, de température ou d'évapotranspiration ne sont \textbf{pas} proposés comme
+couches cartographiques : ils apparaissent comme chiffres exacts dans le panneau de détail d'une
+maille.
+
+La raison est méthodologique. Cartographier une grandeur absolue sur une palette de couleurs
+suppose un seuillage, donc une norme implicite. Or cette norme, n'étant pas une référence
+statistique établie, serait une invention de l'outil. L'utilisateur lirait une carte de
+sécheresse là où il n'y a qu'un choix de bornes. Refuser cette couche coûte une fonctionnalité
+apparente et évite une erreur d'interprétation systématique.
+
+\section{Trois choix techniques}
+
+\paragraph{L'Observatoire recalcule le moins possible.} La règle est que ses points d'accès
+lisent les tables analytiques de l'entrepôt plutôt que de refaire le calcul. La carte, la
+situation courante et les exports lisent ainsi les indicateurs déjà produits, de sorte que
+\textbf{la valeur affichée est exactement celle qui a été validée} au
+chapitre~\ref{ch:indicateurs}. Deux points d'accès font exception, ceux qui servent la série
+historique d'une station : ils lisent la grille de référence dans l'entrepôt, mais appliquent la
+standardisation à la requête. Le calcul reste le même, et un test croisé garde la cohérence des
+classes entre les deux dépôts.
+
+\paragraph{Les réponses sont mises en cache.} Les vues cartographiques nationales portent sur
+des volumes importants et changent peu ; leur mise en cache pour vingt-quatre heures réduit la
+charge sans affecter la fraîcheur perçue. Les couches qui bougent plus vite ont des durées plus
+courtes, de quelques heures pour le fond de carte des stations à une heure pour les alertes. Cette optimisation a un corollaire opérationnel
+documenté : tout déploiement qui modifie la forme ou la valeur des réponses doit purger le
+cache, sous peine de servir des valeurs périmées pendant une journée.
+
+\paragraph{Le point d'entrée est unique.} Le service qui sert l'interface assure également le
+relais vers l'API, les en-têtes de sécurité et la limitation de débit. Une architecture
+antérieure comportait un second relais, redondant, qui n'était jamais démarré en production,
+de sorte que les protections qu'il portait n'étaient, en pratique, jamais appliquées. Sa
+suppression au profit d'une configuration unique a supprimé cet écart entre l'intention et le
+déploiement réel.
+
+La leçon dépasse son détail technique. Une protection configurée dans un composant qui ne tourne
+pas est une protection absente, avec en plus la croyance qu'elle existe. La consolidation en un
+point d'entrée unique vaut donc moins pour sa simplicité que pour la disparition de cet écart
+entre l'intention et le déploiement.
+
+\section{Environnements et déploiement}
+
+Deux environnements complètement séparés coexistent sur le serveur de calcul, l'un suivant la
+branche principale, l'autre la branche de développement, avec des volumes, des bases, des ports
+et des artefacts distincts. Un modèle entraîné ou un compte créé dans l'un n'affecte jamais
+l'autre. Cette séparation est ce qui autorise à expérimenter sur une chaîne en évolution sans
+compromettre l'instance servant aux utilisateurs.
+
+La production est répartie : l'interface est déployée sur l'infrastructure mutualisée de
+l'établissement, le calcul et les bases restent sur le serveur équipé d'un processeur
+graphique. Une seule exigence réseau conditionne l'ensemble, l'ouverture de la route entre les
+deux.
+
+L'Observatoire dépend entièrement de l'entrepôt, et ne se dégrade pas gracieusement en son
+absence : il répond en erreur plutôt que d'afficher un état partiel. Le choix est assumé pour un
+outil scientifique, où une valeur absente vaut mieux qu'une valeur douteuse. Il serait à revoir
+pour une diffusion large.

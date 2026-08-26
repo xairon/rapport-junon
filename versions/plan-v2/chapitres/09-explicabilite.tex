@@ -1,0 +1,218 @@
+\chapter{Expliquer : le sujet initial, enfin abordable}
+\label{ch:xai}
+
+\questionchapitre{Une prévision de niveau de nappe n'est mobilisable que si l'on peut dire sur
+quoi elle repose et ce qu'elle deviendrait dans d'autres conditions. Comment produire de telles
+explications sans qu'elles soient elles-mêmes trompeuses ?}
+
+\section{Pourquoi l'explicabilité n'est pas une option ici}
+
+Le sujet initial du postdoctorat retrouve ici sa place, une fois construit le terrain qui le
+rendait abordable.
+
+L'exigence d'explication ne relève pas, dans ce domaine, d'une préférence méthodologique. Les
+niveaux de nappe conditionnent des décisions administratives contraignantes : restrictions
+d'usage, autorisations de prélèvement, dimensionnement d'ouvrages d'alimentation. Une décision
+publique doit pouvoir être motivée. Un modèle dont on ne sait pas dire pourquoi il annonce une
+baisse ne sera pas invoqué à l'appui d'un arrêté, et ne devrait pas l'être.
+
+S'y ajoute une condition d'adoption. L'interlocuteur d'un modèle de nappe est un hydrogéologue
+qui possède une compréhension physique du système. Il n'accordera sa confiance qu'à un modèle
+dont les explications sont compatibles avec ce qu'il sait. Réciproquement, une explication
+qui contredit sa compréhension est une information précieuse : soit le modèle a capté quelque
+chose, soit il s'est trompé, et dans les deux cas il faut le savoir.
+
+Trois questions organisent le dispositif : \emph{sur quoi le modèle s'appuie-t-il ?},
+\emph{que se passerait-il dans d'autres conditions ?}, et \emph{cette chronique est-elle
+seulement explicable par le climat ?}
+
+\section{Le rôle de ce chapitre dans une recherche en cours}
+
+Ces développements n'ont pas l'ambition qu'on pourrait leur prêter.
+
+La deuxième question, celle des explications contrefactuelles et de leur qualité, fait l'objet
+de travaux de recherche menés au LIFAT sous la direction de Nicolas Labroche. Ces travaux
+portent sur ce qui constitue une bonne explication et sur la manière de le mesurer, question
+ouverte : les critères habituellement employés, validité de la sortie obtenue, proximité à
+l'observation d'origine, compacité de la modification proposée, décrivent la mécanique de
+l'optimisation plus qu'ils ne renseignent sur la valeur explicative du résultat.
+
+\textbf{Ce chapitre n'apporte pas de réponse à cette question.} Il en construit les conditions
+matérielles. Étudier la qualité d'une explication contrefactuelle suppose d'avoir des modèles à
+expliquer, des données sur lesquelles ils ont été entraînés, au moins deux méthodes à comparer,
+un moyen de vérifier qu'un contrefactuel n'est pas un artefact du modèle qui l'a produit, et des
+cas d'étude qui ne soient pas pollués par des influences non climatiques. Rien de tout cela
+n'existait au démarrage. La suite de ce chapitre décrit ce qui a été mis en place pour que ces
+travaux puissent porter sur le domaine hydrogéologique, avec des données réelles, plutôt que sur
+des jeux d'essai génériques.
+
+L'implémentation contrainte par la physique décrite en section~\ref{sec:physcf} relève de la
+même logique : elle donne corps à une exigence formulée par les hydrogéologues, pour que
+l'évaluation puisse ensuite porter sur quelque chose de concret. Elle constitue une hypothèse
+outillée, pas un résultat.
+
+\section{Sur quoi le modèle s'appuie-t-il : les méthodes d'attribution}
+
+Le premier volet mobilise et adapte les familles usuelles d'attribution, chacune répondant à une
+facette différente de la question.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Famille} & \textbf{Ce qu'elle apporte} \\
+\midrule
+Importance par perturbation & Mesure la dégradation de la prévision quand une entrée est
+brouillée : lecture directe, sans hypothèse sur le modèle \\
+Valeurs de Shapley~\cite{lundberg2017shap} & Répartition de la contribution entre entrées sur
+des bases axiomatiques, avec une variante adaptée aux séries temporelles qui attribue aussi dans
+le temps~\cite{bento2021timeshap} \\
+Attributions par gradients~\cite{sundararajan2017ig,captum} & Saillance temporelle et gradients
+intégrés : quels pas de temps de la fenêtre d'entrée pèsent sur la sortie \\
+Poids d'attention & Pour les architectures qui en possèdent, lecture directe de ce que le modèle
+regarde \\
+Décomposition du signal & Sépare tendance, saisonnalité et résidu, et rapporte la prévision à
+ces composantes \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+L'intérêt de disposer de plusieurs familles dans un même outil n'est pas l'exhaustivité mais la
+\textbf{confrontation} : des méthodes qui reposent sur des principes différents et convergent
+donnent une explication crédible ; des méthodes qui divergent signalent que l'explication est
+fragile, ce qui est en soi une information utile, et qu'une méthode unique aurait masquée.
+
+\section{Que se passerait-il si : les contrefactuels sous contrainte physique}
+\label{sec:physcf}
+
+C'est le développement le plus spécifique de ce chapitre, et celui qui alimente le plus
+directement les travaux évoqués ci-dessus. Il répond à une exigence formulée par les
+hydrogéologues avant d'être traité.
+
+\subsection{Le problème du contrefactuel naïf}
+
+Une explication contrefactuelle~\cite{wachter2018counterfactual} répond à : \emph{quelle
+modification minimale des entrées changerait la prévision de telle manière ?} Appliquée à une
+nappe : quel régime climatique aurait évité l'étiage annoncé ?
+
+Les approches existantes pour les séries temporelles~\cite{ates2021comte,wang2023forecastcf}
+optimisent directement la perturbation des entrées sous contrainte de proximité. Sur des données
+climatiques, elles produisent des réponses correctes au sens de l'optimisation et
+\textbf{physiquement absurdes} : elles peuvent augmenter la température sans modifier
+l'évapotranspiration, faire varier la pluie d'un jour à l'autre de manière incohérente, ou
+construire un régime saisonnier qui n'existe nulle part. Une telle explication est
+inutilisable : on ne peut pas dire à un gestionnaire que l'étiage aurait été évité dans un
+climat qui ne peut pas exister.
+
+Les hydrogéologues formulent ce constat dans les termes de leur métier : les critères
+habituellement employés pour juger un contrefactuel, sa validité, sa proximité à l'observation
+et sa compacité, ne disent rien de sa plausibilité physique. Deux exigences s'y substituent, et
+ce sont elles que la méthode décrite plus loin met en œuvre : le respect du bilan de masse, et
+la cohérence avec les échelles de temps auxquelles un aquifère réagit réellement.
+
+\subsection{La solution retenue : contraindre l'espace de perturbation}
+
+L'approche développée renonce à perturber librement les entrées. Elle optimise à la place un
+petit nombre de paramètres interprétables, dont chacun a un sens physique et une plage de
+validité :
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lllX@{}}
+\toprule
+\textbf{Paramètre} & \textbf{Plage} & \textbf{Neutre} & \textbf{Interprétation} \\
+\midrule
+Facteur de pluie (par saison, 4) & \numrange{0,3}{2,0} & \num{1,0} & Régime pluviométrique
+saisonnier, de \SI{-70}{\percent} à $\times 2$ \\
+Décalage de température & \SIrange{-5}{5}{\celsius} & \num{0} & Réchauffement ou refroidissement
+global \\
+Résidu d'évapotranspiration & \numrange{-0,03}{0,03} & \num{0} & Écart fractionnaire résiduel \\
+Décalage temporel & \SIrange{-30}{30}{\day} & \num{0} & Avance ou retard de la saison \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Surtout, ces paramètres ne sont pas indépendants. L'évapotranspiration est \textbf{couplée à la
+température} par la relation de Clausius-Clapeyron, au taux d'environ \SI{7}{\percent} par degré
+qui gouverne la capacité de l'air à contenir de la vapeur d'eau. Élever la température dans le
+scénario contrefactuel élève donc mécaniquement la demande évaporative : le scénario reste
+thermodynamiquement cohérent \emph{par construction}, non par pénalisation après coup. C'est la
+traduction du premier critère demandé, la plausibilité du bilan de masse ; la structure
+saisonnière des facteurs de pluie et le décalage temporel traduisent le second.
+
+L'ensemble reste différentiable, donc optimisable par descente de gradient à travers le modèle
+de prévision, quel que soit ce modèle : une couche d'adaptation permet d'appliquer la méthode
+aux architectures du catalogue du chapitre~\ref{ch:apprentissage}. Une variante par optimisation
+bayésienne est également disponible pour les cas où le gradient n'est pas exploitable.
+
+\subsection{Une comparaison honnête : la référence non contrainte}
+
+Contraindre l'espace de recherche améliore l'interprétabilité ; encore faut-il montrer que cela
+ne se paie pas d'une perte de qualité rédhibitoire. Une méthode de référence inspirée des
+contrefactuels pour séries temporelles multivariées~\cite{ates2021comte} a donc été implémentée
+pour la comparaison : elle optimise directement la perturbation brute, avec contraintes souples,
+sans couplage physique, soit un nombre de paramètres libres égal à trois fois la longueur de la
+fenêtre, contre sept pour l'approche contrainte.
+
+Cette comparaison met à l'épreuve une hypothèse précise. Avec plusieurs dizaines à quelques centaines de fois plus de
+paramètres libres, la référence non contrainte atteindra presque toujours la cible plus
+facilement. La question n'est donc pas laquelle des deux optimise mieux, ce qui est réglé
+d'avance, mais si \textbf{davantage de degrés de liberté produit une meilleure explication}. Le
+dispositif permet d'en discuter sur pièces plutôt que de le supposer.
+
+\subsection{Une validation par un modèle indépendant}
+
+Un contrefactuel produit par optimisation à travers un modèle appris peut n'être valide que pour
+ce modèle : il exploiterait alors une particularité de l'approximation plutôt qu'une propriété du
+système. Pour écarter cette possibilité, le scénario contrefactuel est rejoué dans un modèle
+métier calibré indépendamment, celui du chapitre~\ref{ch:metier}, et l'on vérifie que l'effet
+annoncé s'y retrouve.
+
+Cette validation croisée n'était possible que parce que les deux familles de modèles cohabitent
+dans le même outil, sur les mêmes données. C'est un bénéfice direct de l'architecture retenue,
+et une raison supplémentaire d'avoir commencé par le modèle métier.
+
+\section{Cette chronique est-elle explicable par le climat ? La détection de prélèvements}
+
+La troisième question renverse la perspective. Une chronique piézométrique qu'aucun modèle
+climatique ne parvient à reproduire n'est pas nécessairement le signe d'un mauvais modèle : elle
+peut porter la trace d'une \textbf{influence anthropique}, un pompage, que le forçage
+climatique ne contient pas.
+
+L'enjeu est double, et il a été formulé comme tel lors du cadrage. Il s'agit d'abord d'écarter
+les stations impropres à l'apprentissage, préoccupation qui rejoint directement la constitution
+d'un jeu de piézomètres peu influencés. Il s'agit ensuite de produire une information utile en
+elle-même : l'annotation automatique des piézomètres selon leur caractère inertiel, réactif ou
+influencé figure parmi les cas d'usage identifiés avec le BRGM.
+
+Le problème est difficile car \textbf{non supervisé} : on ne dispose pas d'un historique
+étiqueté des prélèvements. La démarche procède en deux temps. Un modèle métier calibré fournit d'abord ses résidus et une
+détection de ruptures, dont on tire les périodes que l'on peut tenir pour non perturbées.
+Deux lectures indépendantes l'une de l'autre s'appuient ensuite sur cette base, l'une par analyse
+d'écart après apprentissage, l'autre par représentation apprise, et leurs verdicts sont fusionnés. La couche
+d'explicabilité y joue un rôle inhabituel : elle ne sert pas à justifier une prédiction mais à
+détecter une \textbf{dérive dans les attributions}, un changement de ce sur quoi le modèle
+s'appuie, qui signale que le régime du système a changé.
+
+Le résultat est confronté, quand elle existe, à l'information publique sur les ouvrages de
+prélèvement déclarés.
+
+Le dispositif d'explicabilité est ainsi outillé de bout en bout, articulant attribution,
+contrefactuels et détection d'influence, et surtout organisé pour que ses composants puissent
+être confrontés entre eux. Le développement le plus spécifique porte sur les contrefactuels sous
+contrainte physique : en réduisant l'espace de perturbation à sept paramètres interprétables
+couplés par une relation thermodynamique, l'implémentation ne produit que des scénarios
+formulables dans le langage du domaine, là où une optimisation libre en produirait sans
+signification physique.
+
+Il faut être net sur ce que cela vaut à ce stade. Ces développements sont \textbf{préliminaires},
+et c'est leur objet. L'implémentation fonctionne, elle met en œuvre les deux exigences formulées
+par les hydrogéologues, et le dispositif prévoit de quoi la comparer à une référence non
+contrainte comme de quoi vérifier ses résultats sur un modèle indépendant. Mais aucune
+évaluation quantitative n'a été conduite, sur aucun échantillon, selon aucune métrique de
+qualité d'explication établie.
+
+Cette évaluation n'était pas l'objet de ce postdoctorat : elle relève des travaux menés sous la
+direction de Nicolas Labroche, auxquels ce chapitre fournit son terrain. Ce qui est livré, c'est
+un banc complet, des données réelles, deux méthodes comparables, un moyen de validation
+indépendant, et une hypothèse formulée dans les termes du domaine. Autrement dit, tout ce qu'il
+faut pour que la question de la qualité des explications puisse être traitée sur un cas
+hydrogéologique, et non un résultat acquis.

@@ -1,0 +1,131 @@
+\chapter{Apprendre : le laboratoire d'apprentissage automatique}
+\label{ch:apprentissage}
+
+\questionchapitre{Quel dispositif faut-il pour que des expériences d'apprentissage profond sur
+des séries hydrologiques soient comparables, reproductibles, et conduites par des chercheurs qui
+ne sont pas tous spécialistes de l'apprentissage ?}
+
+\section{Le problème posé}
+
+Prévoir un niveau de nappe est un problème de série temporelle multivariée avec covariables
+exogènes : la cible est le niveau, les entrées sont la précipitation, la température et
+l'évapotranspiration. Les difficultés propres au domaine sont connues : inertie très variable
+d'un aquifère à l'autre, non-stationnarité liée aux prélèvements, lacunes d'observation,
+événements extrêmes rares donc sous-représentés dans l'apprentissage.
+
+La littérature propose de nombreuses architectures ; aucune ne s'impose a priori. La question
+pratique n'est donc pas « quel modèle choisir » mais « comment mettre en place un dispositif
+qui permette de trancher, et de rejouer la comparaison quand les données changent ».
+
+\section{Un catalogue d'architectures sous interface unique}
+
+La plateforme donne accès à une douzaine d'architectures de prévision profonde issues de la
+bibliothèque Darts~\cite{darts}, couvrant les grandes familles de l'état de l'art :
+
+\begin{itemize}
+  \item \textbf{à mécanisme d'attention} : \emph{temporal fusion transformer}~\cite{lim2021tft},
+  transformeur classique ;
+  \item \textbf{à décomposition par blocs} : N-BEATS, N-HiTS ;
+  \item \textbf{récurrentes} : LSTM, GRU, réseaux récurrents par blocs ;
+  \item \textbf{convolutives} : réseaux convolutifs temporels ;
+  \item \textbf{récentes à faible coût} : TiDE, TSMixer, DLinear, NLinear.
+\end{itemize}
+
+L'inclusion des dernières est délibérée : les modèles linéaires ou quasi linéaires constituent
+des références exigeantes sur les séries temporelles, et une architecture lourde qui ne les
+dépasse pas doit être écartée. Disposer de la référence faible dans le même outil que le modèle
+sophistiqué évite la comparaison biaisée par des conditions expérimentales différentes.
+
+Une fabrique de modèles instancie dynamiquement l'architecture demandée en validant ses
+hyperparamètres, ce qui permet d'ajouter une architecture sans modifier l'interface ni l'API.
+
+\section{Le protocole expérimental}
+
+Le dispositif vise trois propriétés.
+
+\paragraph{La traçabilité.} Chaque exécution d'entraînement est enregistrée dans MLflow~\cite{mlflow} : paramètres, métriques, artefacts, modèle produit. Les jeux de
+données préparés et les modèles entraînés font l'objet de registres distincts, de sorte qu'un
+résultat puisse être rattaché sans ambiguïté au couple exact qui l'a produit. Sans ce mécanisme,
+une comparaison entre deux expériences menées à quelques semaines d'intervalle n'est pas
+défendable.
+
+\paragraph{La séparation entre l'entraînement et l'interface.} Le code d'entraînement n'a aucune
+connaissance de l'interface qui l'observe : il écrit son avancement dans un fichier d'état, que
+la couche de présentation lit indépendamment et retransmet au navigateur par un flux
+d'événements. Cette séparation, visible sur la figure~\ref{fig:archi-plateforme}, a une
+conséquence pratique importante : \textbf{le même code d'entraînement s'exécute depuis
+l'application, depuis un script ou depuis un carnet de calcul}, sans modification.
+
+\paragraph{La conduite d'expériences longues.} L'entraînement s'appuie sur PyTorch Lightning~\cite{pytorch_lightning} et s'effectue sur
+processeur graphique lorsque celui-ci est disponible, avec arrêt anticipé et suivi de
+l'évolution des pertes en apprentissage et en validation. L'utilisateur voit progresser son
+entraînement au lieu d'attendre un résultat opaque, et peut l'interrompre s'il diverge.
+
+\section{Optimisation d'hyperparamètres}
+
+La comparaison d'architectures n'a de sens que si chacune est évaluée dans une configuration
+raisonnable ; comparer un modèle réglé à un modèle laissé aux valeurs par défaut ne renseigne
+que sur le réglage. Optuna~\cite{optuna} est donc intégré pour la recherche automatisée d'hyperparamètres, avec un
+échantillonnage guidé par les essais déjà évalués. Chaque essai est par ailleurs interrompu dès
+que sa perte de validation cesse de progresser. L'élagage entre essais, qui abandonnerait une
+configuration en cours au vu des premières époques, n'est pas activé : ce serait le premier
+réglage à ajouter pour réduire le coût d'une campagne.
+
+\section{Rendre l'outil utilisable par des non-spécialistes}
+
+Un dispositif d'expérimentation complet est, par nature, exigeant : longueur de fenêtre
+d'entrée, taille de lot, nombre d'époques, patience d'arrêt anticipé. Ces réglages sont un
+obstacle réel pour un hydrogéologue qui souhaite simplement obtenir une prévision.
+
+Des \textbf{configurations prêtes à l'emploi} ont donc été définies par cas d'usage métier
+plutôt que par architecture : prévision piézométrique à court terme (sept jours), à moyen terme
+(trente jours), à long terme (quatre-vingt-dix jours), et prévision de débit à quatorze jours.
+Chacune fixe une architecture et un jeu d'hyperparamètres cohérents, choisis à partir des
+recommandations de la bibliothèque et des références publiées sur séries piézométriques.
+
+Ces configurations sont des points de départ raisonnables, non des réglages optimisés pour une
+station donnée. La documentation le dit explicitement et oriente vers la recherche automatisée
+d'hyperparamètres pour aller plus loin. Il aurait été facile, et trompeur, de les présenter
+comme optimales.
+
+Les échanges avec les hydrogéologues ont d'ailleurs montré que cette réserve n'est pas de pure
+forme. La réponse d'un aquifère à la pluie varie fortement selon sa nature : certains systèmes
+sont inertiels et réagissent avec une forte latence, d'autres se rechargent presque
+directement. Les cycles observés vont de l'annuel au pluriannuel. La profondeur d'historique à
+fournir en entrée, l'horizon de prévision pertinent et le pas d'agrégation devraient donc être
+choisis selon le type de nappe, comme le sont déjà les configurations de modèles métier du
+chapitre~\ref{ch:metier}. Cette adaptation par famille d'aquifère n'a pas été faite pour les
+modèles appris : elle constitue une piste identifiée, et vraisemblablement le premier gain à
+aller chercher.
+
+\section{Ce qui est établi, et ce qui ne l'est pas}
+
+\textbf{Ce qui est acquis} est le dispositif : un banc d'expérimentation instrumenté, traçable,
+qui rend les comparaisons possibles et rejouables, accessible à des utilisateurs de niveaux
+d'expertise différents, et dont le cœur est réutilisable hors de l'application.
+
+\textbf{Ce qui n'est pas établi dans ce rapport} est le classement des architectures sur le cas
+hydrogéologique. Les campagnes d'entraînement conduites au cours des travaux ont servi à
+valider le dispositif et à orienter les développements ; les jeux de données préparés et les
+points de sauvegarde ont été purgés des dépôts lors de la passation. Reconstituer a posteriori
+un tableau de performances à partir de souvenirs ne serait pas un résultat scientifique. La
+campagne d'évaluation comparative, qui opposerait les modèles appris aux modèles métier du
+chapitre~\ref{ch:metier} sur un échantillon représentatif de stations et de familles
+d'aquifères, reste donc à conduire, et l'outillage nécessaire est en place pour la mener.
+
+\paragraph{Une limite d'ingénierie à corriger.} La suite de tests de la plateforme compte
+\num{552} tests, dont \num{547} passent (mesuré le 24 août 2026). Aucun ne s'exécute
+automatiquement : le dépôt est hébergé sur une forge dont la chaîne d'intégration continue ne
+comporte qu'une étape de construction d'image, tandis que la définition de tests existante cible
+une autre forge. Parmi les cinq cas non passants, deux exigent un entrepôt peuplé et relèvent
+en réalité de l'intégration, un lit un fichier absent de tout autre poste, un est mis en défaut
+par la base en mémoire employée pour les tests, qui ne conserve pas le fuseau horaire, et le
+dernier est ignoré. Aucun ne
+signale un défaut applicatif, mais la purge des journaux se trouve de fait non testée. C'est le
+premier correctif à apporter par toute personne reprenant ces travaux.
+
+Aucune architecture n'est recommandée ici plutôt qu'une autre, et ce silence est volontaire :
+ce chapitre livre un banc d'expérimentation, pas une étude de performances. Deux travaux
+l'attendent, de natures différentes. L'évaluation comparative des architectures relève de la
+recherche. L'automatisation de la suite de tests relève de l'ingénierie, et devrait passer en
+premier : elle conditionne la confiance dans tout ce qui suivra.
