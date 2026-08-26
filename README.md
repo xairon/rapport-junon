@@ -24,7 +24,7 @@ pdflatex main && biber main && pdflatex main && pdflatex main
 | Fichier | Contenu |
 |---|---|
 | `main.tex` | Document maître : préambule, ordre des chapitres |
-| `preambule.tex` | Paquets, palette, environnements (`encadre`, `limite`, `resultat`, `acquisouvert`) |
+| `preambule.tex` | Paquets, palette, environnement `encadre` (seul encore employé, une fois) |
 | `bibliographie.bib` | 42 références, toutes citées |
 | `chapitres/` | Un fichier par chapitre, numérotés dans l'ordre du document |
 | `figures/` | Ressources externes éventuelles (les schémas actuels sont en TikZ, dans les chapitres) |
@@ -51,10 +51,20 @@ dans le chapitre entrepôt, est conservé dans `versions/plan-v2/` et sous le ta
 
 ## Conventions de rédaction
 
-- **Chaque chapitre s'ouvre** sur la question à laquelle il répond (`\questionchapitre`) et
-  **se ferme** sur un bilan acquis / ouvert (environnement `acquisouvert`).
-- **Les environnements colorés** ont un rôle fixe : `resultat` (vert) pour un résultat établi,
-  `limite` (ocre) pour une limite assumée, `encadre` (bleu) pour une mise en perspective.
+Elles ont toutes été posées en réaction à une relecture. Les enfreindre a déjà coûté une reprise.
+
+- **Prose suivie.** Pas de `\paragraph{Titre.}` en tête de paragraphe : l'idée s'annonce par la
+  phrase, jamais par une étiquette en gras. Il y en avait 48 le 26 août 2026, il n'en reste aucun.
+  Contrôle : `grep -h '^\\paragraph{' chapitres/*.tex | wc -l` doit rendre 0.
+- **Aucun tiret cadratin.** Contrôle : `grep -o '—' chapitres/*.tex | wc -l` doit rendre 0.
+- **La synthèse se lit d'un trait**, sans sous-titre ni tableau.
+- **Trois catégories, trois statuts.** Les défauts des sources et les limites non corrigées
+  figurent au rapport, un repreneur en a besoin. Les bugs trouvés et corrigés pendant le
+  développement n'y figurent pas : seul l'invariant livré est décrit, leur récit vit dans le
+  manuel d'exploitation du dépôt.
+- **Pas de récit à la première personne de sa propre initiative**, ni de tableau qui note ses
+  propres mérites. Les faits suffisent.
+- **Chaque chapitre s'ouvre** sur la question à laquelle il répond (`\questionchapitre`).
 - **Tous les chiffres avancés** proviennent de mesures consignées dans les dépôts
   `hubeau_data_integration` et `time-serie-explo`. Aucune valeur n'est estimée ou reconstituée.
 
