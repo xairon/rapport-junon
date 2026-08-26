@@ -85,81 +85,107 @@ C'est le développement le plus spécifique de ce chapitre, et celui qui aliment
 directement les travaux évoqués ci-dessus. Il répond à une exigence formulée par les
 hydrogéologues avant d'être traité.
 
-\subsection{Le problème du contrefactuel naïf}
+\subsection{La question posée, et pourquoi la réponse directe ne vaut rien}
 
-Une explication contrefactuelle~\cite{wachter2018counterfactual} répond à : \emph{quelle
-modification minimale des entrées changerait la prévision de telle manière ?} Appliquée à une
-nappe : quel régime climatique aurait évité l'étiage annoncé ?
+Une explication contrefactuelle répond à une question simple : \emph{qu'aurait-il fallu changer
+pour que le résultat soit différent ?} Posée sur une nappe, elle devient : quel climat aurait
+évité que cette station bascule en sécheresse sévère ? La cible n'est donc pas un niveau en
+mètres, mais une classe de l'indice standardisé du chapitre~\ref{ch:indicateurs}, celle-là même
+sur laquelle un gestionnaire raisonne.
 
-Les approches existantes pour les séries temporelles~\cite{ates2021comte,wang2023forecastcf}
-optimisent directement la perturbation des entrées sous contrainte de proximité. Sur des données
-climatiques, elles produisent des réponses correctes au sens de l'optimisation et
-\textbf{physiquement absurdes} : elles peuvent augmenter la température sans modifier
-l'évapotranspiration, faire varier la pluie d'un jour à l'autre de manière incohérente, ou
-construire un régime saisonnier qui n'existe nulle part. Une telle explication est
-inutilisable : on ne peut pas dire à un gestionnaire que l'étiage aurait été évité dans un
-climat qui ne peut pas exister.
+La façon directe d'y répondre consiste à laisser un algorithme modifier les entrées du modèle,
+jour par jour, jusqu'à ce que la prévision atteigne la classe visée, en changeant le moins de
+choses possible. C'est ce que font les méthodes publiées pour les séries
+temporelles~\cite{wachter2018counterfactual,wang2023forecastcf}.
+
+Sur des données climatiques, ce qui en sort est inutilisable. Rien n'oblige l'algorithme à
+respecter la physique : il peut réchauffer l'air sans augmenter l'évaporation, faire alterner
+pluie et sécheresse d'un jour à l'autre sans cohérence, ou fabriquer une saison qui n'existe
+nulle part. La réponse est correcte au sens de l'optimisation et dépourvue de sens : on ne peut
+pas annoncer à un gestionnaire que l'étiage aurait été évité dans un climat impossible.
 
 Les hydrogéologues y substituent deux exigences, et ce sont elles que la méthode décrite plus
-loin met en œuvre : le respect du bilan de masse, et la cohérence avec les échelles de temps
+bas met en œuvre : le respect du bilan de masse, et la cohérence avec les échelles de temps
 auxquelles un aquifère réagit réellement.
 
-\subsection{La solution retenue : contraindre l'espace de perturbation}
+\subsection{Chercher un climat plutôt qu'une suite de valeurs}
 
-L'approche développée renonce à perturber librement les entrées. Elle optimise à la place un
-petit nombre de paramètres interprétables, dont chacun a un sens physique et une plage de
-validité :
+L'approche retenue renverse le problème. Plutôt que de laisser modifier chaque valeur
+journalière, elle ne laisse régler que \textbf{sept boutons}, dont chacun décrit une propriété
+du climat et rien d'autre.
 
 \begin{center}
-\begin{tabularx}{\textwidth}{@{}lllX@{}}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
 \toprule
-\textbf{Paramètre} & \textbf{Plage} & \textbf{Neutre} & \textbf{Interprétation} \\
+\textbf{Réglage} & \textbf{Plage} & \textbf{Ce qu'il veut dire} \\
 \midrule
-Facteur de pluie (par saison, 4) & \numrange{0,3}{2,0} & \num{1,0} & Régime pluviométrique
-saisonnier, de \SI{-70}{\percent} à $\times 2$ \\
-Décalage de température & \SIrange{-5}{5}{\celsius} & \num{0} & Réchauffement ou refroidissement
-global \\
-Résidu d'évapotranspiration & \numrange{-0,03}{0,03} & \num{0} & Écart fractionnaire résiduel \\
-Décalage temporel & \SIrange{-30}{30}{\day} & \num{0} & Avance ou retard de la saison \\
+Pluie, un par saison (4) & \numrange{0,3}{2,0} & Des hivers deux fois plus pluvieux, des étés
+\SI{40}{\percent} plus secs, et ainsi de suite pour chaque saison \\
+Température & \SIrange{-5}{5}{\celsius} & Un climat globalement plus chaud ou plus froid \\
+Résidu d'évaporation & \SIrange{-3}{3}{\percent} & La marge laissée autour de la valeur que la
+température impose \\
+Décalage du calendrier & \SIrange{-30}{30}{\day} & Une saison en avance ou en retard \\
 \bottomrule
 \end{tabularx}
 \end{center}
 
-Surtout, ces paramètres ne sont pas indépendants. L'évapotranspiration est \textbf{couplée à la
-température} par la relation de Clausius-Clapeyron, au taux d'environ \SI{7}{\percent} par degré
-qui gouverne la capacité de l'air à contenir de la vapeur d'eau. Élever la température dans le
-scénario contrefactuel élève donc mécaniquement la demande évaporative : le scénario reste
-thermodynamiquement cohérent \emph{par construction}, non par pénalisation après coup. C'est la
-traduction du premier critère demandé, la plausibilité du bilan de masse ; la structure
-saisonnière des facteurs de pluie et le décalage temporel traduisent le second.
+Sept réglages ne décrivent plus une suite de nombres, ils décrivent un \textbf{régime
+climatique} : un hiver plus pluvieux, un été plus chaud, une saison décalée. L'incohérence d'un
+jour au suivant devient impossible, puisque plus rien n'agit jour par jour.
 
-L'ensemble reste différentiable, donc optimisable par descente de gradient à travers le modèle
-de prévision, quel que soit ce modèle : une couche d'adaptation permet d'appliquer la méthode
-aux architectures du catalogue du chapitre~\ref{ch:apprentissage}. Une variante par optimisation
-bayésienne est également disponible pour les cas où le gradient n'est pas exploitable.
+Reste le lien entre chaleur et évaporation, qui est le cœur du dispositif. Si l'on réchauffe
+l'air, l'évaporation doit augmenter : l'air chaud emporte davantage de vapeur d'eau. La méthode
+l'impose au lieu de l'espérer. L'évapotranspiration n'est pas un bouton libre : elle est
+\textbf{calculée à partir du bouton de température}, à raison de \SI{7}{\percent} par degré,
+ordre de grandeur tiré de la relation de Clausius-Clapeyron qui gouverne la capacité de l'air à
+contenir de la vapeur. Le septième réglage n'ouvre qu'une marge de \SI{3}{\percent} autour de
+cette valeur. Le scénario est donc thermodynamiquement cohérent \emph{par construction}, et non
+redressé après coup par une pénalité.
 
-\subsection{Une comparaison honnête : la référence non contrainte}
+Ce couplage à \SI{7}{\percent} par degré est une hypothèse de travail, pas une loi appliquée à
+l'évapotranspiration : la relation de Clausius-Clapeyron porte sur la pression de vapeur
+saturante, et la transposer à la demande évaporative est une simplification. Le taux est un
+paramètre du dispositif, modifiable sans toucher au reste.
 
-Contraindre l'espace de recherche améliore l'interprétabilité ; encore faut-il montrer que cela
-ne se paie pas d'une perte de qualité rédhibitoire. Une méthode de référence inspirée des
-contrefactuels pour séries temporelles multivariées~\cite{ates2021comte} a donc été implémentée
-pour la comparaison : elle optimise directement la perturbation brute, avec contraintes souples,
-sans couplage physique, soit un nombre de paramètres libres égal à trois fois la longueur de la
-fenêtre, contre sept pour l'approche contrainte.
+L'ensemble reste dérivable, donc réglable par descente de gradient à travers le modèle de
+prévision, quel qu'il soit : une couche d'adaptation branche la méthode sur les architectures du
+catalogue du chapitre~\ref{ch:apprentissage}. Quand le gradient n'est pas exploitable, une
+variante cherche les sept valeurs par optimisation bayésienne.
 
-Cette comparaison met à l'épreuve une hypothèse précise. Avec plusieurs dizaines à quelques centaines de fois plus de
-paramètres libres, la référence non contrainte atteindra presque toujours la cible plus
-facilement. La question n'est donc pas laquelle des deux optimise mieux, ce qui est réglé
-d'avance, mais si \textbf{davantage de degrés de liberté produit une meilleure explication}. Le
-dispositif permet d'en discuter sur pièces plutôt que de le supposer.
+La réponse produite s'énonce alors dans les termes du métier. Non pas une matrice de valeurs
+journalières, mais une phrase du type : \emph{il aurait fallu des hivers un cinquième plus
+humides et un climat plus frais d'un degré}.
+
+\subsection{Une référence de comparaison}
+
+Contraindre l'espace de recherche améliore l'interprétabilité, encore faut-il pouvoir en
+discuter le prix. Une seconde méthode a donc été implémentée, adaptée de CoMTE~\cite{ates2021comte}, qui répond à la même question par un tout autre
+chemin.
+
+Là où la première \emph{construit} un climat, celle-ci va en \emph{chercher} un dans
+l'historique. Elle constitue une réserve de fenêtres réellement observées, classées par
+situation, retient les plus proches de la station étudiée, puis substitue à ses forçages ceux
+d'une de ces fenêtres. Comme il n'y a que trois grandeurs, les huit combinaisons possibles sont
+toutes essayées, et l'on conserve celle qui atteint le mieux la classe visée, en écartant
+ensuite les substitutions qui n'apportent rien.
+
+Les deux réponses n'ont pas le même statut, et c'est ce qui rend la comparaison intéressante.
+Celle de la seconde méthode est physiquement réelle par construction, puisqu'elle s'est
+produite ; mais elle ne dit pas ce qui aurait dû changer, seulement quelle autre année aurait
+convenu, et elle n'existe que si l'historique contient déjà une telle année. Celle de la
+première est construite, donc disponible dans tous les cas et énonçable comme une évolution du
+climat ; en revanche sa plausibilité repose sur les contraintes qu'on lui a imposées. Le
+dispositif permet d'en débattre sur pièces plutôt que de trancher a priori.
 
 \subsection{Une validation par un modèle indépendant}
 
-Un contrefactuel produit par optimisation à travers un modèle appris peut n'être valide que pour
-ce modèle : il exploiterait alors une particularité de l'approximation plutôt qu'une propriété du
-système. Pour écarter cette possibilité, le scénario contrefactuel est rejoué dans un modèle
-métier calibré indépendamment, celui du chapitre~\ref{ch:metier}, et l'on vérifie que l'effet
-annoncé s'y retrouve.
+Un contrefactuel produit à travers un modèle appris peut n'être valide que pour ce modèle : il
+exploiterait alors une particularité de l'approximation plutôt qu'une propriété du système. Le
+scénario est donc rejoué dans un modèle métier calibré indépendamment, celui du
+chapitre~\ref{ch:metier}, et l'on compare les deux trajectoires obtenues. La règle d'acceptation
+est explicite : l'écart entre les deux modèles sur le scénario contrefactuel ne doit pas excéder
+un multiple de l'écart qu'ils présentent déjà sur la situation observée. Un contrefactuel qui
+fait diverger les deux modèles bien plus qu'ils ne divergeaient est rejeté.
 
 Cette validation croisée n'était possible que parce que les deux familles de modèles cohabitent
 dans le même outil, sur les mêmes données. C'est un bénéfice direct de l'architecture retenue,
