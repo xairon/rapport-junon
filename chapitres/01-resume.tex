@@ -2,90 +2,70 @@
 \addcontentsline{toc}{chapter}{Synthèse}
 \markboth{Synthèse}{Synthèse}
 
-Le programme \textsc{Junon} vise à construire des jumeaux numériques des milieux naturels, dont
-les eaux souterraines. Prévoir l'évolution d'une nappe est aujourd'hui possible par apprentissage
-automatique ; s'en servir pour décider ne l'est pas encore, car une prévision qu'on ne sait pas
-justifier ne sera pas retenue à l'appui d'un arrêté de restriction d'usage. C'est à cette
-difficulté, l'\textbf{explicabilité des prévisions}, que ce postdoctorat était consacré, au LIFAT
-de l'Université de Tours, du 15 septembre 2025 au 30 juin 2026.
+Le programme \textsc{Junon} construit des jumeaux numériques des milieux naturels, dont les eaux
+souterraines. Prévoir l'évolution d'une nappe par apprentissage automatique est aujourd'hui
+possible. S'en servir pour décider ne l'est pas : une prévision qu'on ne sait pas justifier ne
+sera pas retenue à l'appui d'un arrêté de restriction d'usage. C'est à cette difficulté,
+l'\textbf{explicabilité des prévisions}, que ce postdoctorat était consacré, au LIFAT de
+l'Université de Tours, du 15 septembre 2025 au 30 juin 2026.
 
-Le travail s'est heurté d'emblée à un obstacle matériel. La donnée hydrologique française est
-publique, mais elle est éparpillée entre des services qui s'ignorent : les niveaux de nappe d'un
-côté, les débits des rivières d'un autre, le climat ailleurs encore, sans lien entre eux et sans
-indicateurs comparables d'une station à l'autre. Or on ne peut pas expliquer un modèle qu'on n'a
+Il s'est heurté d'emblée à un obstacle matériel. La donnée hydrologique française est publique,
+mais elle est éparpillée entre des services qui s'ignorent : les niveaux de nappe d'un côté, les
+débits des rivières d'un autre, le climat ailleurs encore, sans lien entre eux et sans
+indicateurs comparables d'une station à l'autre. On ne peut pas expliquer un modèle qu'on n'a
 pas pu entraîner.
 
-Plutôt que de contourner cet obstacle par un jeu de données de circonstance, le parti a été pris
-d'en faire l'objet du travail. Le constat a été porté auprès des équipes du BRGM, qui l'ont
-confirmé : le besoin d'un entrepôt consolidé et d'outils d'analyse ne concernait pas seulement
-ce postdoctorat, il était partagé par leurs propres équipes comme par d'autres projets, chacun
-butant sur la même difficulté de son côté. \textbf{Construire ce socle est ainsi devenu le premier
-travail}, non par défaut mais par décision assumée.
+J'aurais pu contourner l'obstacle par un jeu de données de circonstance. J'ai choisi d'en faire
+l'objet du travail. J'ai porté le constat auprès des équipes du BRGM, qui l'ont confirmé : le
+besoin d'un entrepôt consolidé et d'outils d'analyse ne concernait pas seulement ce
+postdoctorat, il était partagé par leurs propres équipes comme par d'autres projets, chacun
+butant sur la même difficulté de son côté. Construire ce socle est devenu le premier travail,
+non par défaut mais par décision assumée.
 
-\paragraph{Un entrepôt de données sur l'eau et le climat.} Il rassemble automatiquement quatre
-sources publiques : les niveaux de nappe et les débits de rivière relevés par le réseau national,
-la reconstitution du climat français depuis 1950, et le référentiel qui décrit les aquifères. Il
-les met en cohérence, rattache chaque station de mesure au climat de son secteur, et se met à
-jour chaque jour. Il en tire des indicateurs de sécheresse normalisés, calculés de la même
-manière sur tout le territoire et dont la conformité a été vérifiée sur près de \num{42} millions
-de valeurs. Ce qui demandait plusieurs semaines de préparation à chaque équipe s'obtient
-désormais par une simple requête.
+L'entrepôt de données sur l'eau et le climat rassemble automatiquement quatre sources publiques :
+les niveaux de nappe et les débits de rivière relevés par le réseau national, la reconstitution
+du climat français depuis 1950, et le référentiel qui décrit les aquifères. Il les met en
+cohérence, rattache chaque station de mesure au climat de son secteur, et se met à jour chaque
+jour. Il en tire des indicateurs de sécheresse normalisés, calculés de la même manière sur tout
+le territoire, dont la conformité a été vérifiée sur près de \num{42} millions de valeurs. Ce
+qui demandait plusieurs semaines de préparation à chaque équipe s'obtient désormais par une
+requête.
 
-\paragraph{Une plateforme d'exploration et de prévision.} Elle donne accès à trois usages. Un
-\emph{observatoire} cartographique montre l'état des nappes, des rivières et du climat sur tout
-le territoire. Un \emph{laboratoire de modélisation} permet de caler les modèles employés par les
-hydrogéologues et de simuler des scénarios, par exemple l'effet d'un nouveau prélèvement
-agricole. Un \emph{laboratoire d'intelligence artificielle} donne accès à une douzaine de
-méthodes de prévision et, surtout, aux outils qui permettent d'examiner sur quoi leurs prévisions
-reposent.
+La plateforme d'exploration et de prévision donne accès à trois usages. Un observatoire
+cartographique montre l'état des nappes, des rivières et du climat sur tout le territoire. Un
+laboratoire de modélisation permet de caler les modèles qu'emploient les hydrogéologues et de
+simuler des scénarios, l'effet d'un nouveau prélèvement agricole par exemple. Un laboratoire
+d'intelligence artificielle donne accès à une douzaine de méthodes de prévision et, surtout, aux
+outils qui permettent d'examiner sur quoi leurs prévisions reposent.
 
-\begin{center}
-\begin{tabularx}{\textwidth}{@{}lX@{}}
-\toprule
-\textbf{Aux hydrogéologues} & Des indicateurs de sécheresse normalisés, calculés de la même
-manière sur tout le territoire, et un outil pour simuler l'effet d'un prélèvement sur une nappe
-donnée. \\
-\textbf{Aux chercheurs} & Un jeu de données prêt à l'emploi et un banc d'expérimentation, qui
-suppriment le travail de préparation que chaque équipe refaisait pour son compte, avec ses
-propres conventions. \\
-\textbf{Au programme} & Une chaîne complète, de la donnée publique jusqu'au service explicable,
-directement mobilisable pour les jumeaux numériques de la ressource en eau. \\
-\bottomrule
-\end{tabularx}
-\end{center}
+Chaque public y trouve autre chose. Les hydrogéologues, des indicateurs conformes à leurs
+pratiques et de quoi simuler l'effet d'un prélèvement sur une nappe donnée. Les chercheurs, un
+jeu de données prêt à l'emploi et un banc d'expérimentation, qui suppriment le travail de
+préparation que chaque équipe refaisait pour son compte, avec ses propres conventions. Le
+programme, une chaîne complète, de la donnée publique jusqu'au service explicable, mobilisable
+pour les jumeaux numériques de la ressource en eau.
 
-\paragraph{Un outillage prêt à recevoir des travaux.} Au-delà des données, la plateforme met à
-disposition ce qu'il faut pour les exploiter : modèles hydrogéologiques calibrables, méthodes de
-prévision, et outils d'analyse des prévisions produites. Ces briques sont \textbf{préliminaires}
-et assumées comme telles. Elles ne portent aucune conclusion scientifique : leur objet est de
-fournir un point de départ à ceux qui voudront y greffer leurs propres modèles, protocoles ou
-questions de recherche, sans avoir à reconstruire l'amont. L'une d'elles répond à une exigence formulée par les hydrogéologues eux-mêmes : lorsqu'on demande
-à un modèle ce qu'il aurait fallu pour qu'une nappe ne descende pas si bas, la réponse doit rester
-physiquement possible. Une implémentation contraint la réponse en ce sens et l'exprime dans les
-termes du métier, un hiver plus sec et plus chaud de tant. Son évaluation reste à conduire.
+Les briques de modélisation et d'explication sont \textbf{préliminaires}, et c'est leur objet.
+Elles ne portent aucune conclusion scientifique : elles fournissent un point de départ à ceux qui
+voudront y greffer leurs propres modèles, protocoles ou questions de recherche, sans avoir à
+reconstruire l'amont. L'une d'elles répond à une exigence que les hydrogéologues ont formulée
+eux-mêmes : lorsqu'on demande à un modèle ce qu'il aurait fallu pour qu'une nappe ne descende
+pas si bas, la réponse doit rester physiquement possible. Une implémentation contraint la
+réponse en ce sens et l'exprime dans les termes du métier, un hiver plus sec et plus chaud de
+tant. Son évaluation reste à conduire.
 
-\paragraph{Un projet conduit et ouvert.} La dimension d'animation n'a pas été moindre que la
-part technique. Le besoin a été identifié puis porté auprès des parties prenantes, les contacts
-noués directement avec les interlocuteurs techniques et les experts métier du BRGM, et le suivi
-tenu avec eux tout au long de la période. Le socle a par ailleurs été présenté aux équipes du
-projet ANR \textsc{Aida}, sur un périmètre voisin, afin qu'elles puissent s'en servir si elles y
-trouvent leur compte. Cet effort de mise en relation explique que le résultat ne soit pas resté
-l'outil d'une seule personne.
+L'ensemble constitue un socle réutilisable, national et documenté. Il a été présenté aux équipes
+du projet ANR \textsc{Aida}, dont le périmètre est voisin, pour que celles qui en auraient
+l'usage n'aient pas à le reconstruire. La chaîne traite plusieurs
+centaines de millions de mesures, se relance sans rien dupliquer et reprend après interruption,
+ce qui décide si un jeu de données peut servir de référence commune à plusieurs équipes ou
+seulement à l'expérience qui l'a produit. Son architecture n'est pas propre aux eaux
+souterraines : le même enchaînement s'applique aux autres compartiments environnementaux visés
+par le programme. Il est surtout destiné à servir de base aux travaux d'explicabilité qui
+prendront la suite, auxquels il transmet à la fois les données, les modèles et les outils
+d'analyse.
 
-\paragraph{Une infrastructure éprouvée.} La chaîne traite plusieurs centaines de millions de
-mesures, se relance sans rien dupliquer, conserve la trace de toute donnée écartée et reprend
-après interruption. Ces propriétés déterminent si un jeu de données peut servir de référence
-commune à plusieurs équipes, ou seulement à l'expérience qui l'a produit.
-
-\medskip\noindent
-L'ensemble constitue un socle réutilisable. Il est national, documenté, et son architecture n'est
-pas propre aux eaux souterraines : le même enchaînement s'applique aux autres compartiments
-environnementaux visés par le programme. Il est surtout destiné à servir de base aux travaux
-d'explicabilité qui prendront la suite, auxquels il transmet à la fois les données, les modèles
-et les outils d'analyse.
-
-Deux réserves accompagnent cette conclusion. Aucune comparaison chiffrée des méthodes de
-prévision n'est établie dans ce rapport : le temps consacré à l'infrastructure ne l'a pas permis,
-et rien n'a été reconstitué de mémoire. Par ailleurs, l'usage de la plateforme reste aujourd'hui
-circonscrit au cercle du projet ; son élargissement relève d'une décision d'accès plus que de
-développements supplémentaires.
+Reste ce que ce rapport n'établit pas. Aucune comparaison chiffrée des méthodes de prévision n'y
+figure : le temps consacré à l'infrastructure ne l'a pas permis, et je n'ai rien reconstitué de
+mémoire. Et l'usage de la plateforme demeure circonscrit au cercle du projet ; son élargissement
+relève d'une décision d'accès plus que de développements supplémentaires.

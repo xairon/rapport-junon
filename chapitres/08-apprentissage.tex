@@ -43,20 +43,20 @@ hyperparamètres, ce qui permet d'ajouter une architecture sans modifier l'inter
 
 Le dispositif vise trois propriétés.
 
-\paragraph{La traçabilité.} Chaque exécution d'entraînement est enregistrée dans MLflow~\cite{mlflow} : paramètres, métriques, artefacts, modèle produit. Les jeux de
+La traçabilité, d'abord. Chaque exécution d'entraînement est enregistrée dans MLflow~\cite{mlflow} : paramètres, métriques, artefacts, modèle produit. Les jeux de
 données préparés et les modèles entraînés font l'objet de registres distincts, de sorte qu'un
 résultat puisse être rattaché sans ambiguïté au couple exact qui l'a produit. Sans ce mécanisme,
 une comparaison entre deux expériences menées à quelques semaines d'intervalle n'est pas
 défendable.
 
-\paragraph{La séparation entre l'entraînement et l'interface.} Le code d'entraînement n'a aucune
+La séparation entre l'entraînement et l'interface, ensuite. Le code d'entraînement n'a aucune
 connaissance de l'interface qui l'observe : il écrit son avancement dans un fichier d'état, que
 la couche de présentation lit indépendamment et retransmet au navigateur par un flux
 d'événements. Cette séparation, visible sur la figure~\ref{fig:archi-plateforme}, a une
 conséquence pratique importante : un entraînement lancé depuis un script se suit dans
 l'interface, et réciproquement.
 
-\paragraph{La conduite d'expériences longues.} L'entraînement s'appuie sur PyTorch Lightning~\cite{pytorch_lightning} et s'effectue sur
+La conduite d'expériences longues, enfin. L'entraînement s'appuie sur PyTorch Lightning~\cite{pytorch_lightning} et s'effectue sur
 processeur graphique lorsque celui-ci est disponible, avec arrêt anticipé et suivi de
 l'évolution des pertes en apprentissage et en validation. L'utilisateur voit progresser son
 entraînement au lieu d'attendre un résultat opaque, et peut l'interrompre s'il diverge.
@@ -113,7 +113,7 @@ campagne d'évaluation comparative, qui opposerait les modèles appris aux modè
 chapitre~\ref{ch:metier} sur un échantillon représentatif de stations et de familles
 d'aquifères, reste donc à conduire, et l'outillage nécessaire est en place pour la mener.
 
-\paragraph{Une limite d'ingénierie à corriger.} La suite de tests de la plateforme compte
+Une limite d'ingénierie reste à corriger. La suite de tests de la plateforme compte
 \num{552} tests, dont \num{547} passent (mesuré le 24 août 2026). Aucun ne s'exécute
 automatiquement, faute d'une étape de test dans la chaîne d'intégration de la forge qui héberge
 le dépôt. Les cinq cas non passants, quatre échecs et un test ignoré, sont documentés et aucun ne

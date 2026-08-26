@@ -90,19 +90,19 @@ plausibles.
 a coûté un temps considérable et n'apparaît dans aucune documentation officielle. Il a fallu composer avec leurs défauts plutôt que les supposer
 absents.
 
-\paragraph{La disponibilité n'est pas garantie.} Les services répondent en erreur lorsqu'ils
+La disponibilité, d'abord, n'est pas garantie : les services répondent en erreur lorsqu'ils
 sont sollicités intensément, ce qui est précisément le régime d'une collecte historique. Toute
 ingestion doit donc intégrer des tentatives successives avec temporisation croissante, et être
 capable de reprendre là où elle s'est arrêtée. Une extraction naïve échoue au bout de quelques
 heures et laisse un jeu de données incomplet sans le signaler.
 
-\paragraph{Les conventions varient d'un point d'accès à l'autre, au sein d'une même source.}
-Le paramètre qui identifie une station n'est pas le même selon l'interface interrogée. Employer
+Les conventions, ensuite, varient d'un point d'accès à l'autre au sein d'une même source. Le
+paramètre qui identifie une station n'est pas le même selon l'interface interrogée. Employer
 le mauvais ne provoque pas d'erreur explicite, mais un résultat vide. S'y ajoutent des plafonds
 de pagination qui diffèrent d'une interface à l'autre et ne sont documentés nulle part : chacun
 a été découvert à l'usage.
 
-\paragraph{Les données elles-mêmes présentent des incohérences.} Le service d'observations
+Les données elles-mêmes, enfin, présentent des incohérences. Le service d'observations
 hydrométriques retourne des mesures rattachées à des stations \emph{absentes de son propre
 référentiel} : la source se contredit, et une jointure naïve échoue sur une violation de clé
 étrangère.

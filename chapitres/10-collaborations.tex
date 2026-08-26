@@ -5,29 +5,47 @@
 effectivement ?}
 
 
+\section{Le cadre de travail}
+
+Les développements présentés dans ce rapport ont été conçus et réalisés dans leur intégralité au
+cours du postdoctorat, dans un dialogue continu avec trois interlocuteurs aux apports distincts.
+
+Nicolas Labroche (LIFAT) a assuré la supervision scientifique et encadré l'orientation des
+travaux, en particulier l'arbitrage initial : accepter que le sujet d'explicabilité impose
+d'abord la construction de son terrain expérimental, plutôt que de le traiter sur un jeu de
+données de circonstance.
+
+Hugo Breuillard, data scientist en charge du projet côté BRGM, a été le point de contact sur les
+questions de chaîne de données et de stratégie de prévision. Les échanges ont porté sur
+l'articulation entre l'entrepôt développé ici et les besoins de modélisation du programme, et
+sur la cohérence des indicateurs produits avec ceux employés par ailleurs.
+
+Augustin Thomas, hydrogéologue au BRGM, a été l'interlocuteur sur l'ensemble des questions de
+domaine. C'est de ces échanges que procèdent les décisions qui ancrent la plateforme dans la
+pratique hydrogéologique plutôt que dans une transposition générique de méthodes
+d'apprentissage.
+
 \section{L'expertise métier inscrite dans le code}
 \label{sec:apport-metier}
 
 L'apport d'expertise n'est pas resté au stade de la discussion : il est inscrit dans le code, et
 identifiable. Quatre exemples le montrent.
 
-\paragraph{Les configurations de modélisation par famille d'aquifère.} La table présentée au
-chapitre~\ref{ch:metier} traduit en choix de modélisation ce qu'un hydrogéologue sait du
+La table présentée au chapitre~\ref{ch:metier} traduit en choix de modélisation ce qu'un hydrogéologue sait du
 comportement de chaque milieu. Aucune procédure automatique ne l'aurait produite.
 
-\paragraph{L'adoption d'un standard d'évaluation reconnu.} Le choix d'évaluer les modèles selon
-les quatre critères STOWA plutôt que par un indicateur d'erreur unique relève du même registre.
+L'adoption d'un standard d'évaluation reconnu relève du même registre. Le choix d'évaluer les
+modèles selon les quatre critères STOWA plutôt que par un indicateur d'erreur unique relève du même registre.
 Il introduit notamment le critère de temps de réponse rapporté à la période de calibration, qui
 écarte des modèles apparemment excellents mais non identifiables, subtilité que la seule
 pratique de l'apprentissage automatique ne fait pas apparaître.
 
-\paragraph{La règle d'affichage cartographique.} La règle énoncée au
-chapitre~\ref{ch:observatoire}, un indicateur réellement standardisé ou une valeur réelle et
+La règle d'affichage cartographique énoncée au chapitre~\ref{ch:observatoire}, un indicateur réellement standardisé ou une valeur réelle et
 jamais un intermédiaire, procède d'une préoccupation d'interprétation propre au domaine. Un
 outil qui colorie une carte de France selon des seuils choisis par son auteur fabrique une norme
 que l'utilisateur lira comme une référence établie.
 
-\paragraph{L'arbitrage sur l'évapotranspiration.} La décision documentée en
+L'arbitrage sur l'évapotranspiration, enfin. La décision documentée en
 section~\ref{sec:hargreaves} est exemplaire du bénéfice de la confrontation disciplinaire. La
 variable fournie par la réanalyse était disponible, correctement nommée et directement
 utilisable ; seule la confrontation de ses valeurs aux ordres de grandeur connus pour la France a
@@ -146,6 +164,10 @@ circonscrit au cercle du projet. L'accès est nominatif : il n'existe ni inscrip
 authentification déléguée, les comptes étant créés par un administrateur. Ce choix, adapté à un
 outil scientifique manipulant une chaîne de traitement en évolution, constitue le principal frein
 à une diffusion plus large, et le premier levier à actionner pour l'obtenir.
+
+Le socle a par ailleurs été présenté aux équipes du projet ANR \textsc{Aida}, dont le domaine
+d'expérimentation recouvre en partie celui traité ici, afin que celles qui en auraient l'usage
+n'aient pas à le reconstruire.
 
 Plusieurs pistes ouvertes au cours de ces échanges n'ont pas été suivies. Le rapprochement avec
 les modèles à réservoirs du BRGM en est la principale : elle donnerait une seconde référence de

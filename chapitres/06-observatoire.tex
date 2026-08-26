@@ -89,14 +89,15 @@ L'Observatoire répond aux deux.
 
 L'interface s'organise en deux volets correspondant aux deux compartiments du cycle observé.
 
-\paragraph{Nappes et rivières.} Exploration spatiale des stations piézométriques et
-hydrométriques sur fond cartographique, avec superposition des entités aquifères du référentiel
+Le premier volet, nappes et rivières, donne l'exploration spatiale des stations piézométriques
+et hydrométriques sur fond cartographique, avec superposition des entités aquifères du référentiel
 BDLISA et d'un découpage en secteurs hydrogéologiques. Les indicateurs de situation y sont
 portés directement par les stations, ce qui donne une lecture immédiate de l'état du territoire.
 La comparaison entre stations est possible, avec conservation de la sélection d'une vue à
 l'autre.
 
-\paragraph{Climat.} Exploration de la grille nationale de \ang{0.1} selon trois vues : une vue de
+Le second, le climat, donne l'exploration de la grille nationale de \ang{0.1} selon trois
+vues : une vue de
 situation cartographique à l'échelle du pays, une vue par point ou par zone donnant l'historique
 d'une maille depuis 1950 (pluie comparée à la normale, indices sur plusieurs fenêtres, table des
 épisodes de sécheresse, export tabulaire), et une vue de comparaison inter-annuelle.
@@ -130,8 +131,7 @@ apparente et évite une erreur d'interprétation systématique.
 
 \section{Trois choix techniques}
 
-\paragraph{L'Observatoire recalcule le moins possible.} La règle est que ses points d'accès
-lisent les tables analytiques de l'entrepôt plutôt que de refaire le calcul. La carte, la
+L'Observatoire recalcule le moins possible : ses points d'accès lisent les tables analytiques de l'entrepôt plutôt que de refaire le calcul. La carte, la
 situation courante et les exports lisent ainsi les indicateurs déjà produits, de sorte que
 \textbf{la valeur affichée est exactement celle qui a été validée} au
 chapitre~\ref{ch:indicateurs}. Deux points d'accès font exception, ceux qui servent la série
@@ -139,14 +139,14 @@ historique d'une station : ils lisent la grille de référence dans l'entrepôt,
 standardisation à la requête. Le calcul reste le même, et un test croisé garde la cohérence des
 classes entre les deux dépôts.
 
-\paragraph{Les réponses sont mises en cache.} Les vues cartographiques nationales portent sur
-des volumes importants et changent peu ; leur mise en cache pour vingt-quatre heures réduit la
+Les réponses sont mises en cache, ensuite. Les vues cartographiques nationales portent sur des
+volumes importants et changent peu ; leur mise en cache pour vingt-quatre heures réduit la
 charge sans affecter la fraîcheur perçue. Les couches qui bougent plus vite ont des durées plus
 courtes, de quelques heures pour le fond de carte des stations à une heure pour les alertes. Cette optimisation a un corollaire opérationnel
 documenté : tout déploiement qui modifie la forme ou la valeur des réponses doit purger le
 cache, sous peine de servir des valeurs périmées pendant une journée.
 
-\paragraph{Le point d'entrée est unique.} Le service qui sert l'interface assure également le
+Le point d'entrée, enfin, est unique. Le service qui sert l'interface assure également le
 relais vers l'API, les en-têtes de sécurité et la limitation de débit. Une architecture
 antérieure comportait un second relais, redondant, qui n'était jamais démarré en production,
 de sorte que les protections qu'il portait n'étaient, en pratique, jamais appliquées. Sa

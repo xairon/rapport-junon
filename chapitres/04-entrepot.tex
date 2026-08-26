@@ -114,37 +114,27 @@ Ce point a fait l'objet d'un travail délibéré, et non d'une finition de derni
 socle destiné à être repris ne vaut que s'il se réinstalle : une chaîne qui ne fonctionne que
 sur la machine de son auteur meurt avec son départ.
 
-\paragraph{Tout est conteneurisé.} Les deux dépôts se déploient par Docker Compose, format
-devenu l'usage courant pour reproduire une pile de services sur une machine. Rien n'est installé
-sur l'hôte, aucune dépendance système n'est supposée présente, et les versions sont figées dans
-les images. Une orchestration plus élaborée, de type Kubernetes, aurait été surdimensionnée pour
-un serveur unique et aurait ajouté une compétence à transmettre sans bénéfice opérationnel.
+Tout est conteneurisé. Les deux dépôts se déploient par Docker Compose, rien n'est installé sur
+l'hôte, aucune dépendance système n'est supposée présente, et les versions sont figées dans les
+images. Une orchestration plus élaborée, de type Kubernetes, aurait été surdimensionnée pour un
+serveur unique et aurait ajouté une compétence à transmettre sans bénéfice opérationnel.
+L'entrepôt dispose d'une configuration de production et d'une configuration de bac à sable, la
+plateforme en compte trois, production, accélération sur processeur graphique et développement
+complètement séparé, avec ses propres volumes, bases et ports, de sorte qu'un modèle entraîné ou
+un compte créé d'un côté n'atteint jamais l'autre. Le profil se choisit par une variable
+d'environnement, sans modifier de fichier.
 
-\paragraph{Plusieurs profils de déploiement.} L'entrepôt dispose d'une configuration de
-production et d'une configuration de bac à sable. La plateforme en compte trois : production,
-accélération sur processeur graphique, et environnement de développement complètement séparé,
-avec ses propres volumes, bases et ports, de sorte qu'un modèle entraîné ou un compte créé d'un
-côté n'atteint jamais l'autre. Le choix du profil se fait par une variable d'environnement, sans
-modifier de fichier.
-
-\paragraph{Les données survivent aux conteneurs.} Les volumes de données sont déclarés en dehors
-du cycle de vie de la pile, ce qui rend impossible leur destruction par une commande d'arrêt,
-même assortie de l'option qui supprime les volumes. Ils sont créés une fois par un script dédié,
-avant le premier démarrage.
-
-\paragraph{Un outillage d'exploitation accompagne la pile.} Au-delà du démarrage, des scripts
+Les volumes de données, eux, sont déclarés en dehors du cycle de vie de la pile, ce qui rend
+impossible leur destruction par une commande d'arrêt, même assortie de l'option qui supprime les
+volumes. Un script dédié les crée une fois, avant le premier démarrage. D'autres scripts
 couvrent les gestes que le successeur devra poser : sauvegarde et restauration de l'entrepôt,
 export à plat des tables analytiques pour un usage hors base, création d'un compte en lecture
-seule pour un consommateur tiers, et déploiement sur le serveur. La procédure de restauration a
-été vérifiée à l'échelle réelle, et non sur un échantillon.
+seule pour un consommateur tiers, déploiement sur le serveur. La procédure de restauration a été
+vérifiée à l'échelle réelle, et non sur un échantillon.
 
-\paragraph{L'installation a été rejouée à blanc.} La documentation d'installation n'a pas été
-rédigée de mémoire : elle a été éprouvée en repartant d'une machine vierge, ce qui a fait
-apparaître des écarts que l'auteur ne pouvait plus voir, sa propre machine étant déjà
-configurée. Les correctifs correspondants sont dans les dépôts, et les procédures décrites au
-chapitre~\ref{ch:socle} sont celles qui ont effectivement été exécutées.
-
-\paragraph{La configuration est déclarative et documentée.} Chaque dépôt fournit un exemple de
+La documentation d'installation n'a pas davantage été rédigée de mémoire. Elle a été éprouvée en
+repartant d'une machine vierge, ce qui a fait apparaître des écarts que l'auteur ne pouvait plus
+voir, sa propre machine étant déjà configurée. Chaque dépôt fournit par ailleurs un exemple de
 fichier d'environnement recensant toutes les variables attendues, avec leur rôle. Les secrets
 n'y figurent pas, et les services n'écoutent par défaut que sur l'interface locale, ce qui évite
 qu'une installation de test se retrouve exposée par inadvertance.
@@ -209,8 +199,8 @@ les corrections tardives publiées par les producteurs de données.
 
 C'est dans cette couche que se résout le verrou central identifié au chapitre précédent.
 
-\paragraph{Le rattachement climatique.} Chaque station piézométrique ou hydrométrique est
-associée à sa maille ERA5 la plus proche par une jointure spatiale du plus proche voisin,
+Le premier travail de cette couche est le rattachement climatique. Chaque station
+piézométrique ou hydrométrique est associée à sa maille ERA5 la plus proche par une jointure spatiale du plus proche voisin,
 exécutée par PostGIS. Cette opération, effectuée
 une fois et matérialisée, transforme deux jeux de données étrangers l'un à l'autre en une
 chronique unique où le niveau et son forçage climatique figurent sur la même ligne, au même
@@ -220,8 +210,7 @@ Deux difficultés que rien ne laissait prévoir s'y concentrent.
 
 \subsection{Aligner les stations sur la grille climatique}
 
-\paragraph{Une emprise limitée à la métropole.} La grille climatique ingérée couvre un rectangle
-allant de \ang{41} à \ang{51.5} de latitude et de \ang{-5.5} à \ang{10} de longitude, soit la
+La première tient à l'emprise. La grille climatique ingérée couvre un rectangle allant de \ang{41} à \ang{51.5} de latitude et de \ang{-5.5} à \ang{10} de longitude, soit la
 France métropolitaine et la Corse. Les départements et territoires d'outre-mer en sont exclus.
 Ce choix n'est pas de principe : il tient au volume, puisque étendre l'emprise multiplie d'autant
 la quantité de données à télécharger, à stocker et à indexer, pour des territoires que le
@@ -234,8 +223,7 @@ inutilisables pour toute modélisation supposant la pluie et la température, et
 écarter explicitement plutôt que de les laisser produire des séries incomplètes. Elles
 constituent l'essentiel des lignes sans météo constatées dans les tables analytiques.
 
-\paragraph{Un piège de précision numérique.} Le second obstacle a coûté beaucoup plus cher, et il
-illustre une catégorie de défaut propre aux chaînes de données. Le chargement historique et la
+Le second obstacle a coûté beaucoup plus cher, et il illustre une catégorie de défaut propre aux chaînes de données. Le chargement historique et la
 mise à jour quotidienne écrivaient les coordonnées d'une même maille avec des précisions
 flottantes différentes : la latitude \ang{48.1} pouvait être stockée telle quelle par l'un, et
 sous la forme \num{48.09999999999995} par l'autre. Pour la base, ce sont deux points distincts.
@@ -259,7 +247,7 @@ exactement ce qu'on lui demandait, et le défaut tenait à une différence invis
 chiffre décimal.
 
 
-\paragraph{L'enrichissement hydrogéologique.} Les entités du référentiel BDLISA sont rattachées
+Vient enfin l'enrichissement hydrogéologique. Les entités du référentiel BDLISA sont rattachées
 aux stations, ce qui rend disponible la nature de l'aquifère observé, information que le
 chapitre~\ref{ch:metier} exploitera pour paramétrer les modèles métier.
 
@@ -269,7 +257,7 @@ capte réellement reste donc approximatif, difficulté que les hydrogéologues r
 comme ouverte de leur côté également. L'enrichissement fourni est une indication utile, pas une
 caractérisation certaine de l'ouvrage.
 
-\paragraph{Les tables analytiques.} La couche expose des faits journaliers (chroniques
+La couche expose au bout du compte des faits journaliers (chroniques
 piézométriques et hydrométriques enrichies du climat), des faits agrégés mensuels et annuels,
 des dimensions de description (calendrier, géographie, stations) et les grilles climatiques,
 soit dix-huit modèles de transformation complétés par des tables d'indicateurs calculées en
@@ -294,7 +282,7 @@ Ce choix évite le défaut classique des chaînes entièrement planifiées, où 
 s'exécute à heure fixe sur des données parfois absentes, et produit des résultats partiels sans
 que rien ne le signale.
 
-\paragraph{Les contrôles ne bloquent pas le rafraîchissement.} Les tests de qualité s'exécutent
+Les contrôles, enfin, ne bloquent pas le rafraîchissement : les tests de qualité s'exécutent
 en parallèle du recalcul des indicateurs, et non en amont. Un test en échec fait échouer sa
 propre exécution, donc alerte, mais n'empêche pas la donnée d'être mise à jour. L'arbitrage est
 délibéré : sur une chaîne de surveillance, une donnée imparfaite mais fraîche est préférable à

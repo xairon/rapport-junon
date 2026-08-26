@@ -34,16 +34,15 @@ pdflatex main && biber main && pdflatex main && pdflatex main
 
 1. Contexte et positionnement
 2. Le verrou : une donnée ouverte mais inexploitable
-3. La conduite du projet
-4. Sourcing et entrepôt de données
-5. Des mesures aux indicateurs : construction et validation
-6. L'Observatoire : donner à voir
-7. Modéliser : le laboratoire de modèles métier
-8. Apprendre : le laboratoire d'apprentissage automatique
-9. Expliquer : le sujet initial, enfin abordable
-10. Ce que la collaboration a produit
-11. Un socle pour l'IA en hydrologie
-12. Bilan, limites et passation
+3. Sourcing et entrepôt de données
+4. Des mesures aux indicateurs : construction et validation
+5. L'Observatoire : donner à voir
+6. Modéliser : le laboratoire de modèles métier
+7. Apprendre : le laboratoire d'apprentissage automatique
+8. Expliquer : le sujet initial, enfin abordable
+9. Ce que la collaboration a produit
+10. Un socle pour l'IA en hydrologie
+11. Bilan, limites et passation
     - Annexe A : annexes (réalisations, sources, ETP, volumétrie, glossaire)
     - Annexe B : revue des outils retenus
 

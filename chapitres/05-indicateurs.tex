@@ -46,23 +46,22 @@ Classes & Sept classes délimitées par les seuils $z \in \{-1{,}75\,;\,-1{,}28\
 \end{tabularx}
 \end{center}
 
-\paragraph{Une référence qui se dégrade explicitement.} Toutes les stations ne disposent pas de
-trente années d'historique. Plutôt que d'écarter les stations courtes ou de leur appliquer
+Toutes les stations ne disposent pas de trente années d'historique. Plutôt que d'écarter les stations courtes ou de leur appliquer
 silencieusement une référence plus faible, la sélection de fenêtre se dégrade par paliers
 déclarés : la normale 1991--2020 si au moins quinze années sont disponibles, sinon la meilleure
 fenêtre trentenaire alignée sur les décennies, sinon l'historique complet. Le palier retenu est
 inscrit dans une colonne accompagnant chaque valeur, de sorte qu'un utilisateur sait toujours
 sur quelle base une station est classée.
 
-\paragraph{Une limite de portée à connaître.} L'indicateur piézométrique standardisé a été
-conçu pour les nappes libres, dont le niveau suit une cyclicité annuelle marquée. Il est ici
+Une limite de portée doit être connue. L'indicateur piézométrique standardisé a été conçu pour
+les nappes libres, dont le niveau suit une cyclicité annuelle marquée. Il est ici
 calculé pour toutes les stations sans distinction, faute d'une information fiable permettant
 d'identifier les ouvrages captant une nappe captive. Les échanges avec les hydrogéologues ont
 confirmé qu'aucun indicateur équivalent n'existe aujourd'hui pour ces nappes, et que le sujet
 fait l'objet de travaux dédiés. La valeur produite pour une station captive doit donc être lue
 avec prudence : elle est calculée correctement, mais l'indicateur n'a pas été pensé pour ce cas.
 
-\paragraph{Une grille n'est jamais fabriquée.} Si aucun mois n'est exploitable, la grille reste
+Une grille n'est jamais fabriquée pour autant. Si aucun mois n'est exploitable, elle reste
 nulle et l'indice prend la valeur \emph{inconnu}. Produire une classe plutôt qu'un aveu
 d'ignorance reviendrait à inventer une information que l'utilisateur lirait comme une mesure.
 
@@ -251,12 +250,12 @@ Un indice standardisé doit, par construction, suivre approximativement une loi 
 réduite \emph{sur sa propre période de référence}. C'est une propriété vérifiable, et elle a été
 vérifiée.
 
-\paragraph{Protocole.} Le critère d'acceptation a été fixé \textbf{avant} la mesure : moyenne
+Le critère d'acceptation a été fixé \textbf{avant} la mesure : moyenne
 voisine de zéro à $\pm\,\num{0,05}$, écart-type voisin de un à $\pm\,\num{0,05}$, et taux de
 saturation aux bornes inférieur à \SI{1}{\percent}. Fixer le critère avant de mesurer évite
 l'ajustement rétrospectif du seuil au résultat obtenu.
 
-\paragraph{Mesure.} Effectuée sur \num{41960400} valeurs couvrant \num{11496} mailles.
+La mesure porte sur \num{41960400} valeurs couvrant \num{11496} mailles.
 
 \begin{center}
 \begin{tabularx}{\textwidth}{@{}lXrrrr@{}}
@@ -281,15 +280,15 @@ La validation ci-dessus autorise l'usage des indices ; elle n'autorise pas toute
 interprétations. Deux mises en garde ont été consignées, parce que l'erreur correspondante est
 naturelle.
 
-\paragraph{La classe « normale » ne couvre pas la proportion théorique.} Elle représente
-\SI{54,8}{\percent} des valeurs au lieu des \SI{59,9}{\percent} attendus d'une gaussienne, alors
+La première porte sur la classe « normale », qui ne couvre pas la proportion théorique. Elle
+représente \SI{54,8}{\percent} des valeurs au lieu des \SI{59,9}{\percent} attendus d'une gaussienne, alors
 même que l'écart-type vaut \num{1,008}. La distribution conserve des épaules légèrement plus
 lourdes. Cet écart est une propriété de la transformation au voisinage des bornes de classe. Il
 n'a pas de conséquence opérationnelle, les seuils employés étant ceux, communs, des autres
 indices, et il ne doit surtout \textbf{pas} être lu comme une anomalie de sécheresse.
 
-\paragraph{Une décroissance décennale est un signal climatique, non une dérive de méthode.} La
-moyenne du SPEI sur fenêtre d'un mois décroît de manière monotone d'une décennie à l'autre :
+La seconde porte sur la décroissance décennale du SPEI, qui est un signal climatique et non une
+dérive de méthode. La moyenne sur fenêtre d'un mois décroît de manière monotone d'une décennie à l'autre :
 $+\num{0,038}$ dans les années 1990, $+\num{0,007}$ dans les années 2000, $-\num{0,016}$ dans les
 années 2010, $-\num{0,117}$ depuis 2020. Cette évolution avait été anticipée avant d'être
 mesurée, ce qui la distingue d'un artefact d'ajustement : elle traduit un assèchement, non un
