@@ -73,8 +73,7 @@ L'équivalence des deux voies a été vérifiée maille par maille et jour par j
 
 \subsection{La donnée brute recèle des pièges qui ne s'annoncent pas}
 
-Un exemple, parce qu'il a effectivement produit un diagnostic erroné avant d'être compris.
-Dans ERA5, les variables de précipitation et d'évaporation sont des \emph{flux cumulés} : la
+Un exemple suffit. Dans ERA5, les variables de précipitation et d'évaporation sont des \emph{flux cumulés} : la
 valeur au pas de \SI{00}{\hour}~UTC constitue bien le total journalier. La température, elle,
 est une \emph{grandeur instantanée} : prendre sa valeur à \SI{00}{\hour}~UTC comme moyenne
 journalière introduit un biais froid nocturne de l'ordre de \SIrange{2}{4}{\celsius}. Deux

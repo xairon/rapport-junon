@@ -111,11 +111,10 @@ les agronomes et les indices de sécheresse publiés.
 
 \subsection{Ce qui s'est passé}
 
-ERA5-Land fournit directement une variable nommée « évaporation potentielle ». L'employer
-semblait naturel, et c'est ce qui a été fait initialement.
-
-Les valeurs obtenues étaient incompatibles avec ce que l'on sait du climat français. Comparé
-sur \num{30888} couples maille-mois entre 2015 et 2025, sur les mêmes mailles :
+ERA5-Land fournit directement une variable nommée « évaporation potentielle », et son emploi
+paraît naturel. Ses valeurs sont pourtant incompatibles avec ce que l'on sait du climat
+français. Comparée sur \num{30888} couples maille-mois entre 2015 et 2025, sur les mêmes
+mailles :
 
 \begin{center}\small
 \begin{tabular}{@{}lccc@{}}
@@ -226,9 +225,8 @@ Un indice standardisé transforme une valeur en score de rareté, ce qui suppose
 de probabilité sur la série de référence. Le choix de cette loi détermine sur quelles mailles
 l'indice pourra être calculé.
 
-L'article fondateur du SPEI~\cite{vicenteserrano2010spei} emploie une loi log-logistique, et
-c'est elle qui avait été retenue au départ. Appliquée à la grille française, elle ne s'ajuste que
-sur \SI{74,6}{\percent} des combinaisons de maille, de mois et de fenêtre. Le manque n'est pas
+L'article fondateur du SPEI~\cite{vicenteserrano2010spei} emploie une loi log-logistique.
+Appliquée à la grille française, elle ne s'ajuste que sur \SI{74,6}{\percent} des combinaisons de maille, de mois et de fenêtre. Le manque n'est pas
 uniforme : selon la fenêtre d'agrégation, la couverture va d'environ deux tiers à un peu moins de
 neuf dixièmes, ce qui laisse des trous mouvants dans la carte nationale. L'instrumentation
 des rejets a montré que la cause était unique et structurelle : cette loi ne représente qu'un

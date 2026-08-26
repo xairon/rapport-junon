@@ -146,17 +146,11 @@ courtes, de quelques heures pour le fond de carte des stations à une heure pour
 documenté : tout déploiement qui modifie la forme ou la valeur des réponses doit purger le
 cache, sous peine de servir des valeurs périmées pendant une journée.
 
-Le point d'entrée, enfin, est unique. Le service qui sert l'interface assure également le
-relais vers l'API, les en-têtes de sécurité et la limitation de débit. Une architecture
-antérieure comportait un second relais, redondant, qui n'était jamais démarré en production,
-de sorte que les protections qu'il portait n'étaient, en pratique, jamais appliquées. Sa
-suppression au profit d'une configuration unique a supprimé cet écart entre l'intention et le
-déploiement réel.
-
-La leçon dépasse son détail technique. Une protection configurée dans un composant qui ne tourne
-pas est une protection absente, avec en plus la croyance qu'elle existe. La consolidation en un
-point d'entrée unique vaut donc moins pour sa simplicité que pour la disparition de cet écart
-entre l'intention et le déploiement.
+Le point d'entrée, enfin, est unique. Le service qui sert l'interface assure également le relais
+vers l'API, les en-têtes de sécurité et la limitation de débit. Regrouper ces fonctions dans un
+seul composant vaut moins pour la simplicité que pour ce que cela écarte : une protection
+configurée dans un composant qui ne tourne pas est une protection absente, avec en plus la
+croyance qu'elle existe.
 
 \section{Environnements et déploiement}
 
