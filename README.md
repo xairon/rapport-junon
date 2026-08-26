@@ -62,6 +62,9 @@ Elles ont toutes été posées en réaction à une relecture. Les enfreindre a d
   figurent au rapport, un repreneur en a besoin. Les bugs trouvés et corrigés pendant le
   développement n'y figurent pas : seul l'invariant livré est décrit, leur récit vit dans le
   manuel d'exploitation du dépôt.
+- **Ne rien affirmer sur ce qu'un fournisseur documente ou non** sans l'avoir lu. Trois
+  affirmations de ce type ont été retirées le 26 août 2026, dont une fausse : la convention
+  cumul / instantané d'ERA5-Land est bel et bien documentée.
 - **Pas de récit à la première personne de sa propre initiative**, ni de tableau qui note ses
   propres mérites. Les faits suffisent.
 - **Chaque chapitre s'ouvre** sur la question à laquelle il répond (`\questionchapitre`).
@@ -79,3 +82,4 @@ Elles ont toutes été posées en réaction à une relecture. Les enfreindre a d
 | Presets par famille d'aquifère | `time-serie-explo/dashboard/utils/pastas/config.py` |
 | Paramètres et bornes de PhysCF | `time-serie-explo/dashboard/utils/counterfactual/perturbation.py` |
 | Critères STOWA | `time-serie-explo/dashboard/utils/pastas/stowa.py` |
+| Biais du prélèvement 00 UTC (−2,90 °C) | `hubeau_data_integration/docs/ERA5.md`, requête jointe |

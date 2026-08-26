@@ -71,22 +71,27 @@ partir de l'archive horaire brute, demande environ \textbf{vingt-cinq minutes pa
 L'équivalence des deux voies a été vérifiée maille par maille et jour par jour, à
 \SI{0.0000}{\celsius} sur les extrêmes journaliers et \SI{0.01}{\celsius} sur la moyenne.
 
-\subsection{La donnée brute recèle des pièges qui ne s'annoncent pas}
+\subsection{Lire la donnée brute suppose d'en connaître les conventions}
 
-Un exemple suffit. Dans ERA5, les variables de précipitation et d'évaporation sont des \emph{flux cumulés} : la
-valeur au pas de \SI{00}{\hour}~UTC constitue bien le total journalier. La température, elle,
-est une \emph{grandeur instantanée} : prendre sa valeur à \SI{00}{\hour}~UTC comme moyenne
-journalière introduit un biais froid nocturne de l'ordre de \SIrange{2}{4}{\celsius}. Deux
-variables issues du même fichier, au même horodatage, dont l'une doit être lue telle quelle et
-l'autre reconstruite à partir des vingt-quatre pas horaires.
+Dans ERA5, les variables de précipitation et d'évaporation sont des \emph{flux cumulés} : la
+valeur au pas de \SI{00}{\hour}~UTC constitue le total du jour écoulé. La température est une
+\emph{grandeur instantanée} : la même valeur, au même horodatage, n'est qu'un relevé de minuit.
+Deux variables issues du même fichier, à la même heure, dont l'une se lit telle quelle et
+l'autre doit être reconstruite à partir des vingt-quatre pas horaires.
 
-Rien dans la donnée ne signale cette différence. Elle se paie en résultats faux, silencieux et
-plausibles.
+Le fournisseur documente cette convention et distingue explicitement les paramètres cumulés des
+paramètres instantanés~\cite{munozsabater2021era5land}. Rien dans les valeurs ni dans les
+horodatages ne l'exprime pour autant, et se tromper ne produit aucun signal : la série obtenue
+reste plausible, simplement trop froide. Mesuré sur les \num{11496} mailles du territoire, du
+1\textsuperscript{er} janvier 2025 au 19 août 2026, soit \num{935040} couples maille-jour,
+l'écart entre le relevé de minuit et la vraie moyenne journalière vaut \SI{-2,90}{\celsius} en
+moyenne et atteint \SI{-3,4}{\celsius} en juin. C'est ce qui impose le second chemin
+d'ingestion décrit au chapitre~\ref{ch:entrepot}.
 
 \subsection{Des sources publiques, mais pas des sources stables}
 
 \textbf{Les interfaces publiques sont ouvertes, elles ne sont pas pour autant fiables.} Ce point
-a coûté un temps considérable et n'apparaît dans aucune documentation officielle. Il a fallu composer avec leurs défauts plutôt que les supposer
+a coûté un temps considérable. Il a fallu composer avec leurs défauts plutôt que les supposer
 absents.
 
 La disponibilité, d'abord, n'est pas garantie : les services répondent en erreur lorsqu'ils
@@ -97,9 +102,9 @@ heures et laisse un jeu de données incomplet sans le signaler.
 
 Les conventions, ensuite, varient d'un point d'accès à l'autre au sein d'une même source. Le
 paramètre qui identifie une station n'est pas le même selon l'interface interrogée. Employer
-le mauvais ne provoque pas d'erreur explicite, mais un résultat vide. S'y ajoutent des plafonds
-de pagination qui diffèrent d'une interface à l'autre et ne sont documentés nulle part : chacun
-a été découvert à l'usage.
+le mauvais ne provoque pas d'erreur explicite, mais un résultat vide. S'y ajoute que la version~1 de l'interface n'accepte pas le paramètre de taille de
+page, ni dans la requête initiale ni dans les liens de pagination qu'elle retourne, ce qui
+oblige à le retirer des deux.
 
 Les données elles-mêmes, enfin, présentent des incohérences. Le service d'observations
 hydrométriques retourne des mesures rattachées à des stations \emph{absentes de son propre
@@ -120,8 +125,8 @@ Un hydrogéologue ne raisonne pas sur un niveau brut en mètres, qui n'a de sens
 l'historique de l'ouvrage. Il raisonne sur des \textbf{indicateurs standardisés} qui situent la
 mesure du jour par rapport à la distribution de référence du même mois : est-on dans la normale,
 en situation modérément sèche, en sécheresse sévère~? Ces indicateurs, qu'il s'agisse des indices standardisés de
-niveau, de débit, de précipitation ou de bilan hydrique, ne sont fournis par aucune des trois
-sources. Ils doivent être calculés, ce qui suppose une période de référence, un ajustement
+niveau, de débit, de précipitation ou de bilan hydrique, ne sont exposés par aucune des
+interfaces exploitées ici. Ils doivent être calculés, ce qui suppose une période de référence, un ajustement
 statistique et une validation.
 
 \section{Ce que l'apprentissage automatique exige en plus}
