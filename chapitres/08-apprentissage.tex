@@ -1,9 +1,9 @@
-\chapter{Apprendre : le laboratoire d'apprentissage automatique}
+\chapter{Apprendre et expliquer : le laboratoire d'intelligence artificielle}
 \label{ch:apprentissage}
 
 \questionchapitre{Quel dispositif faut-il pour que des expériences d'apprentissage profond sur
-des séries hydrologiques soient comparables, reproductibles, et conduites par des chercheurs qui
-ne sont pas tous spécialistes de l'apprentissage ?}
+des séries hydrologiques soient comparables et reproductibles, et pour qu'on puisse dire ensuite
+sur quoi leurs prévisions reposent ?}
 
 \section{Le problème posé}
 
@@ -98,6 +98,59 @@ chapitre~\ref{ch:metier}. Cette adaptation par famille d'aquifère n'a pas été
 modèles appris : elle constitue une piste identifiée, et vraisemblablement le premier gain à
 aller chercher.
 
+\section{Analyser les prévisions produites}
+\label{sec:xai}
+
+Une prévision de niveau de nappe n'est mobilisable pour décider que si l'on peut dire sur quoi
+elle repose. Les décisions publiques rappelées au chapitre~\ref{ch:contexte} doivent pouvoir être
+motivées, et l'interlocuteur d'un modèle de nappe est un hydrogéologue qui n'accordera sa
+confiance qu'à des explications compatibles avec sa compréhension du système. Le laboratoire
+outille donc trois questions : \emph{sur quoi le modèle s'appuie-t-il}, \emph{que se
+passerait-il dans d'autres conditions}, et \emph{cette chronique est-elle seulement explicable
+par le climat}.
+
+\paragraph*{} La première question mobilise cinq familles d'attribution complémentaires :
+l'importance par perturbation, les valeurs de Shapley~\cite{lundberg2017shap} et leur variante
+pour séries temporelles~\cite{bento2021timeshap}, les attributions par
+gradients~\cite{sundararajan2017ig,captum}, les poids d'attention pour les architectures qui en
+possèdent, et la décomposition du signal en tendance, saisonnalité et résidu. Les réunir dans un
+même outil ne vise pas l'exhaustivité mais la \textbf{confrontation} : des méthodes reposant sur
+des principes différents et qui convergent donnent une explication crédible, tandis que leur
+divergence signale une explication fragile, information qu'une méthode unique aurait masquée.
+
+La deuxième question a demandé un développement propre, parce que la réponse directe ne vaut
+rien ici. Laisser un algorithme modifier librement les entrées jusqu'à ce que la prévision
+atteigne la cible produit des scénarios corrects au sens de l'optimisation et physiquement
+absurdes : de l'air réchauffé sans évaporation supplémentaire, une pluie incohérente d'un jour
+au suivant, une saison qui n'existe nulle part. Les hydrogéologues y ont substitué deux
+exigences, le respect du bilan de masse et la cohérence avec les échelles de temps auxquelles un
+aquifère réagit.
+
+\label{sec:physcf}%
+L'implémentation retenue les traduit en renonçant à perturber les entrées valeur par valeur.
+Elle ne règle que sept paramètres décrivant un régime climatique : un facteur de pluie par
+saison, un décalage de température, un décalage du calendrier, et un résidu d'évaporation
+étroitement borné. L'évapotranspiration n'est pas libre, elle est calculée à partir de la
+température au taux d'environ \SI{7}{\percent} par degré, ordre de grandeur tiré de la relation
+de Clausius-Clapeyron. Le scénario reste donc cohérent par construction plutôt que redressé
+après coup, et la réponse s'énonce dans les termes du métier : \emph{il aurait fallu des hivers
+un cinquième plus humides et un climat plus frais d'un degré}. Une seconde méthode, adaptée de
+CoMTE~\cite{ates2021comte}, répond à la même question en allant chercher dans l'historique une
+période réellement observée plutôt qu'en construisant un climat, ce qui donne un point de
+comparaison de nature différente. Chaque scénario produit est enfin rejoué dans un modèle métier
+calibré indépendamment, celui du chapitre~\ref{ch:metier} : s'il fait diverger les deux modèles
+bien plus qu'ils ne divergeaient sur la situation observée, il est rejeté.
+
+La troisième question renverse la perspective. Une chronique qu'aucun modèle climatique ne
+reproduit n'est pas nécessairement mal modélisée : elle peut porter la trace d'un prélèvement,
+que le forçage climatique ne contient pas. Le problème est non supervisé, faute d'historique
+étiqueté. La démarche part des résidus d'un modèle métier calibré pour isoler des périodes
+tenues pour non perturbées, puis croise deux lectures indépendantes dont les verdicts sont
+fusionnés. L'explicabilité y joue un rôle inhabituel : elle ne justifie pas une prédiction, elle
+détecte une dérive de ce sur quoi le modèle s'appuie, signe que le régime du système a changé.
+L'annotation qui en résulte sert à écarter les stations impropres à l'apprentissage, et figure
+parmi les cas d'usage identifiés avec le BRGM.
+
 \section{Ce qui est établi, et ce qui ne l'est pas}
 
 \textbf{Ce qui est acquis} est le dispositif : un banc d'expérimentation instrumenté, traçable,
@@ -112,6 +165,14 @@ un tableau de performances à partir de souvenirs ne serait pas un résultat sci
 campagne d'évaluation comparative, qui opposerait les modèles appris aux modèles métier du
 chapitre~\ref{ch:metier} sur un échantillon représentatif de stations et de familles
 d'aquifères, reste donc à conduire, et l'outillage nécessaire est en place pour la mener.
+
+Cela vaut au même titre pour les outils d'analyse. Ils sont opérationnels, ils mettent en œuvre
+l'exigence formulée par les hydrogéologues, et le dispositif prévoit de quoi les comparer entre
+eux comme de quoi vérifier leurs résultats sur un modèle indépendant. Mais aucune évaluation
+quantitative n'a été conduite, sur aucun échantillon, selon aucune métrique de qualité
+d'explication établie. Ces développements sont \textbf{préliminaires}, et c'est leur objet :
+la question de ce qu'est une bonne explication relève des travaux en cours évoqués au
+chapitre~\ref{ch:collaborations}, auxquels ce laboratoire fournit son terrain.
 
 Une limite d'ingénierie reste à corriger. La suite de tests de la plateforme compte
 \num{552} tests, dont \num{547} passent (mesuré le 24 août 2026). Aucun ne s'exécute

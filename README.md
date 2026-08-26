@@ -7,6 +7,7 @@ Centre-Val de Loire.
 ## Compiler
 
 ```bash
+./verifier.sh   # compile et contrôle : erreurs, renvois, tirets, titres courants
 make            # produit main.pdf
 make clean      # supprime les fichiers intermédiaires
 make cleanall   # supprime aussi le PDF
@@ -38,11 +39,10 @@ pdflatex main && biber main && pdflatex main && pdflatex main
 4. Des mesures aux indicateurs : construction et validation
 5. L'Observatoire : donner à voir
 6. Modéliser : le laboratoire de modèles métier
-7. Apprendre : le laboratoire d'apprentissage automatique
-8. Expliquer : le sujet initial, enfin abordable
-9. Ce que la collaboration a produit
-10. Un socle pour l'IA en hydrologie
-11. Bilan, limites et passation
+7. Apprendre et expliquer : le laboratoire d'intelligence artificielle
+8. Ce que la collaboration a produit
+9. Un socle pour l'IA en hydrologie
+10. Bilan, limites et passation
     - Annexe A : annexes (réalisations, sources, ETP, volumétrie, glossaire)
     - Annexe B : revue des outils retenus
 
