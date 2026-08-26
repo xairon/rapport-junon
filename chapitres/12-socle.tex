@@ -15,57 +15,26 @@ les propriétés qui le rendent réutilisable et montrer qu'elles sont effective
 
 \section{Les propriétés acquises}
 
-\subsection{Un contrat d'interface qui découple l'amont de l'aval}
-
-La couche analytique de l'entrepôt est consommée en SQL. Cette interface est stable, universelle
-et documentée : un utilisateur n'a besoin de connaître ni les outils d'ingestion, ni les
-bibliothèques de transformation, ni l'orchestrateur. Un carnet de calcul, un tableur connecté, un
-outil de visualisation décisionnelle ou une application tierce s'y branchent également.
-
-La conséquence est structurante : \textbf{l'amont peut être remplacé sans que l'aval s'en
-aperçoive}. Si un outil d'ingestion devient obsolète, il est substituable sans que les
-consommateurs soient affectés. Peu de logiciels de recherche offrent cette propriété, et c'est
+La couche analytique de l'entrepôt se consomme en SQL, et rien d'autre. Un utilisateur n'a besoin
+de connaître ni l'outil d'ingestion, ni la bibliothèque de transformation, ni l'orchestrateur :
+un carnet de calcul, un tableur connecté ou une application tierce s'y branchent également. La
+conséquence est structurante : \textbf{l'amont peut être remplacé sans que l'aval s'en
+aperçoive}. Un outil d'ingestion devenu obsolète se remplace sans
+toucher aux consommateurs. Peu de logiciels de recherche offrent cette propriété, et c'est
 elle qui distingue une infrastructure d'un script.
 
-\subsection{Un cœur de calcul indépendant de toute interface}
+Le cœur de calcul de la plateforme, lui, ne dépend d'aucune interface. La contrainte a été posée
+dès l'origine, au chapitre~\ref{ch:observatoire}, et son effet sur la valeur résiduelle des
+travaux est direct : \textbf{même si l'application web était abandonnée, les méthodes
+resteraient utilisables}. La contribution n'est pas prisonnière de son emballage.
 
-La contrainte posée au chapitre~\ref{ch:observatoire}, un cœur métier sans dépendance à
-l'interface, a été tenue depuis l'origine. Son effet sur la valeur résiduelle des travaux est
-direct : \textbf{même si l'application web était abandonnée, les méthodes resteraient
-utilisables}. La contribution scientifique n'est pas prisonnière de son emballage.
-
-\subsection{Des indicateurs validés une fois pour tous les usages}
-
-Les indicateurs du chapitre~\ref{ch:indicateurs} sont calculés dans l'entrepôt, validés selon un
-protocole documenté, et lus tels quels par tous les consommateurs. Il n'existe pas de second
-calcul susceptible de diverger.
-
-Cette centralisation vaut au-delà de la performance. Elle garantit que deux études conduites à
-deux dates différentes, ou par deux équipes, parlent de la même chose. C'est une condition de
-comparabilité que l'on ne peut pas rattraper après coup.
-
-\subsection{Des contrats exécutables entre composants}
-
-Là où une duplication était nécessaire, comme la classification en classes de sévérité présente
-dans les deux dépôts, elle est gardée par des tables de référence identiques et des tests qui
-échouent en cas de divergence. La contrainte n'est pas documentaire mais exécutable : elle
-résiste à l'oubli, ce qu'aucune note ne fait.
-
-\subsection{Une infrastructure reproductible}
-
-L'ensemble est conteneurisé, les volumes de données sont déclarés en dehors du cycle de vie des
-conteneurs, de sorte qu'une commande d'arrêt ne peut pas les détruire, et le chargement initial
-complet
-est interruptible et redémarrable, son avancement étant persisté en base. Les procédures de
-sauvegarde et de restauration ont été vérifiées à l'échelle réelle. Une réinstallation complète
-est une procédure documentée, éprouvée, et non une reconstitution.
-
-\subsection{Une documentation écrite pour la reprise}
-
-La documentation des deux dépôts a été refondue en fin de période dans une perspective explicite
-de passation : cartographie des documents, procédures vérifiées par exécution réelle, et
-consignation des pièges rencontrés, y compris ceux qui produisent des résultats faux sans
-émettre d'erreur. Ce dernier point est le plus utile à un successeur, et le plus rarement écrit.
+Le reste a été acquis en chemin. Des indicateurs calculés une fois pour tous les consommateurs,
+sans second calcul susceptible de diverger, et gardés par des tests qui échouent si les deux
+dépôts cessent de s'accorder (chapitre~\ref{ch:indicateurs}). Une pile conteneurisée dont les
+volumes de données survivent à l'arrêt des conteneurs, et dont la restauration a été vérifiée à
+l'échelle réelle (chapitre~\ref{ch:entrepot}). Une documentation refondue en fin de période pour
+la reprise, jusqu'aux pièges qui produisent des résultats faux sans émettre d'erreur
+(chapitre~\ref{ch:bilan}).
 
 \section{Le patron généralisable}
 

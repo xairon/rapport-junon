@@ -1,0 +1,107 @@
+\chapter{Revue des outils retenus}
+\label{ann:outils}
+
+Les trois critères de sélection sont exposés au chapitre~\ref{ch:entrepot}. Cette annexe en
+donne l'application, outil par outil, avec ce qui a été écarté dans chaque cas.
+
+\section{Ingestion : dlt}
+
+Interroger une interface web publique paraît trivial jusqu'à ce qu'on le fasse sérieusement. Il
+faut paginer, réessayer sur erreur serveur avec une temporisation croissante, découvrir le schéma
+des colonnes, créer les tables, insérer par lots et suivre l'état des chargements.
+\textbf{dlt}~\cite{dlt} prend en charge la seconde moitié de cette liste : on déclare une
+ressource, la bibliothèque crée et fait évoluer les tables, charge par lots et tient l'historique
+des chargements.
+
+La première moitié a dû être écrite. Les particularités des interfaces Hub'Eau décrites au
+chapitre~\ref{ch:verrou}, pagination par en-tête de lien, plafonds non documentés, conventions
+qui changent d'un point d'accès à l'autre, ne se laissent pas absorber par un mécanisme
+générique. Un client dédié d'environ quatre cents lignes porte donc la pagination, les tentatives
+successives avec temporisation exponentielle et bruitage, et les garde-fous contre les boucles
+infinies. C'est un enseignement en soi : l'outil a économisé le travail répétitif de chargement,
+pas l'adaptation aux caprices de la source.
+
+Deux familles d'alternatives ont été écartées. Tout écrire, chargement et gestion des schémas
+compris, aurait doublé ce volume sans intérêt propre. Déployer une plateforme d'intégration
+complète, du type de celles qui s'administrent par interface graphique, aurait imposé un service
+supplémentaire à maintenir et une configuration hors du dépôt, donc non versionnée, pour quatre
+sources seulement. dlt occupe l'espace intermédiaire : une bibliothèque, dans le code, versionnée
+avec lui.
+
+\section{Transformation : dbt}
+
+Le choix déterminant est ici de transformer \textbf{dans la base} plutôt qu'en mémoire. Avec des
+centaines de millions de lignes, charger les données dans un tableau Python n'est pas une
+option, alors que le moteur de base de données sait le faire sur place.
+
+\textbf{dbt}~\cite{dbt} est le standard de fait de cette approche, au point d'avoir donné son nom
+à un métier, l'\emph{analytics engineering}. Sa maturité et sa diffusion sont précisément ce
+qu'on recherche pour un socle destiné à durer. Il apporte quatre mécanismes : chaque
+transformation est un fichier SQL versionné, l'ordre d'exécution se déduit automatiquement des
+références entre modèles, les tests de qualité se déclarent à côté du modèle qu'ils vérifient,
+et la documentation se génère. Un bénéfice secondaire compte autant que les autres : les
+transformations restent lisibles par un hydrogéologue ou un analyste, ce qu'un script Python de
+plusieurs centaines de lignes n'aurait pas été.
+
+\section{Orchestration : Dagster}
+
+Un ordonnanceur classique raisonne en tâches : exécuter A, puis B, à trois heures du matin.
+\textbf{Dagster}~\cite{dagster} raisonne en \emph{actifs} : on déclare qu'une table doit exister
+et être à jour, et l'outil détermine ce qu'il faut exécuter pour cela.
+
+La différence est concrète sur cette chaîne. Elle permet de partitionner l'ingestion par année
+et de rejouer une seule année, de déclencher la transformation quand la donnée arrive plutôt
+qu'à heure fixe, et de voir d'un coup d'œil quelles tables sont fraîches et lesquelles ne le
+sont pas. Airflow, l'ordonnanceur historique du domaine, aurait imposé de décrire ces
+dépendances à la main et de maintenir un second graphe en parallèle de celui de dbt, alors que
+l'intégration est ici native. Un simple ordonnanceur système, quant à lui, n'offre ni reprise
+partielle, ni traçabilité, ni limitation de concurrence, trois besoins dont
+la suite de ce chapitre montre qu'ils se sont révélés indispensables.
+
+\section{Stockage : PostgreSQL, TimescaleDB et PostGIS}
+
+Le besoin dictait le choix. Ce travail exige simultanément deux capacités : interroger
+efficacement des séries temporelles longues, et effectuer des jointures spatiales pour rattacher
+chaque station à sa maille climatique. \textbf{PostgreSQL}~\cite{postgresql} est le seul moteur
+courant qui réunisse les deux dans un même produit, grâce à \textbf{TimescaleDB}~\cite{timescaledb}
+pour le partitionnement temporel et la compression, et à \textbf{PostGIS}~\cite{postgis} pour les
+index et opérateurs géospatiaux. PostGIS est d'ailleurs la référence du géospatial libre, employée
+bien au-delà du monde de la recherche.
+
+S'y ajoutent trois propriétés qui pesaient lourd dans un contexte de recherche publique : aucun
+coût de licence, un déploiement sur le serveur du laboratoire donc aucune dépendance à un
+fournisseur ni facturation à la requête, et une interface SQL que tout le monde sait déjà
+interroger. Un entrepôt hébergé dans le nuage aurait apporté une élasticité inutile à cette
+échelle, en échange d'un budget récurrent et d'une adhérence contractuelle. Un stockage en
+fichiers colonnaires, plus léger, ne fournissait ni les jointures spatiales indexées ni la mise
+à jour incrémentale dont la chaîne a besoin.
+
+\section{Synthèse des choix}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Rôle} & \textbf{Retenu} & \textbf{Écarté, et pourquoi} \\
+\midrule
+Ingestion & dlt & Tout écrire, chargement et schémas compris ; plateforme d'intégration
+administrée (service en plus, configuration hors dépôt) \\
+Transformation & dbt & Scripts Python (ne passent pas à l'échelle, illisibles pour les métiers) \\
+Orchestration & Dagster & Airflow (dépendances à décrire à la main, second graphe à maintenir) ;
+ordonnanceur système (ni reprise, ni traçabilité) \\
+Stockage & PostgreSQL & Entrepôt hébergé (coût récurrent, adhérence) ; fichiers colonnaires
+(pas de jointure spatiale indexée) \\
+Séries temporelles & TimescaleDB & Partitionnement manuel (à écrire et à maintenir) \\
+Géospatial & PostGIS & Calculs de distance en Python (lents, non indexés) \\
+Déploiement & Docker Compose & Kubernetes (surdimensionné pour un serveur) \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Le même raisonnement a présidé aux choix de la plateforme, présentés aux
+chapitres~\ref{ch:metier} et~\ref{ch:apprentissage} : Pastas est la référence de la communauté
+hydrogéologique pour les modèles à fonction de transfert, Darts unifie sous une seule interface
+des architectures de prévision qu'il aurait fallu intégrer une à une, MLflow et Optuna sont les
+outils les plus répandus pour, respectivement, tracer des expériences et optimiser des
+hyperparamètres. Dans chaque cas, le critère est le même : un successeur doit pouvoir reprendre
+le travail sans apprendre un outil que personne n'utilise.
+

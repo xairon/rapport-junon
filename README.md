@@ -25,9 +25,30 @@ pdflatex main && biber main && pdflatex main && pdflatex main
 |---|---|
 | `main.tex` | Document maître : préambule, ordre des chapitres |
 | `preambule.tex` | Paquets, palette, environnements (`encadre`, `limite`, `resultat`, `acquisouvert`) |
-| `bibliographie.bib` | 23 références, toutes citées |
+| `bibliographie.bib` | 42 références, toutes citées |
 | `chapitres/` | Un fichier par chapitre, numérotés dans l'ordre du document |
 | `figures/` | Ressources externes éventuelles (les schémas actuels sont en TikZ, dans les chapitres) |
+| `versions/plan-v2/` | Version figée du 26 août 2026, avant refonte du plan : sources et PDF |
+
+## Plan
+
+1. Contexte et positionnement
+2. Le verrou : une donnée ouverte mais inexploitable
+3. La conduite du projet
+4. Sourcing et entrepôt de données
+5. Des mesures aux indicateurs : construction et validation
+6. L'Observatoire : donner à voir
+7. Modéliser : le laboratoire de modèles métier
+8. Apprendre : le laboratoire d'apprentissage automatique
+9. Expliquer : le sujet initial, enfin abordable
+10. Ce que la collaboration a produit
+11. Un socle pour l'IA en hydrologie
+12. Bilan, limites et passation
+    - Annexe A : annexes (réalisations, sources, ETP, volumétrie, glossaire)
+    - Annexe B : revue des outils retenus
+
+Le plan précédent, qui plaçait la conduite du projet en chapitre 9 et la revue d'outils
+dans le chapitre entrepôt, est conservé dans `versions/plan-v2/` et sous le tag git `plan-v2`.
 
 ## Conventions de rédaction
 
