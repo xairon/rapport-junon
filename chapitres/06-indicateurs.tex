@@ -140,18 +140,16 @@ n'y est pas.
 
 \subsection{Pourquoi}
 
-Les deux grandeurs portent des noms voisins et ne décrivent pas la même chose. C'est tout le
-problème, et il n'y a d'erreur nulle part : la variable d'ERA5 est correctement définie et
-conforme à ce qu'elle annonce, elle ne correspond simplement pas à la grandeur dont le SPEI a
-besoin. Le travail à faire n'était donc pas de corriger un défaut, mais d'identifier la bonne
-grandeur et de la produire.
+Les deux grandeurs portent des noms voisins et ne décrivent pas la même chose. Il n'y a d'erreur
+nulle part : la variable d'ERA5 est conforme à ce qu'elle annonce, elle ne correspond
+simplement pas à la grandeur dont le SPEI a besoin. Le travail n'était donc pas de corriger un
+défaut, mais d'identifier la bonne grandeur et de la produire.
 
-La variable d'ERA5 répond à la question : \emph{combien cette surface pourrait-elle évaporer si
+Elle répond à la question : \emph{combien cette surface pourrait-elle évaporer si
 l'eau ne manquait jamais}, dans les conditions du modèle atmosphérique qui l'a produite. C'est
 une borne haute théorique, et la littérature documente qu'elle dépasse largement la demande
 réelle d'un couvert végétal. La grandeur de la FAO répond à une autre question : \emph{combien
-évapore la surface conventionnelle de référence}. La première n'est pas la seconde, et aucune
-des deux n'est fausse : elles ne mesurent simplement pas le même objet.
+évapore la surface conventionnelle de référence}.
 
 Pour obtenir la seconde, la FAO-56 prévoit une méthode complète, qui exige le rayonnement, le
 vent et l'humidité. Ces variables n'étaient pas ingérées. Le même document recommande alors une
@@ -173,16 +171,11 @@ calcul était juste, le code sans faute, seule la grandeur employée n'était pa
 la confrontation des valeurs obtenues aux ordres de grandeur connus pour la France pouvait le
 révéler.
 
-\subsection{Où cela se joue dans l'entrepôt}
-
-La correction ne consiste pas à remplacer une valeur en cours de route : les deux grandeurs
-coexistent dans l'entrepôt et suivent des trajectoires distinctes. La variable brute est ingérée
-telle quelle, sans jamais être transformée, tandis que l'évapotranspiration de référence est
-calculée en couche analytique à partir d'une autre source, les températures journalières. Les
-deux figurent côte à côte dans la table finale, ce qui a d'ailleurs rendu possible la mesure
-comparative présentée plus haut : les valeurs de \num{818} et \num{1756} millimètres par an
-s'obtiennent par une simple requête, et quiconque doute de l'arbitrage peut le refaire.
-L'annexe~\ref{ann:etp} donne le détail des colonnes concernées, couche par couche.
+Les deux grandeurs coexistent dans l'entrepôt et suivent des trajectoires distinctes : la
+variable brute est ingérée telle quelle, l'évapotranspiration de référence est calculée en
+couche analytique à partir des températures journalières. Elles figurent côte à côte dans la
+table finale, ce qui a rendu possible la mesure comparative ci-dessus.
+L'annexe~\ref{ann:etp} donne le détail des colonnes, couche par couche.
 
 \subsection{Une incohérence connue, et ce qu'elle coûte}
 
@@ -315,12 +308,7 @@ construction. Toute modification de l'une sans l'autre fait échouer une suite d
 mécanisme est simple, et c'est sa vertu : il rend la contrainte exécutable plutôt que
 documentaire.
 
-L'entrepôt produit désormais une famille d'indicateurs normalisés à l'échelle nationale, validée
-selon un protocole dont le critère avait été fixé avant la mesure, et dont les deux décisions
-méthodologiques structurantes sont documentées avec les chiffres qui les établissent. Ces
-indicateurs sont utilisables tels quels par les hydrogéologues et constituent des variables
-candidates pour la modélisation.
-
-Reste l'incohérence signalée plus haut entre la chaîne climatique et la chaîne des stations sur
-l'évapotranspiration, seule zone d'ombre de ce chapitre. Elle est documentée et son motif est
-assumé, mais elle demeure un piège pour qui comparerait les deux sans le savoir.
+L'entrepôt produit désormais une famille d'indicateurs normalisés à l'échelle nationale,
+utilisables tels quels par les hydrogéologues et candidats comme variables de modélisation. Le
+critère de leur validation avait été fixé avant la mesure, et les deux décisions
+méthodologiques structurantes sont documentées avec les chiffres qui les établissent.

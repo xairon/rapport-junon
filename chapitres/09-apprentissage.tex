@@ -53,8 +53,8 @@ défendable.
 connaissance de l'interface qui l'observe : il écrit son avancement dans un fichier d'état, que
 la couche de présentation lit indépendamment et retransmet au navigateur par un flux
 d'événements. Cette séparation, visible sur la figure~\ref{fig:archi-plateforme}, a une
-conséquence pratique importante : \textbf{le même code d'entraînement s'exécute depuis
-l'application, depuis un script ou depuis un carnet de calcul}, sans modification.
+conséquence pratique importante : un entraînement lancé depuis un script se suit dans
+l'interface, et réciproquement.
 
 \paragraph{La conduite d'expériences longues.} L'entraînement s'appuie sur PyTorch Lightning~\cite{pytorch_lightning} et s'effectue sur
 processeur graphique lorsque celui-ci est disponible, avec arrêt anticipé et suivi de
@@ -115,17 +115,7 @@ d'aquifères, reste donc à conduire, et l'outillage nécessaire est en place po
 
 \paragraph{Une limite d'ingénierie à corriger.} La suite de tests de la plateforme compte
 \num{552} tests, dont \num{547} passent (mesuré le 24 août 2026). Aucun ne s'exécute
-automatiquement : le dépôt est hébergé sur une forge dont la chaîne d'intégration continue ne
-comporte qu'une étape de construction d'image, tandis que la définition de tests existante cible
-une autre forge. Parmi les cinq cas non passants, deux exigent un entrepôt peuplé et relèvent
-en réalité de l'intégration, un lit un fichier absent de tout autre poste, un est mis en défaut
-par la base en mémoire employée pour les tests, qui ne conserve pas le fuseau horaire, et le
-dernier est ignoré. Aucun ne
-signale un défaut applicatif, mais la purge des journaux se trouve de fait non testée. C'est le
-premier correctif à apporter par toute personne reprenant ces travaux.
-
-Aucune architecture n'est recommandée ici plutôt qu'une autre, et ce silence est volontaire :
-ce chapitre livre un banc d'expérimentation, pas une étude de performances. Deux travaux
-l'attendent, de natures différentes. L'évaluation comparative des architectures relève de la
-recherche. L'automatisation de la suite de tests relève de l'ingénierie, et devrait passer en
-premier : elle conditionne la confiance dans tout ce qui suivra.
+automatiquement, faute d'une étape de test dans la chaîne d'intégration de la forge qui héberge
+le dépôt. Les cinq cas non passants, quatre échecs et un test ignoré, sont documentés et aucun ne
+signale un défaut applicatif, mais la purge des journaux se trouve de fait non testée. C'est le premier correctif
+à apporter par toute personne reprenant ces travaux.

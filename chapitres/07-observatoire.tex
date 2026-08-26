@@ -160,16 +160,12 @@ entre l'intention et le déploiement.
 
 \section{Environnements et déploiement}
 
-Deux environnements complètement séparés coexistent sur le serveur de calcul, l'un suivant la
-branche principale, l'autre la branche de développement, avec des volumes, des bases, des ports
-et des artefacts distincts. Un modèle entraîné ou un compte créé dans l'un n'affecte jamais
-l'autre. Cette séparation est ce qui autorise à expérimenter sur une chaîne en évolution sans
-compromettre l'instance servant aux utilisateurs.
-
-La production est répartie : l'interface est déployée sur l'infrastructure mutualisée de
-l'établissement, le calcul et les bases restent sur le serveur équipé d'un processeur
-graphique. Une seule exigence réseau conditionne l'ensemble, l'ouverture de la route entre les
-deux.
+La séparation des environnements décrite au chapitre~\ref{ch:entrepot} prend ici tout son sens :
+elle autorise à expérimenter sur une chaîne en évolution sans compromettre l'instance qui sert
+les utilisateurs. La production est répartie : l'interface est déployée sur l'infrastructure
+mutualisée de l'établissement, le calcul et les bases restent sur le serveur équipé d'un
+processeur graphique. Une seule exigence réseau conditionne l'ensemble, l'ouverture de la route
+entre les deux.
 
 L'Observatoire dépend entièrement de l'entrepôt, et ne se dégrade pas gracieusement en son
 absence : il répond en erreur plutôt que d'afficher un état partiel. Le choix est assumé pour un

@@ -97,21 +97,15 @@ capable de reprendre là où elle s'est arrêtée. Une extraction naïve échoue
 heures et laisse un jeu de données incomplet sans le signaler.
 
 \paragraph{Les conventions varient d'un point d'accès à l'autre, au sein d'une même source.}
-Le paramètre qui identifie une station n'est pas le même selon l'interface interrogée : les
-observations élaborées d'hydrométrie s'obtiennent par un identifiant d'entité, là où le
-référentiel des stations emploie un identifiant de station. Employer le mauvais ne provoque pas
-d'erreur explicite, mais un résultat vide. De même, une des interfaces ne prend pas en charge le
-paramètre de taille de page, une autre plafonne à cent codes par requête, et la longueur maximale
-d'une adresse impose une limite supplémentaire qui n'est documentée nulle part. Chacune de ces
-contraintes a été découverte à l'usage.
+Le paramètre qui identifie une station n'est pas le même selon l'interface interrogée. Employer
+le mauvais ne provoque pas d'erreur explicite, mais un résultat vide. S'y ajoutent des plafonds
+de pagination qui diffèrent d'une interface à l'autre et ne sont documentés nulle part : chacun
+a été découvert à l'usage.
 
-\paragraph{Les données elles-mêmes présentent des incohérences.} Deux cas rencontrés suffisent à
-illustrer le problème. D'une part, le service d'observations hydrométriques retourne des mesures
-rattachées à des stations qui sont \emph{absentes de son propre référentiel de stations} : la
-source se contredit elle-même, et une jointure naïve échoue sur une violation de clé étrangère.
-D'autre part, le champ identifiant la station est vide dans environ \SI{46}{\percent} des
-observations, ce qui interdit de l'utiliser comme clé de filtrage et oblige à s'appuyer sur
-l'identifiant de site, puis à rétablir le lien une couche plus loin.
+\paragraph{Les données elles-mêmes présentent des incohérences.} Le service d'observations
+hydrométriques retourne des mesures rattachées à des stations \emph{absentes de son propre
+référentiel} : la source se contredit, et une jointure naïve échoue sur une violation de clé
+étrangère.
 
 Ces défauts ont une conséquence directe sur l'architecture décrite au
 chapitre~\ref{ch:entrepot}. Le nettoyage ne peut pas être une formalité que l'on expédie : il
