@@ -3,15 +3,18 @@
 
 \section{Inventaire des réalisations logicielles}
 
-\subsection*{Entrepôt de données hydro-climatiques}
+\subsection{Entrepôt de données hydro-climatiques}
 
-\begin{center}
+\begin{table}[H]
+\centering
+\caption{Inventaire de l'entrepôt de données hydro-climatiques.}
+\label{tab:inv-entrepot}
 \begin{tabularx}{\textwidth}{@{}lX@{}}
 \toprule
-Période & 23 septembre 2025 au 24 août 2026 \\
+Période & 23 septembre 2025 au 26 août 2026 \\
 Volume & $\approx$ \num{6000} lignes Python, $\approx$ \num{2600} lignes SQL de transformation (mesuré le 26 août 2026, hors tests) \\
 Ingestion & Bibliothèque d'extraction déclarative : pagination, reprise sur erreur,
-déduplication par fusion, partitionnement annuel de 1967 à aujourd'hui \\
+déduplication avant chargement, partitionnement annuel de 1967 à aujourd'hui \\
 Transformation & 8 modèles de nettoyage, 3 modèles de rejets tracés, 18 modèles analytiques,
 complétés par des tables d'indicateurs calculées en Python \\
 Orchestration & 8 traitements planifiés, 3 capteurs événementiels, clés de concurrence par
@@ -22,31 +25,37 @@ Infrastructure & 7 services conteneurisés, séparation du code métier et de l'
 volumes de données déclarés hors du cycle de vie des conteneurs \\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}
 
-\subsection*{Plateforme d'exploration, de modélisation et de prévision}
+\subsection{Plateforme d'exploration, de modélisation et de prévision}
 
-\begin{center}
+\begin{table}[H]
+\centering
+\caption{Inventaire de la plateforme d'exploration, de modélisation et de prévision.}
+\label{tab:inv-plateforme}
 \begin{tabularx}{\textwidth}{@{}lX@{}}
 \toprule
-Période & 6 novembre 2025 au 24 août 2026 \\
-Volume & $\approx$ \num{34000} lignes Python, $\approx$ \num{29000} lignes TypeScript (mesuré le 26 août 2026, hors tests) \\
+Période & 6 novembre 2025 au 26 août 2026 \\
+Volume & $\approx$ \num{34000} lignes Python, $\approx$ \num{26000} lignes TypeScript (mesuré le 26 août 2026, hors tests) \\
 Interface & Application monopage : cartographie, graphiques interactifs, suivi d'entraînement
 en temps réel \\
 Service & API avec flux d'événements, authentification nominative, journal d'audit, limitation
 de débit \\
-Cœur métier & Bibliothèque Python sans dépendance d'interface : préparation, modèles métier,
+Cœur métier & Bibliothèque Python indépendante du service web et de l'interface : préparation, modèles métier,
 entraînement, explicabilité, contrefactuels, détection d'influence \\
 Vérification & \num{552} tests, dont \num{547} passent (mesuré le 24 août 2026) \\
 Déploiement & Interface sur infrastructure mutualisée, calcul et bases sur serveur équipé d'un
 processeur graphique ; environnements de développement et de production séparés \\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}
 
 \section{Sources de données et attributions}
 
-\begin{center}
+\begin{table}[H]
+\centering
+\caption{Les quatre jeux de données ingérés et leur couverture.}
+\label{tab:sources}
 \begin{tabularx}{\textwidth}{@{}lXl@{}}
 \toprule
 \textbf{Source} & \textbf{Contenu} & \textbf{Couverture} \\
@@ -59,7 +68,7 @@ Corse & depuis 1950 \\
 BDLISA & Référentiel hydrogéologique (entités aquifères) & référentiel \\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}
 
 \noindent
 La profondeur effectivement disponible varie d'une station à l'autre : les partitions
@@ -75,8 +84,8 @@ or data it contains.}
 Source : Hub'Eau, eaufrance.fr \quad\textbullet\quad Source : BDLISA, BRGM et Sandre.
 
 \vspace{0.4em}
-Les licences des développements couvrent le code produit, non les données consultées : chaque
-source conserve ses propres conditions d'usage.
+Les deux dépôts sont publiés sous licence MIT. Elle couvre le code produit, non les données
+consultées : chaque source conserve ses propres conditions d'usage.
 \end{encadre}
 
 \section{Le cheminement de l'évapotranspiration dans l'entrepôt}
@@ -95,7 +104,10 @@ autre source}, les statistiques journalières de température issues du second c
 La formule de Hargreaves est appliquée jour par jour, puis cumulée sur le mois. La variable
 brute, elle, est conservée dans une colonne distincte de la même table.
 
-\begin{center}
+\begin{table}[H]
+\centering
+\caption{Le cheminement des deux grandeurs d'évapotranspiration, couche par couche.}
+\label{tab:etp-couches}
 \begin{tabularx}{\textwidth}{@{}llX@{}}
 \toprule
 \textbf{Couche} & \textbf{Colonne} & \textbf{Contenu} \\
@@ -108,9 +120,12 @@ depuis les températures journalières. C'est cette colonne qui est consommée. 
 Gold & \code{bilan\_hydrique} & Précipitation moins \code{etp\_totale}. Le SPEI en découle. \\
 Gold & \code{etp\_pev\_era5} & La variable brute cumulée, conservée pour la traçabilité et la
 comparaison. À ne pas consommer. \\
+Gold, chaîne station & \code{potential\_evaporation} & La variable brute, propagée telle quelle
+jusqu'aux chroniques de station. C'est elle qui alimente les modèles métier, et c'est là que se
+situe l'incohérence exposée en section~\ref{sec:hargreaves}. \\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}
 
 Conserver les deux colonnes côte à côte a un intérêt qui dépasse la traçabilité : c'est ce qui a
 rendu la mesure possible. Les valeurs de \num{818} et \num{1756} millimètres par an comparées
@@ -121,23 +136,29 @@ propriété de la table.
 
 \section{Volumétrie des indicateurs climatiques}
 
-\begin{center}
+\begin{table}[H]
+\centering
+\caption{Volumétrie des indicateurs climatiques produits.}
+\label{tab:volumetrie-indices}
 \begin{tabularx}{\textwidth}{@{}Xr@{}}
 \toprule
 Mailles de la grille nationale & \num{11496} \\
 Valeurs d'indices produites & \num{41960400} \\
-Fenêtres d'agrégation & 1, 3, 6 et 12 mois \\
+Fenêtres d'agrégation & 1, 3, 6 et 12~mois \\
 Période de référence & 1991--2020 \\
 Échelle de classement & 7 classes \\
 Couples maille-mois de la comparaison d'évapotranspiration & \num{30888} \\
 Mailles comparées lors du changement de loi & \num{35614} \\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}
 
 \section{Glossaire}
 
-\begin{center}
+\begin{table}[H]
+\centering
+\caption{Glossaire des termes employés dans ce rapport.}
+\label{tab:glossaire}
 \begin{tabularx}{\textwidth}{@{}lX@{}}
 \toprule
 \textbf{Terme} & \textbf{Définition} \\
@@ -167,4 +188,4 @@ Valeurs de Shapley & Méthode d'attribution répartissant la contribution des en
 prédiction sur des bases axiomatiques \\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}

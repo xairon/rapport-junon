@@ -78,7 +78,10 @@ fichiers colonnaires, plus léger, ne fournissait ni les jointures spatiales ind
 
 \section{Synthèse des choix}
 
-\begin{center}
+\begin{table}[H]
+\centering
+\caption{Synthèse des outils retenus et des alternatives écartées.}
+\label{tab:synthese-outils}
 \begin{tabularx}{\textwidth}{@{}llX@{}}
 \toprule
 \textbf{Rôle} & \textbf{Retenu} & \textbf{Écarté, et pourquoi} \\
@@ -95,7 +98,7 @@ Géospatial & PostGIS & Calculs de distance en Python (lents, non indexés) \\
 Déploiement & Docker Compose & Kubernetes (surdimensionné pour un serveur) \\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}
 
 Le même raisonnement a présidé aux choix de la plateforme, présentés aux
 chapitres~\ref{ch:metier} et~\ref{ch:apprentissage} : Pastas est la référence de la communauté

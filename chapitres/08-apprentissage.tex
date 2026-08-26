@@ -109,7 +109,7 @@ outille donc trois questions : \emph{sur quoi le modèle s'appuie-t-il}, \emph{q
 passerait-il dans d'autres conditions}, et \emph{cette chronique est-elle seulement explicable
 par le climat}.
 
-\paragraph*{} La première question mobilise cinq familles d'attribution complémentaires :
+La première question mobilise cinq familles d'attribution complémentaires :
 l'importance par perturbation, les valeurs de Shapley~\cite{lundberg2017shap} et leur variante
 pour séries temporelles~\cite{bento2021timeshap}, les attributions par
 gradients~\cite{sundararajan2017ig,captum}, les poids d'attention pour les architectures qui en
@@ -118,15 +118,19 @@ même outil ne vise pas l'exhaustivité mais la \textbf{confrontation} : des mé
 des principes différents et qui convergent donnent une explication crédible, tandis que leur
 divergence signale une explication fragile, information qu'une méthode unique aurait masquée.
 
-La deuxième question a demandé un développement propre, parce que la réponse directe ne vaut
-rien ici. Laisser un algorithme modifier librement les entrées jusqu'à ce que la prévision
+La deuxième question relève des explications contrefactuelles, formalisées par Wachter
+\emph{et al.}~\cite{wachter2018counterfactual} et transposées depuis peu à la prévision de
+séries temporelles~\cite{wang2023forecastcf}. Elle a demandé un développement propre, parce que
+la réponse directe ne vaut rien ici. Laisser un algorithme modifier librement les entrées jusqu'à ce que la prévision
 atteigne la cible produit des scénarios corrects au sens de l'optimisation et physiquement
 absurdes : de l'air réchauffé sans évaporation supplémentaire, une pluie incohérente d'un jour
 au suivant, une saison qui n'existe nulle part. Les hydrogéologues y ont substitué deux
 exigences, le respect du bilan de masse et la cohérence avec les échelles de temps auxquelles un
 aquifère réagit.
 
-\label{sec:physcf}%
+\subsection{Contrefactuels sous contrainte physique}
+\label{sec:physcf}
+
 L'implémentation retenue les traduit en renonçant à perturber les entrées valeur par valeur.
 Elle ne règle que sept paramètres décrivant un régime climatique : un facteur de pluie par
 saison, un décalage de température, un décalage du calendrier, et un résidu d'évaporation
@@ -176,7 +180,8 @@ chapitre~\ref{ch:collaborations}, auxquels ce laboratoire fournit son terrain.
 
 Une limite d'ingénierie reste à corriger. La suite de tests de la plateforme compte
 \num{552} tests, dont \num{547} passent (mesuré le 24 août 2026). Aucun ne s'exécute
-automatiquement, faute d'une étape de test dans la chaîne d'intégration de la forge qui héberge
-le dépôt. Les cinq cas non passants, quatre échecs et un test ignoré, sont documentés et aucun ne
-signale un défaut applicatif, mais la purge des journaux se trouve de fait non testée. C'est le premier correctif
-à apporter par toute personne reprenant ces travaux.
+automatiquement : les chaînes d'intégration des deux dépôts ne comportent qu'une étape de
+construction et une étape de déploiement, sans étape de test. Les cinq cas non passants, quatre
+échecs et un test ignoré, sont documentés et aucun ne signale un défaut applicatif, mais la
+purge des journaux se trouve de fait non testée. C'est le premier correctif à apporter par toute
+personne reprenant ces travaux.

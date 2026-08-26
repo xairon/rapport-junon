@@ -46,18 +46,20 @@
 \clearpairofpagestyles
 \ihead{\small\color{grisardoise}\headmark}
 \ohead{\small\color{grisardoise}\thepage}
+% Le style `plain` des pages d'ouverture de chapitre est vide apres
+% \clearpairofpagestyles : on lui rend un folio, en pied.
+\ofoot[\small\color{grisardoise}\thepage]{}
 \setkomafont{pageheadfoot}{\normalfont\sffamily\small}
 
 % --- Tableaux -------------------------------------------------------------
 \usepackage{booktabs}
 \usepackage{tabularx}
-\usepackage{longtable}
-\usepackage{multirow}
 \usepackage{array}
-\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
-\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
-\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
 \renewcommand{\arraystretch}{1.15}
+% Colonnes de paragraphe en drapeau : dans une colonne etroite, la
+% justification produit des Underfull \hbox et des blancs inter-mots.
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 
 % --- Figures et graphiques ------------------------------------------------
 \usepackage{graphicx}
@@ -79,28 +81,6 @@
   #1
 }
 
-\newtcolorbox{limite}[1][]{
-  colback=white,
-  colframe=ocre,
-  boxrule=0.4pt,
-  leftrule=2.5pt,
-  arc=1pt,
-  left=7pt, right=7pt, top=4.5pt, bottom=4.5pt,
-  fonttitle=\bfseries\color{white},
-  #1
-}
-
-\newtcolorbox{resultat}[1][]{
-  colback=white,
-  colframe=vertsobre,
-  boxrule=0.4pt,
-  leftrule=2.5pt,
-  arc=1pt,
-  left=7pt, right=7pt, top=4.5pt, bottom=4.5pt,
-  fonttitle=\bfseries\color{white},
-  #1
-}
-
 % --- Question d'ouverture de chapitre -------------------------------------
 \newcommand{\questionchapitre}[1]{%
   \begin{center}
@@ -110,18 +90,6 @@
   \end{minipage}
   \end{center}
   \vspace{0.3em}
-}
-
-% --- Bilan de fin de chapitre ---------------------------------------------
-\newenvironment{acquisouvert}{%
-  \par\vspace{0.7em}
-  \noindent\textcolor{bleuclair}{\rule{\textwidth}{0.6pt}}
-  \par\vspace{0.4em}
-  \small
-}{%
-  \par\vspace{0.3em}
-  \noindent\textcolor{bleuclair}{\rule{\textwidth}{0.6pt}}
-  \par\vspace{1em}
 }
 
 % --- Listes ---------------------------------------------------------------
@@ -148,7 +116,7 @@
 \addbibresource{bibliographie.bib}
 
 % --- Liens ----------------------------------------------------------------
-\usepackage[hidelinks]{hyperref}
+\usepackage{hyperref}
 \hypersetup{
   colorlinks=true,
   linkcolor=bleuprofond,
@@ -156,12 +124,12 @@
   urlcolor=bleuclair,
   pdftitle={Rapport de clôture, programme JUNON},
   pdfauthor={Nicolas Ringuet},
+  pdflang={fr-FR},
+  pdfsubject={Rapport de cloture des travaux postdoctoraux menes au LIFAT dans le cadre du programme ARD JUNON},
+  pdfkeywords={hydrogeologie, eaux souterraines, entrepot de donnees, series temporelles, apprentissage automatique, explicabilite, ERA5-Land, Hub'Eau},
 }
-\usepackage{url}
-\urlstyle{same}
 
 % --- Divers ---------------------------------------------------------------
-\usepackage{csquotes}
 \usepackage{caption}
 \captionsetup{font=small,labelfont={bf,color=bleuprofond}}
 

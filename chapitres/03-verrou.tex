@@ -69,12 +69,12 @@ sur une file d'attente saturée : environ \textbf{43 heures par année demandée
 reconstituer sept décennies se compte en mois. La même information, recalculée localement à
 partir de l'archive horaire brute, demande environ \textbf{vingt-cinq minutes par année}.
 L'équivalence des deux voies a été vérifiée maille par maille et jour par jour, à
-\SI{0.0000}{\celsius} sur les extrêmes journaliers et \SI{0.01}{\celsius} sur la moyenne.
+\SI[group-digits=integer]{0.0000}{\celsius} sur les extrêmes journaliers et \SI{0.01}{\celsius} sur la moyenne.
 
 \subsection{Lire la donnée brute suppose d'en connaître les conventions}
 
 Dans ERA5, les variables de précipitation et d'évaporation sont des \emph{flux cumulés} : la
-valeur au pas de \SI{00}{\hour}~UTC constitue le total du jour écoulé. La température est une
+valeur au pas de 00~h~UTC constitue le total du jour écoulé. La température est une
 \emph{grandeur instantanée} : la même valeur, au même horodatage, n'est qu'un relevé de minuit.
 Deux variables issues du même fichier, à la même heure, dont l'une se lit telle quelle et
 l'autre doit être reconstruite à partir des vingt-quatre pas horaires.
@@ -83,8 +83,8 @@ Le fournisseur documente cette convention et distingue explicitement les paramè
 paramètres instantanés~\cite{munozsabater2021era5land}. Rien dans les valeurs ni dans les
 horodatages ne l'exprime pour autant, et se tromper ne produit aucun signal : la série obtenue
 reste plausible, simplement trop froide. Mesuré sur les \num{11496} mailles du territoire, du
-1\textsuperscript{er} janvier 2025 au 19 août 2026, soit \num{935040} couples maille-jour,
-l'écart entre le relevé de minuit et la vraie moyenne journalière vaut \SI{-2,90}{\celsius} en
+1\ier{} janvier 2025 au 19 août 2026, sur les \num{935040} couples maille-jour où les deux
+chemins d'ingestion se recouvrent, l'écart entre le relevé de minuit et la vraie moyenne journalière vaut \SI{-2,90}{\celsius} en
 moyenne et atteint \SI{-3,4}{\celsius} en juin. C'est ce qui impose le second chemin
 d'ingestion décrit au chapitre~\ref{ch:entrepot}.
 

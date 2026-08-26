@@ -79,8 +79,11 @@ lue dans le référentiel BDLISA rattaché à la station par l'entrepôt (chapit
 Cette table est le produit direct des échanges avec l'expertise hydrogéologique du BRGM. Elle
 traduit en choix de modélisation ce qu'un spécialiste sait du comportement de chaque milieu.
 
-\begin{center}
-\begin{tabularx}{\textwidth}{@{}lllX@{}}
+\begin{table}[H]
+\centering
+\caption{Configurations de modélisation recommandées par famille d'aquifère.}
+\label{tab:familles-aquiferes}
+\begin{tabularx}{\textwidth}{@{}L{2.9cm}llY@{}}
 \toprule
 \textbf{Famille} & \textbf{Réponse} & \textbf{Bruit} & \textbf{Justification hydrogéologique} \\
 \midrule
@@ -94,7 +97,7 @@ Volcanique & Gamma & AR & Système hétérogène \\
 Composite & Quatre paramètres & ARMA & Milieu hétérogène, modèle flexible \\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}
 
 Le cas karstique est le plus parlant. Un système karstique se comporte comme deux réservoirs
 couplés : des conduits qui réagissent en quelques heures et une matrice qui réagit en mois. Une

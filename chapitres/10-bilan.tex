@@ -1,0 +1,299 @@
+\chapter{Bilan : le socle, ses limites, sa reprise}
+\label{ch:bilan}
+
+\questionchapitre{Que reste-t-il une fois le contrat achevé, dans quel état, et à quelles
+conditions ces développements peuvent-ils servir au-delà du projet qui les a financés ?}
+
+\section{Récapitulatif des réalisations}
+
+\begin{table}[H]
+\centering
+\caption{Les réalisations de la période, par domaine.}
+\label{tab:realisations}
+\begin{tabularx}{\textwidth}{@{}L{3.4cm}Y@{}}
+\toprule
+\textbf{Domaine} & \textbf{Réalisation} \\
+\midrule
+Données & Chaîne d'ingestion automatisée de quatre jeux de données issus de trois fournisseurs
+publics ; entrepôt en architecture médaillon sur base relationnelle avec extensions temporelle
+et géospatiale ; rattachement spatial des stations à leur maille climatique ; enrichissement par
+le référentiel hydrogéologique ; environ \num{658} millions de lignes en couche brute \\
+Fiabilité & Idempotence des traitements, traçabilité des lignes écartées, contraintes de
+concurrence par clés, reprise après interruption, sauvegarde et restauration vérifiées sur un
+entrepôt représentatif \\
+Indicateurs & Indices standardisés de niveau, de débit, de précipitation, de température et de
+bilan hydrique ; production à l'échelle nationale sur quatre fenêtres ; protocole de validation
+à critère pré-établi ; deux décisions méthodologiques établies par la mesure \\
+Exploration & Observatoire spatial des nappes et des rivières ; module climatique national avec
+historique depuis 1950, épisodes de sécheresse et export \\
+Modélisation métier & Laboratoire de modèles à fonction de transfert ; calibration automatique
+guidée par la nature de l'aquifère ; évaluation selon quatre critères normalisés ; diagnostics
+préalables et postérieurs ; scénarios prospectifs à bornes physiquement dérivées \\
+Apprentissage & Catalogue d'une douzaine d'architectures de prévision profonde ; optimisation
+d'hyperparamètres ; traçabilité des expériences ; suivi d'entraînement en temps réel ;
+configurations prêtes à l'emploi par cas d'usage métier \\
+Explicabilité & Attribution multi-méthodes ; contrefactuels sous contrainte physique avec
+couplage thermodynamique et validation par modèle indépendant ; détection non supervisée
+d'influence anthropique \\
+Ingénierie & Deux dépôts conteneurisés, reproductibles et documentés pour la reprise ;
+environnements de développement et de production séparés \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Bilan au regard de la mission initiale}
+
+La mission portait sur l'explicabilité des modèles de prévision appliqués aux eaux souterraines.
+Elle a été instrumentée de bout en bout ; elle n'a pas été conclue.
+
+\textbf{Ce qui a été atteint} : l'outillage complet que le sujet supposait, jusqu'aux méthodes
+d'explication elles-mêmes. Parmi elles, les contrefactuels sous contrainte physique s'attaquent
+directement à ce qui rend l'explicabilité délicate dans ce domaine, à savoir qu'une explication
+physiquement incohérente n'est pas une explication. Ces développements restent préliminaires :
+ils sont opérationnels et prêts à être éprouvés, ils ne sont pas validés.
+
+\textbf{Ce qui n'a pas été atteint} : l'évaluation quantitative comparée des méthodes, faute de
+temps une fois l'infrastructure construite. C'est le travail le plus immédiatement accessible à
+qui reprendra ces développements, parce que tout ce qu'il suppose existe désormais.
+
+\section{Ce qui rend ce socle réutilisable}
+
+Affirmer qu'un développement constitue un « socle » n'a de valeur que si l'on peut désigner les
+propriétés qui le rendent réutilisable et montrer qu'elles sont acquises. Elles sont au nombre
+de quatre.
+
+La couche analytique de l'entrepôt se consomme en SQL, et rien d'autre. Un utilisateur n'a besoin
+de connaître ni l'outil d'ingestion, ni la bibliothèque de transformation, ni l'orchestrateur :
+un carnet de calcul, un tableur connecté ou une application tierce s'y branchent également. La
+conséquence est structurante : \textbf{l'amont peut être remplacé sans que l'aval s'en
+aperçoive}. Un outil d'ingestion devenu obsolète se remplace sans toucher aux consommateurs.
+C'est cette propriété qui distingue une infrastructure d'un script.
+
+Le cœur de calcul de la plateforme, lui, ne dépend ni du service web ni de l'interface. La contrainte a été posée
+dès l'origine, au chapitre~\ref{ch:observatoire}, et son effet sur la valeur résiduelle des
+travaux est direct : \textbf{même si l'application web était abandonnée, les méthodes
+resteraient utilisables}. La contribution n'est pas prisonnière de son emballage.
+
+Les indicateurs sont calculés une fois pour tous les consommateurs, sans second calcul
+susceptible de diverger, et un test de contrat échoue si les deux dépôts cessent de s'accorder
+(chapitre~\ref{ch:indicateurs}), sous la réserve d'exécution rappelée plus bas. La pile, enfin, est conteneurisée, ses volumes de
+données survivent à l'arrêt des conteneurs, sa restauration a été vérifiée sur un entrepôt
+représentatif et non sur une table jouet (chapitre~\ref{ch:entrepot}), et sa documentation a été
+refondue en fin de période pour la reprise, jusqu'aux pièges qui produisent des résultats faux
+sans émettre d'erreur.
+
+Au-delà des deux dépôts, ces travaux instancient un enchaînement (figure~\ref{fig:patron}) qui
+n'a rien de spécifique aux eaux souterraines.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\sffamily\small,
+  et/.style={draw=black!70, fill=black!3, minimum width=2.6cm, minimum height=1.3cm,
+             align=center, font=\sffamily\scriptsize},
+  fl/.style={-{Stealth[length=2.4mm]}, draw=black!70, thick},
+  note/.style={font=\sffamily\scriptsize\itshape, color=black!55, align=center,
+               text width=2.55cm},
+]
+\node[et] (e1) {\textbf{Sources}\\ouvertes,\\hétérogènes};
+\node[et, right=0.7cm of e1] (e2) {\textbf{Entrepôt}\\consolidé,\\interrogeable};
+\node[et, right=0.7cm of e2] (e3) {\textbf{Indicateurs}\\normalisés\\et validés};
+\node[et, right=0.7cm of e3] (e4) {\textbf{Modèles}\\métier et\\appris};
+\node[et, right=0.7cm of e4, very thick, draw=black] (e5) {\textbf{Explication}\\et\\scénarisation};
+
+\foreach \a/\b in {e1/e2, e2/e3, e3/e4, e4/e5} \draw[fl] (\a) -- (\b);
+
+\node[note, below=0.32cm of e2] {coût payé une seule fois};
+\node[note, below=0.32cm of e3] {comparabilité garantie ici};
+\node[note, below=0.32cm of e5] {condition de l'usage en décision};
+\end{tikzpicture}
+\caption{L'enchaînement mis en œuvre. Chaque étape suppose la précédente ; escamoter l'une
+d'elles produit des résultats incomparables ou inutilisables.}
+\label{fig:patron}
+\end{figure}
+
+L'enseignement principal de l'année tient dans la lecture de gauche à droite de cette figure :
+\textbf{on ne peut pas commencer par la droite}. Investir dans le modèle avant de disposer d'une
+donnée exploitable conduit à découvrir ensuite qu'elle ne permet pas de conclure.
+
+\section{Ce qui est transmis aux travaux à venir}
+
+Les travaux d'explicabilité se poursuivront au-delà de cette période. Le
+tableau~\ref{tab:transmis} confronte ce qu'ils supposent à ce qui leur est effectivement
+transmis.
+
+\begin{table}[H]
+\centering
+\caption{Ce que supposent les travaux d'explicabilité à venir, et ce dont ils
+disposent.}
+\label{tab:transmis}
+\begin{tabularx}{\textwidth}{@{}L{4.6cm}Y@{}}
+\toprule
+\textbf{Besoin} & \textbf{Disponible} \\
+\midrule
+Un jeu de données consolidé, joint au forçage climatique & Entrepôt national, partitions depuis
+1967 pour les stations et 1950 pour le climat, rattachement spatial matérialisé \\
+Des modèles à expliquer & Douze architectures de prévision profonde sous interface unique, avec
+traçabilité des expériences \\
+Une référence interprétable à laquelle confronter les explications & Modèles à fonction de
+transfert calibrés, dont les paramètres ont un sens hydrogéologique \\
+Des méthodes d'attribution & Cinq familles complémentaires, confrontables entre elles \\
+Des explications actionnables & Contrefactuels sous contrainte physique, mettant en œuvre les
+critères formulés par les hydrogéologues \\
+Un moyen de valider une explication & Rejeu du scénario dans un modèle métier indépendant \\
+Des cas d'étude qualifiés & Détection non supervisée d'influence anthropique, permettant
+d'écarter les chroniques impropres \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Ce qui n'est pas transmis tient en une phrase : le socle rend ces travaux possibles, il ne les a
+pas menés. Le détail en est donné plus bas, aux points 3 et suivants.
+
+\section{Limites et chantiers à reprendre}
+
+Un successeur doit savoir ce que le socle ne fait pas, et ce qu'il faut engager pour qu'il le
+fasse. Les deux questions n'en font qu'une : une limite qui se corrige est un chantier. La liste
+suivante est ordonnée par priorité, la première ligne étant la seule qui conditionne la validité
+de résultats à venir.
+
+\begin{enumerate}
+  \item \textbf{Les modèles métier sont calibrés sur une évapotranspiration inadaptée.} La
+  chaîne des stations transporte encore la variable brute, environ deux fois supérieure à
+  l'évapotranspiration de référence employée par la chaîne climatique. La mesure présentée au
+  chapitre~\ref{ch:indicateurs} montre que le modèle n'absorbe pas cet écart : le paramètre qui
+  pondère l'évaporation sature à sa borne, et l'ajustement en dépend. Les prévisions restent
+  exploitables, mais les paramètres calibrés n'ont pas d'interprétation physique directe.
+  Aligner la chaîne des stations est le premier chantier, et il précède toute campagne de
+  calibration.
+
+  \item \textbf{Aucun des deux dépôts n'exécute ses tests automatiquement.} Leurs chaînes
+  d'intégration ne comportent qu'une étape de construction et une étape de déploiement. Sur la
+  plateforme, cinq des \num{552} tests ne passent pas, quatre échecs et un test ignoré, pour des
+  raisons documentées et sans rapport avec un défaut applicatif, mais la purge des journaux se
+  trouve de fait non testée. Surtout, le contrat de classification décrit au
+  chapitre~\ref{ch:indicateurs} n'est gardé par aucune exécution : les deux tables de référence
+  sont bien identiques et le test qui les compare existe de part et d'autre, mais rien ne le
+  lance. Tant que les vérifications dépendent d'une initiative humaine, la confiance dans les
+  évolutions décroît avec le temps. C'est le chantier le moins coûteux et le plus rentable.
+
+  \item \textbf{Aucun résultat de performance comparée n'est établi.} Les campagnes
+  d'entraînement ont validé le dispositif, non classé les méthodes ; les jeux préparés et les
+  points de sauvegarde ont été purgés lors de la passation. La campagne d'évaluation
+  comparative, qui opposerait modèles métier et modèles appris sur un échantillon représentatif
+  de stations et de familles d'aquifères, reste donc à conduire. L'outillage est prêt de part et
+  d'autre, et le socle sera d'autant plus crédible qu'il aura servi à établir un résultat.
+
+  \item \textbf{La couverture climatique s'arrête à la métropole.} La grille ingérée couvre la
+  France métropolitaine et la Corse. Les stations ultramarines sont présentes dans l'entrepôt
+  mais sans forçage climatique, ce qui les rend inutilisables pour la modélisation.
+
+  \item \textbf{Certaines températures agrégées au niveau des stations} sont des extrêmes de
+  moyennes journalières et non de véritables extrêmes journaliers ; l'exposition de ces derniers
+  supposerait de modifier une table partitionnée.
+
+  \item \textbf{La source climatique retenue est un compromis.} ERA5-Land a été préféré à une
+  réanalyse plus fine mais non redistribuable, au bénéfice de la reproductibilité et du partage.
+
+  \item \textbf{Le périmètre couvre la quantité, non la qualité} des eaux, également visée par
+  le programme.
+\end{enumerate}
+
+Trois autres chantiers ne corrigent aucune limite du livrable, mais conditionnent son usage
+au-delà du cercle actuel. Aucun n'est un verrou de recherche ; tous sont des décisions
+d'investissement.
+
+\begin{itemize}
+  \item \textbf{Un accès élargi et gouverné.} L'accès nominatif convient à un outil de projet,
+  non à un environnement partagé. Une politique d'accès, précisant qui accède, pour quels usages
+  et avec quelle responsabilité sur les données, conditionne tout élargissement.
+
+  \item \textbf{Un catalogue de données.} L'entrepôt est documenté pour qui sait où chercher.
+  Un environnement d'outils suppose un catalogue décrivant les jeux disponibles, leur origine,
+  leur fraîcheur et leurs conditions d'usage.
+
+  \item \textbf{Le calcul mutualisé.} L'entraînement s'appuie aujourd'hui sur un serveur unique.
+  Un usage partagé suppose une file d'attente et un partage de ressources.
+\end{itemize}
+
+\section{Extensions, par coût croissant}
+
+\begin{table}[H]
+\centering
+\caption{Ce que coûterait chaque extension du socle, et ce qu'elle suppose.}
+\label{tab:extensions}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Extension} & \textbf{Ce qu'elle suppose} & \textbf{Coût} \\
+\midrule
+Nouvelles stations, autre territoire & Rien : la couverture est déjà nationale et la chaîne est
+paramétrée par configuration & nul \\
+Nouveaux indicateurs standardisés & Un ajustement statistique et sa validation, selon le
+protocole existant & faible \\
+Nouvelles architectures de prévision & Une entrée au catalogue ; la fabrique de modèles et la
+traçabilité sont génériques & faible \\
+Qualité des eaux souterraines & De nouvelles sources et de nouveaux modèles de transformation ;
+l'architecture est inchangée & moyen \\
+Eaux de surface & La chaîne hydrométrique existe déjà ; l'extension porte sur la modélisation &
+moyen \\
+Autre compartiment (air, sol) & Les sources et les indicateurs diffèrent, le patron tient &
+moyen \\
+Couplage à un modèle hydrogéologique distribué & Une interface avec un simulateur physique
+externe et l'assimilation de ses sorties & élevé \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Ce qui est peu coûteux l'est \emph{parce que} l'infrastructure existe. Le coût élevé de l'année
+écoulée a été payé une fois ; il ne se représente pas à chaque extension. C'est la définition
+même d'un socle.
+
+\section{Articulation avec le volet des jumeaux numériques}
+
+Un jumeau numérique de la ressource en eau suppose trois choses : une représentation de l'état
+courant du système, une capacité à le projeter, et une capacité à expliquer la projection.
+L'entrepôt et l'observatoire couvrent l'état, les modèles métier et appris la projection.
+
+La contribution la plus spécifique porte sur la troisième. Un jumeau numérique qui projette sans
+expliquer n'est qu'un simulateur ; ce qui en fait un instrument de décision est la capacité à
+répondre « pourquoi » et « que se passerait-il si » dans les termes du métier. Les contrefactuels
+sous contrainte physique décrits en section~\ref{sec:physcf} sont directement conçus pour cet
+usage : ils produisent des scénarios énonçables, du type « il aurait fallu des hivers un
+cinquième plus humides et un climat plus frais d'un degré », plutôt que des perturbations
+numériques.
+
+\section{État de passation}
+
+Le contrat s'est achevé le 30 juin 2026. Les travaux se sont poursuivis jusqu'au 26 août 2026
+dans le seul but de rendre les réalisations exploitables sans leur auteur :
+
+\begin{itemize}
+  \item refonte complète de la documentation des deux dépôts, organisée autour d'une
+  cartographie des documents et vérifiée par exécution réelle des procédures décrites ;
+  \item consignation des pièges susceptibles de produire des résultats faux sans émettre
+  d'erreur, développés au chapitre~\ref{ch:entrepot} ;
+  \item retrait des éléments sensibles : identifiants, clés d'interface, topologie interne,
+  adresses personnelles ; restriction par défaut de l'écoute des services à l'interface locale ;
+  \item suppression du code mort et des scripts devenus inopérants ;
+  \item vérification à l'échelle réelle des procédures de sauvegarde et de restauration ;
+  \item explicitation du couplage entre les deux dépôts et de ses conditions de démarrage.
+\end{itemize}
+
+Aucun repreneur n'est désigné à la date de ce rapport. Ce qui précède ne prépare donc pas une
+transmission à une personne identifiée : il vise à ce que la reprise reste possible par
+quiconque en aura la charge, sans recours à son auteur.
+
+\section{Conclusion}
+
+Ces travaux répondent à une question qui n'était pas celle posée au départ, mais qui la
+conditionnait : \emph{comment rendre possible la recherche en intelligence artificielle sur les
+eaux souterraines françaises ?}
+
+La réponse tient en une chaîne complète, allant de quatre jeux de données publics et dispersés
+jusqu'à des scénarios contrefactuels énonçables dans le langage des hydrogéologues, dont chaque
+maillon est documenté, vérifié et réutilisable indépendamment des autres.
+
+Ce qui a été construit dépasse le périmètre des eaux souterraines : l'enchaînement
+sources~$\rightarrow$~entrepôt~$\rightarrow$~indicateurs validés~$\rightarrow$~modèles~$\rightarrow$~explication
+est transposable aux autres compartiments environnementaux visés par le programme. C'est en ce
+sens que ces développements constituent moins un aboutissement qu'un point de départ.

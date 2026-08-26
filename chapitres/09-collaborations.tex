@@ -11,9 +11,8 @@ Les développements présentés dans ce rapport ont été conçus et réalisés 
 cours du postdoctorat, dans un dialogue continu avec trois interlocuteurs aux apports distincts.
 
 Nicolas Labroche (LIFAT) a assuré la supervision scientifique et encadré l'orientation des
-travaux, en particulier l'arbitrage initial : accepter que le sujet d'explicabilité impose
-d'abord la construction de son terrain expérimental, plutôt que de le traiter sur un jeu de
-données de circonstance.
+travaux, à commencer par l'arbitrage exposé au chapitre~\ref{ch:contexte}, qui a fixé la
+trajectoire de l'année.
 
 Hugo Breuillard, data scientist en charge du projet côté BRGM, a été le point de contact sur les
 questions de chaîne de données et de stratégie de prévision. Les échanges ont porté sur
@@ -25,32 +24,17 @@ domaine. C'est de ces échanges que procèdent les décisions qui ancrent la pla
 pratique hydrogéologique plutôt que dans une transposition générique de méthodes
 d'apprentissage.
 
-\section{L'expertise métier inscrite dans le code}
-\label{sec:apport-metier}
-
-L'apport d'expertise n'est pas resté au stade de la discussion : il est inscrit dans le code, et
-identifiable. Quatre exemples le montrent.
-
-La table présentée au chapitre~\ref{ch:metier} traduit en choix de modélisation ce qu'un hydrogéologue sait du
-comportement de chaque milieu. Aucune procédure automatique ne l'aurait produite.
-
-L'adoption d'un standard d'évaluation reconnu relève du même registre. Le choix d'évaluer les
-modèles selon les quatre critères STOWA plutôt que par un indicateur d'erreur unique relève du même registre.
-Il introduit notamment le critère de temps de réponse rapporté à la période de calibration, qui
-écarte des modèles apparemment excellents mais non identifiables, subtilité que la seule
-pratique de l'apprentissage automatique ne fait pas apparaître.
-
-La règle d'affichage cartographique énoncée au chapitre~\ref{ch:observatoire}, un indicateur réellement standardisé ou une valeur réelle et
-jamais un intermédiaire, procède d'une préoccupation d'interprétation propre au domaine. Un
-outil qui colorie une carte de France selon des seuils choisis par son auteur fabrique une norme
-que l'utilisateur lira comme une référence établie.
-
-L'arbitrage sur l'évapotranspiration, enfin. La décision documentée en
-section~\ref{sec:hargreaves} est exemplaire du bénéfice de la confrontation disciplinaire. La
-variable fournie par la réanalyse était disponible, correctement nommée et directement
-utilisable ; seule la confrontation de ses valeurs aux ordres de grandeur connus pour la France a
-révélé qu'elle ne désignait pas la grandeur attendue. Aucune vérification interne au code ne
-pouvait détecter cette erreur, car il ne s'agissait pas d'une erreur de calcul.
+Cet apport n'est pas resté au stade de la discussion : il est inscrit dans le code, et
+identifiable ligne à ligne. Les configurations par famille d'aquifère (tableau~\ref{tab:familles-aquiferes}) et les quatre
+critères d'acceptation STOWA (chapitre~\ref{ch:metier}), la règle d'affichage cartographique
+(chapitre~\ref{ch:observatoire}) et l'arbitrage sur l'évapotranspiration
+(section~\ref{sec:hargreaves}) en sont les quatre traces les plus nettes. Aucune ne procède
+d'une procédure automatique, et la dernière mérite d'être relevée pour ce qu'elle dit de la
+confrontation disciplinaire : la variable fournie par la réanalyse était disponible,
+correctement nommée et directement utilisable, et seule sa confrontation aux ordres de grandeur
+connus pour la France a révélé qu'elle ne désignait pas la grandeur attendue. Aucune
+vérification interne au code ne pouvait détecter cette erreur, puisqu'il ne s'agissait pas d'une
+erreur de calcul.
 
 \section{Les cas d'usage identifiés avec le BRGM}
 
@@ -59,8 +43,11 @@ liste de besoins concrets, qui a servi à orienter les développements et qui re
 pour la suite. Cette liste est un livrable à elle seule : un socle sans usage identifié n'est qu'une
 infrastructure en attente.
 
-\begin{center}
-\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\begin{table}[H]
+\centering
+\caption{Les besoins exprimés par les équipes du BRGM, et l'état de leur prise en charge.}
+\label{tab:besoins-brgm}
+\begin{tabularx}{\textwidth}{@{}L{3.3cm}Yl@{}}
 \toprule
 \textbf{Besoin exprimé} & \textbf{Ce qu'il recouvre} & \textbf{État} \\
 \midrule
@@ -83,7 +70,7 @@ Couvrir les nappes captives & Disposer d'un indicateur de situation pour les nap
 pas, l'indicateur existant ne valant que pour les nappes libres & non traité \\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}
 
 La colonne d'état est délibérément sévère : « outillé » signifie
 que les moyens existent, pas qu'un résultat a été produit. Et les trois dernières lignes sont
@@ -111,7 +98,10 @@ délibéré : fournir les données, les modèles, les méthodes comparables et l
 validation sans lesquels cette recherche resterait cantonnée à des jeux d'essai génériques. La
 répartition est claire, et il vaut mieux l'écrire que la laisser deviner.
 
-\begin{center}
+\begin{table}[H]
+\centering
+\caption{Répartition entre ces travaux et la recherche en cours au LIFAT.}
+\label{tab:repartition}
 \begin{tabularx}{\textwidth}{@{}lX@{}}
 \toprule
 \textbf{Relève de ces travaux} & Le socle de données, les modèles à expliquer, l'implémentation
@@ -121,7 +111,7 @@ qualification des cas d'étude \\
 métriques qui la mesurent, et l'évaluation comparative des approches \\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}
 
 C'est aussi ce qui explique qu'aucune conclusion méthodologique ne figure dans ce rapport sur la
 qualité des contrefactuels produits. Elle n'aurait pas eu de sens : la question relève d'un
@@ -132,8 +122,11 @@ travail en cours, et l'anticiper reviendrait à préjuger de son résultat.
 Les deux communautés visées n'attendent pas la même chose, et l'architecture a dû accommoder les
 deux sans se scinder.
 
-\begin{center}
-\begin{tabularx}{\textwidth}{@{}p{3.6cm}XX@{}}
+\begin{table}[H]
+\centering
+\caption{Deux communautés, deux attentes, un même socle.}
+\label{tab:deux-publics}
+\begin{tabularx}{\textwidth}{@{}L{3.6cm}YY@{}}
 \toprule
  & \textbf{Hydrogéologues du BRGM} & \textbf{Chercheurs en apprentissage} \\
 \midrule
@@ -148,7 +141,7 @@ scénarios bornés & Entrepôt interrogeable, catalogue d'architectures, traçab
 expériences, outillage d'explicabilité \\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}
 
 Le point de rencontre est l'entrepôt. Parce que les indicateurs métier et les jeux
 d'apprentissage sont produits par la même chaîne et validés une seule fois, une comparaison
@@ -158,6 +151,11 @@ la plateforme utilisable comme instrument de recherche et non seulement comme ou
 consultation.
 
 \section{État de mise à disposition}
+
+Le code des deux dépôts est publié sous licence MIT, qui n'impose ni réciprocité ni
+autorisation préalable à la reprise. Les dépôts eux-mêmes sont hébergés sur la forge de
+l'université et restent accessibles sur demande, ce qui n'est pas la même chose qu'un dépôt
+public : la licence autorise la réutilisation, l'hébergement ne la rend pas encore immédiate.
 
 La plateforme est déployée (chapitre~\ref{ch:observatoire}), mais son usage demeure à ce jour
 circonscrit au cercle du projet. L'accès est nominatif : il n'existe ni inscription libre ni

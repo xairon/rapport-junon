@@ -186,7 +186,8 @@ volumes. Un script dédié les crée une fois, avant le premier démarrage. D'au
 couvrent les gestes que le successeur devra poser : sauvegarde et restauration de l'entrepôt,
 export à plat des tables analytiques pour un usage hors base, création d'un compte en lecture
 seule pour un consommateur tiers, déploiement sur le serveur. La procédure de restauration a été
-vérifiée à l'échelle réelle, et non sur un échantillon.
+vérifiée de bout en bout sur un entrepôt représentatif, \SI{4,5}{\giga\byte} et quinze tables
+dont six hypertables à chunks compressés, et non sur une table jouet.
 
 La documentation d'installation n'a pas davantage été rédigée de mémoire. Elle a été éprouvée en
 repartant d'une machine vierge, ce qui fait apparaître les écarts qu'une machine déjà configurée
@@ -210,13 +211,15 @@ est lisible et modifiable.
 Le cas d'ERA5 fait exception sur un point, imposé par la nature du produit : les fichiers
 NetCDF ne sont jamais archivés en base. Ils sont téléchargés en stockage temporaire, extraits en
 mémoire avec xarray~\cite{xarray} et insérés directement. Deux chemins d'ingestion coexistent, l'un pour
-les séries issues du pas de \SI{00}{\hour}~UTC, l'autre pour les statistiques journalières de
+les séries issues du pas de 00~h~UTC, l'autre pour les statistiques journalières de
 température agrégées localement sur les vingt-quatre pas horaires, pour la raison exposée au
 chapitre~\ref{ch:verrou} : flux cumulés et grandeurs instantanées ne se lisent pas de la même
 manière.
 
-\begin{center}
-\captionof{table}{Volumétrie de la couche brute, mesurée le 24 août 2026.}
+\begin{table}[H]
+\centering
+\caption{Volumétrie de la couche brute, mesurée le 24 août 2026.}
+\label{tab:volumetrie-bronze}
 \begin{tabularx}{\textwidth}{@{}Xr@{}}
 \toprule
 \textbf{Table} & \textbf{Lignes} \\
@@ -233,7 +236,7 @@ Entités hydrogéologiques BDLISA & \num{3716} \\
 \textbf{Total} & $\approx$ \num{658000000} \\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}
 
 \section{Silver : nettoyer en rendant compte}
 
@@ -243,9 +246,9 @@ lui-même, mais sa \textbf{traçabilité} : les lignes écartées ne disparaisse
 écrites dans un schéma dédié, accompagnées du motif de leur exclusion : date de mesure absente,
 code de station manquant, station orpheline de son site.
 
-Cette décision a un coût de stockage négligeable et une valeur méthodologique élevée. Un
-filtrage silencieux est invérifiable : rien ne distingue une station réellement absente d'une
-station éliminée par un critère trop strict. Ici, la question se tranche par une requête.
+Cette décision a un coût de stockage négligeable et une valeur méthodologique élevée : la
+question posée au chapitre~\ref{ch:verrou}, distinguer une station réellement absente d'une
+station éliminée par un critère trop strict, se tranche ici par une requête.
 
 Huit modèles de nettoyage et trois modèles de rejets composent cette couche. Les modèles de
 séries temporelles sont incrémentaux, avec une fenêtre de recouvrement de sept jours qui absorbe

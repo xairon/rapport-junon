@@ -9,7 +9,9 @@ l'application qui les héberge ?}
 
 La plateforme comporte trois couches : une interface web en React~\cite{react}, un service
 applicatif FastAPI~\cite{fastapi}, et une bibliothèque métier en Python. La contrainte structurante porte sur la troisième : \textbf{la
-bibliothèque métier ne comporte aucune dépendance à l'interface}.
+bibliothèque métier ne dépend ni du service applicatif ni de l'interface web}. Elle produit des
+figures, donc dépend d'une bibliothèque de tracé, mais rien dans son code ne suppose le
+navigateur ni le serveur.
 
 Cette règle a une conséquence pratique déterminante pour un travail de recherche. Le code de
 préparation des données, de calibration des modèles métier, d'entraînement, d'explicabilité et
@@ -26,7 +28,7 @@ l'application : si l'interface était abandonnée, elles resteraient utilisables
   coeur/.style={draw=black, very thick, fill=black!3, minimum width=10.6cm,
                 minimum height=1.9cm, align=center, font=\sffamily\footnotesize},
   mod/.style={draw=black!50, fill=white, minimum width=2.35cm, minimum height=0.7cm,
-              align=center, font=\sffamily\tiny},
+              align=center, font=\sffamily\scriptsize},
   res/.style={draw=black!55, fill=white, minimum width=3.3cm, minimum height=0.8cm,
               align=center, font=\sffamily\scriptsize},
   fl/.style={-{Stealth[length=2.2mm]}, draw=black!70, thick},
@@ -134,10 +136,11 @@ apparente et évite une erreur d'interprétation systématique.
 L'Observatoire recalcule le moins possible : ses points d'accès lisent les tables analytiques de l'entrepôt plutôt que de refaire le calcul. La carte, la
 situation courante et les exports lisent ainsi les indicateurs déjà produits, de sorte que
 \textbf{la valeur affichée est exactement celle qui a été validée} au
-chapitre~\ref{ch:indicateurs}. Deux points d'accès font exception, ceux qui servent la série
-historique d'une station : ils lisent la grille de référence dans l'entrepôt, mais appliquent la
-standardisation à la requête. Le calcul reste le même, et un test croisé garde la cohérence des
-classes entre les deux dépôts.
+chapitre~\ref{ch:indicateurs}. Trois points d'accès font exception : les deux qui servent la
+série historique d'une station, et celui qui calcule l'antériorité portée par la carte de
+situation. Ils lisent la grille de référence dans l'entrepôt, mais appliquent la standardisation
+à la requête. Le calcul reste le même, et un test croisé garde la cohérence des classes entre
+les deux dépôts.
 
 Les réponses sont mises en cache, ensuite. Les vues cartographiques nationales portent sur des
 volumes importants et changent peu ; leur mise en cache pour vingt-quatre heures réduit la
