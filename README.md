@@ -1,119 +1,49 @@
-# Rapport de clôture, programme JUNON
+# De la donnée hydrologique dispersée à la prévision explicable
 
 Rapport de clôture des travaux postdoctoraux menés au LIFAT (Université de Tours) du
 15 septembre 2025 au 30 juin 2026, dans le cadre du programme ARD JUNON de la Région
 Centre-Val de Loire.
 
+**[Lire le rapport (PDF, 52 pages)](main.pdf)**
+
+## De quoi il s'agit
+
+Le sujet assigné portait sur l'explicabilité des modèles de prévision appliqués aux nappes
+d'eau souterraine. Il s'est heurté d'emblée à un obstacle : la donnée hydrologique française
+est publique, mais elle est éparpillée entre des services qui s'ignorent, sans jointure au
+forçage climatique et sans indicateurs comparables d'une station à l'autre. On ne peut pas
+expliquer un modèle qu'on n'a pas pu entraîner.
+
+Construire ce socle est donc devenu le premier travail. Le rapport décrit la chaîne complète
+qui en résulte, de quatre sources publiques jusqu'à des scénarios contrefactuels énonçables
+dans le langage des hydrogéologues, et dit aussi ce qu'elle n'établit pas.
+
+## Les développements décrits
+
+| Dépôt | Objet |
+|---|---|
+| [hubeau_data_integration](https://github.com/xairon/hubeau_data_integration) | Entrepôt de données hydro-climatiques : ingestion, transformation et exposition des données piézométriques, hydrométriques, climatiques et hydrogéologiques |
+| [time-serie-explo](https://github.com/xairon/time-serie-explo) | Plateforme d'exploration, de modélisation et de prévision : observatoire spatial, laboratoire de modèles métier, laboratoire d'apprentissage et explicabilité |
+
+Les deux sont publics, sous licence MIT.
+
 ## Compiler
 
 ```bash
-./verifier.sh   # compile et contrôle : erreurs, renvois, tirets, titres, tableaux, biblio
 make            # produit main.pdf
-make clean      # supprime les fichiers intermédiaires
-make cleanall   # supprime aussi le PDF
+./verifier.sh   # compile et contrôle le rendu
 ```
 
-`latexmk` enchaîne les passes nécessaires et appelle `biber` pour la bibliographie.
-Sans `latexmk` :
+`latexmk` enchaîne les passes et appelle `biber`. Sans `latexmk` :
 
 ```bash
 pdflatex main && biber main && pdflatex main && pdflatex main
 ```
 
-## Structure
+## Contenu du dépôt
 
-| Fichier | Contenu |
-|---|---|
-| `main.tex` | Document maître : préambule, ordre des chapitres |
-| `preambule.tex` | Paquets, palette, environnement `encadre` (seul défini, employé une fois) |
-| `bibliographie.bib` | 42 références, toutes citées |
-| `chapitres/` | Un fichier par chapitre, numérotés dans l'ordre du document |
-| `figures/` | Vide : les quatre schémas actuels sont en TikZ, dans les chapitres |
-| `versions/plan-v2/` | Version figée du 26 août 2026, avant refonte du plan : sources et PDF |
+`main.tex` est le document maître, `preambule.tex` porte la mise en forme, `chapitres/`
+contient un fichier par chapitre et `bibliographie.bib` les 42 références. Une version
+antérieure du plan est figée dans `versions/plan-v2/`, sous le tag `plan-v2`.
 
-## Plan
-
-1. Contexte et positionnement
-2. Le verrou : une donnée ouverte mais inexploitable
-3. Sourcing et entrepôt de données
-4. Des mesures aux indicateurs : construction et validation
-5. L'Observatoire : donner à voir
-6. Modéliser : le laboratoire de modèles métier
-7. Apprendre et expliquer : le laboratoire d'intelligence artificielle
-8. Ce que la collaboration a produit
-9. Bilan : le socle, ses limites, sa reprise
-   - Annexe A : annexes (réalisations, sources, ETP, volumétrie, glossaire)
-   - Annexe B : revue des outils retenus
-
-Le plan v2, qui plaçait la conduite du projet en chapitre 9 et la revue d'outils dans le
-chapitre entrepôt, est conservé dans `versions/plan-v2/` et sous le tag git `plan-v2`.
-
-Le plan v3 comptait deux chapitres de fin, « Un socle pour l'IA en hydrologie » puis
-« Bilan, limites et passation ». Ils ont été fusionnés le 26 août 2026 : ils énonçaient tous
-deux les mêmes quatre chantiers restants, et le rapport se terminait trois fois.
-
-## Conventions de rédaction
-
-Elles ont toutes été posées en réaction à une relecture. Les enfreindre a déjà coûté une reprise.
-
-- **Prose suivie.** Pas de `\paragraph{Titre.}` ni de `\paragraph*{}` en tête de paragraphe :
-  l'idée s'annonce par la phrase, jamais par une étiquette en gras.
-  Contrôle : `grep -h '^\\paragraph' chapitres/*.tex | wc -l` doit rendre 0.
-- **Aucun tiret cadratin.** Contrôle : `grep -o '—' chapitres/*.tex | wc -l` doit rendre 0.
-- **La synthèse se lit d'un trait**, sans sous-titre ni tableau.
-- **Une seule fin.** Un fait qui vaut comme limite et comme chantier s'énonce une fois, au
-  chapitre 9. Les chapitres techniques le signalent, ils ne le réexposent pas.
-- **Tout tableau est un flottant légendé.** `table[H]` + `\caption` + `\label`, la légende
-  au-dessus. Un tableau nu dans un `center` n'est pas numérotable, donc pas citable, et LaTeX
-  peut le séparer de sa légende. Contrôle : autant de `\begin{table}` que de `\begin{tabular`.
-- **Trois catégories, trois statuts.** Les défauts des sources et les limites non corrigées
-  figurent au rapport, un repreneur en a besoin. Les bugs trouvés et corrigés pendant le
-  développement n'y figurent pas : seul l'invariant livré est décrit, leur récit vit dans le
-  manuel d'exploitation du dépôt.
-- **Ne rien affirmer sur ce qu'un fournisseur documente ou non** sans l'avoir lu. Trois
-  affirmations de ce type ont été retirées le 26 août 2026, dont une fausse : la convention
-  cumul / instantané d'ERA5-Land est bel et bien documentée.
-- **Pas de récit à la première personne de sa propre initiative**, ni de tableau qui note ses
-  propres mérites. Les faits suffisent. Le « je » est réservé à la synthèse.
-- **Chaque chapitre s'ouvre** sur la question à laquelle il répond (`\questionchapitre`).
-- **Tous les chiffres avancés** proviennent de mesures consignées dans les dépôts
-  `hubeau_data_integration` et `time-serie-explo`. Aucune valeur n'est estimée ou reconstituée.
-- **Ne pas affirmer plus que la mesure.** Le dépôt dit « realistic warehouse, 4,5 Go » : le
-  rapport écrit « entrepôt représentatif », pas « à l'échelle réelle ».
-
-## Sources des chiffres
-
-| Affirmation | Origine |
-|---|---|
-| Comparaison ETP Hargreaves / PEV ERA5 | `hubeau_data_integration/docs/ERA5.md` |
-| Couverture log-logistique → GLO | `hubeau_data_integration/docs/ERA5.md` |
-| Biais du prélèvement 00 UTC (−2,90 °C) | `hubeau_data_integration/docs/ERA5.md` |
-| Validation des indices standardisés | `time-serie-explo/docs/climate-indices.md` |
-| Volumétrie des tables | `hubeau_data_integration/docs/DATABASE_SCHEMA.md` |
-| Nombre de modèles, orchestration | `hubeau_data_integration/docs/ARCHITECTURE.md` |
-| Sauvegarde et restauration | `hubeau_data_integration/docs/OPERATIONS.md` |
-| Presets par famille d'aquifère | `time-serie-explo/dashboard/utils/pastas/config.py` |
-| Paramètres et bornes de PhysCF | `time-serie-explo/dashboard/utils/counterfactual/perturbation.py` |
-| Critères STOWA | `time-serie-explo/dashboard/utils/pastas/stowa.py` |
-| Effet du forçage ETP sur une calibration | `time-serie-explo/docs/etp-station-mesure-2026-08-25.md` |
-| Nombre de tests et échecs documentés | `time-serie-explo/docs/README.md` |
-
-## Publication
-
-| Dépôt | Adresse | Contenu |
-|---|---|---|
-| `rapport-junon` | https://github.com/xairon/rapport-junon | Ce dépôt : sources LaTeX et PDF compilé. Tag `rapport-v1` sur la version remise. |
-| `hubeau_data_integration` | https://github.com/xairon/hubeau_data_integration | Entrepôt de données hydro-climatiques |
-| `time-serie-explo` | https://github.com/xairon/time-serie-explo | Plateforme d'exploration, de modélisation et de prévision |
-
-Les trois sont publics, les deux dépôts de code sous licence MIT. Les branches `master` et
-`v1-restauree` de ce dépôt, qui portent les états antérieurs du rapport, sont restées locales.
-
-## Reste ouvert
-
-- `figures/` reste vide, et c'est délibéré (arbitrage du 26/08/2026). Une capture d'interface
-  ne démontre aucune des propriétés que le rapport avance, et le seul résultat établi, la
-  validation des indices, est déjà donné en chiffres exacts au tableau 4.4. Aucun renvoi ne
-  pointe vers une figure manquante.
-- La volumétrie ERA5 (≈ 320 M et ≈ 300 M lignes) vient de `DATABASE_SCHEMA.md`, mesurée le
-  24 août 2026. À re-mesurer avant toute diffusion si la base a été rechargée depuis.
+Le tag `rapport-v1` marque la version remise.
