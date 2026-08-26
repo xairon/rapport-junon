@@ -102,11 +102,67 @@ un patron d'architecture largement diffusé dans l'industrie de la donnée, et c
 composants est un choix courant dans ce patron plutôt qu'une préférence personnelle.
 
 
-La pile retenue est donc dlt pour l'ingestion, dbt pour la transformation, Dagster pour
-l'orchestration, et PostgreSQL équipé de TimescaleDB et de PostGIS pour le stockage. Chacun de
-ces choix a été instruit contre ses alternatives : le détail figure en annexe~\ref{ann:outils},
-avec ce qui a été écarté et pourquoi. Le reste de ce chapitre porte sur ce que la chaîne fait,
-non sur les outils qui la composent.
+La figure~\ref{fig:pile} donne la pile complète, celle de l'entrepôt comme celle de la
+plateforme construite au-dessus. Chacun de ces choix a été instruit contre ses alternatives : le
+détail figure en annexe~\ref{ann:outils}, avec ce qui a été écarté et pourquoi. Le reste de ce
+chapitre porte sur ce que la chaîne fait, non sur les outils qui la composent.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\sffamily,
+  bandeau/.style={draw=black!80, fill=black!6, minimum width=13.4cm, minimum height=0.7cm,
+                  align=center, font=\sffamily\small, inner xsep=0pt},
+  lab/.style={draw=black!55, fill=black!3, minimum width=3.0cm, minimum height=0.76cm,
+              align=left, font=\sffamily\scriptsize\bfseries, inner xsep=7pt},
+  out/.style={draw=black!55, fill=white, minimum width=10.4cm, minimum height=0.76cm,
+              align=left, font=\sffamily\scriptsize, inner xsep=7pt},
+  fl/.style={-{Stealth[length=2.6mm]}, draw=black!75, very thick},
+  note/.style={font=\sffamily\scriptsize\itshape, color=black!60},
+]
+
+% Tout est ancre en haut a gauche sur x = 0, pour que les deux blocs
+% s'alignent exactement. Colonne des libelles : 3 cm ; colonne des outils : 10,4 cm.
+
+\node[bandeau, anchor=north west] at (0,0) (src)
+  {Hub'Eau \quad\textbullet\quad Copernicus CDS, ERA5-Land \quad\textbullet\quad BDLISA};
+
+\node[bandeau, anchor=north west] at (0,-1.5) (te)
+  {\textbf{Entrepôt}\quad\scriptsize\ttfamily hubeau\_data\_integration};
+\node[lab, anchor=north west] at (0,-2.25)   {Ingestion};
+\node[out, anchor=north west] at (3.0,-2.25) {dlt, client HTTP dédié, xarray pour le NetCDF};
+\node[lab, anchor=north west] at (0,-3.05)   {Stockage};
+\node[out, anchor=north west] at (3.0,-3.05) {PostgreSQL, TimescaleDB, PostGIS};
+\node[lab, anchor=north west] at (0,-3.85)   {Transformation};
+\node[out, anchor=north west] at (3.0,-3.85) {dbt, en trois couches Bronze, Silver, Gold};
+\node[lab, anchor=north west] at (0,-4.65)   {Orchestration};
+\node[out, anchor=north west] at (3.0,-4.65) {Dagster, 8 traitements planifiés et 3 capteurs};
+
+\node[bandeau, anchor=north west] at (0,-6.21) (tp)
+  {\textbf{Plateforme}\quad\scriptsize\ttfamily time-serie-explo};
+\node[lab, anchor=north west] at (0,-6.96)   {Modélisation};
+\node[out, anchor=north west] at (3.0,-6.96) {Pastas pour le métier, Darts et PyTorch Lightning pour la prévision};
+\node[lab, anchor=north west] at (0,-7.76)   {Explicabilité};
+\node[out, anchor=north west] at (3.0,-7.76) {SHAP, TimeSHAP, Captum};
+\node[lab, anchor=north west] at (0,-8.56)   {Expériences};
+\node[out, anchor=north west] at (3.0,-8.56) {MLflow pour la traçabilité, Optuna pour les hyperparamètres};
+\node[lab, anchor=north west] at (0,-9.36)   {Service};
+\node[out, anchor=north west] at (3.0,-9.36) {FastAPI, PostgreSQL, Redis};
+\node[lab, anchor=north west] at (0,-10.16)  {Interface};
+\node[out, anchor=north west] at (3.0,-10.16){React, MapLibre, Plotly, Recharts};
+
+\draw[fl] (6.7,-0.7)  -- node[note, right=3pt]{collecte}    (6.7,-1.5);
+\draw[fl] (6.7,-5.41) -- node[note, right=3pt]{lecture SQL} (6.7,-6.21);
+
+\node[note, anchor=north] at (6.7,-11.15)
+  {Les deux dépôts se déploient par Docker Compose, versions figées dans les images.};
+
+\end{tikzpicture}
+\caption{La pile technique, de la source publique jusqu'à l'interface. Aucun outil n'était
+imposé ; chacun est un choix courant de son emplacement, retenu pour son adoption plutôt que
+pour sa supériorité technique.}
+\label{fig:pile}
+\end{figure}
 
 \section{Déploiement, packaging et reproductibilité}
 
