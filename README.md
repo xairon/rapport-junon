@@ -98,12 +98,22 @@ Elles ont toutes été posées en réaction à une relecture. Les enfreindre a d
 | Effet du forçage ETP sur une calibration | `time-serie-explo/docs/etp-station-mesure-2026-08-25.md` |
 | Nombre de tests et échecs documentés | `time-serie-explo/docs/README.md` |
 
+## Publication
+
+| Dépôt | Adresse | Contenu |
+|---|---|---|
+| `rapport-junon` | https://github.com/xairon/rapport-junon | Ce dépôt : sources LaTeX et PDF compilé. Tag `rapport-v1` sur la version remise. |
+| `hubeau_data_integration` | https://github.com/xairon/hubeau_data_integration | Entrepôt de données hydro-climatiques |
+| `time-serie-explo` | https://github.com/xairon/time-serie-explo | Plateforme d'exploration, de modélisation et de prévision |
+
+Les trois sont publics, les deux dépôts de code sous licence MIT. Les branches `master` et
+`v1-restauree` de ce dépôt, qui portent les états antérieurs du rapport, sont restées locales.
+
 ## Reste ouvert
 
-- `figures/` est vide : aucune figure de résultat, aucune capture de l'Observatoire. Les
-  produire suppose de relancer la pile.
-- Les deux dépôts sont sous licence MIT mais hébergés sur la forge de l'université, accessible
-  sur demande. À basculer sur GitHub, puis remplacer les `url` de `bibliographie.bib`
-  (clés `depot_entrepot` et `depot_plateforme`) et retirer le `note = {accès sur demande}`.
+- `figures/` reste vide, et c'est délibéré (arbitrage du 26/08/2026). Une capture d'interface
+  ne démontre aucune des propriétés que le rapport avance, et le seul résultat établi, la
+  validation des indices, est déjà donné en chiffres exacts au tableau 4.4. Aucun renvoi ne
+  pointe vers une figure manquante.
 - La volumétrie ERA5 (≈ 320 M et ≈ 300 M lignes) vient de `DATABASE_SCHEMA.md`, mesurée le
   24 août 2026. À re-mesurer avant toute diffusion si la base a été rechargée depuis.
