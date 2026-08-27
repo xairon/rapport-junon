@@ -4,14 +4,12 @@ Rapport de clôture des travaux postdoctoraux menés au LIFAT (Université de To
 15 septembre 2025 au 30 juin 2026, dans le cadre du programme ARD JUNON de la Région
 Centre-Val de Loire.
 
-**[Lire le rapport (PDF, 52 pages)](main.pdf)**
+Le dépôt porte deux documents, qui se lisent séparément.
 
-Le dépôt porte un second document : **[le livrable ST3.2 du projet Prédiction (PDF, 42 pages)](st32/st32.pdf)**,
-*Explicabilité et interprétabilité dans les modèles prédictifs profonds de séries temporelles*,
-co-signé N. Labroche, N. Ringuet, E. Doumard, M. Gol Pour. Il reprend le gabarit et l'état de
-l'art fournis par N. Labroche, et y apporte la section des développements techniques (QT1, QT2),
-le protocole de comparaison des méthodes contrefactuelles et l'état d'avancement au regard de
-QR1 et QR2.
+| Document | Lequel lire |
+|---|---|
+| **[Livrable ST3.2 (PDF, 46 p.)](st32/st32.pdf)** — *Explicabilité et interprétabilité dans les modèles prédictifs profonds de séries temporelles*, co-signé N. Labroche, N. Ringuet, E. Doumard, M. Gol Pour | Pour les **questions de recherche** : ce que sont les explications contrefactuelles en prévision, où en est la littérature, et selon quel protocole comparer les méthodes sur le cas hydrogéologique. Il décrit le socle en une section. |
+| **[Rapport de clôture (PDF, 54 p.)](main.pdf)** — *De la donnée hydrologique dispersée à la prévision explicable*, N. Ringuet | Pour la **construction** : la chaîne source par source, les arbitrages qui engagent la validité des résultats, les procédures d'exploitation, l'inventaire des limites et ce qu'il faut reprendre. C'est le rapport technique du socle que le ST3.2 décrit. |
 
 ## De quoi il s'agit
 
@@ -53,11 +51,13 @@ pdflatex main && biber main && pdflatex main && pdflatex main
 ## Contenu du dépôt
 
 `main.tex` est le document maître du rapport de clôture, `preambule.tex` porte sa mise en forme,
-`chapitres/` contient un fichier par chapitre et `bibliographie.bib` les 42 références. Une
+`chapitres/` contient un fichier par chapitre et `bibliographie.bib` les 46 références
+partagées par les deux documents. Une
 version antérieure du plan est figée dans `versions/plan-v2/`, sous le tag `plan-v2`.
 
 `st32/` porte le livrable ST3.2 : `st32.tex` (document maître), `preambule.tex` (gabarit
-Labroche, adapté à biblatex), `sections/` et `references.bib` (33 références propres). Ce
+Labroche, adapté à biblatex), `sections/` et `references.bib` (33 références propres, dont le
+rapport de clôture lui-même, que le ST3.2 cite comme document technique de référence). Ce
 fichier est chargé **en plus** de `bibliographie.bib`, jamais à sa place : les deux documents
 partagent le fonds commun sans qu'aucune clé ne soit dupliquée, ce que `verifier-st32.sh`
 contrôle. Le rapport de clôture est inchangé par l'ajout du ST3.2.

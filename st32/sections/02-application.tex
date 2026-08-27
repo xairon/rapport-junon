@@ -4,6 +4,8 @@
 
 Les deux questions de recherche posées en section~\ref{sec:intro} supposent un préalable qui n'était pas disponible au démarrage de la tâche : un jeu de données hydro-climatique consolidé, des modèles entraînés dessus, et une référence mécanistique pour les étalonner. On n'explique pas un modèle qu'on n'a pas pu entraîner, et on ne compare pas deux explications produites sur deux préparations de données différentes. Cette section décrit le socle construit pour lever ce préalable, en réponse aux questions techniques QT1 et QT2.
 
+Elle en donne ce qui est nécessaire à la compréhension du reste du rapport : les propriétés garanties, les décisions qui engagent la validité des résultats, et l'état d'exposition des composants. Le détail complet de la chaîne, source par source et modèle par modèle, avec les procédures d'exploitation et l'inventaire des limites, figure dans le rapport technique qui accompagne ce livrable~\cite{ringuet2026socle} ; il est renvoyé ici plutôt que résumé chaque fois que la précision dépasse ce que la tâche 3.2 requiert.
+
 \subsection{Le verrou levé : une donnée ouverte mais non exploitable en l'état}
 
 La donnée hydrologique française est publique et de bonne qualité. Les niveaux de nappe et les débits sont exposés par les interfaces Hub'Eau du système d'information sur l'eau~\cite{hubeau}, le référentiel hydrogéologique BDLISA décrit les entités aquifères et leur superposition~\cite{bdlisa}, et le forçage climatique est disponible par la réanalyse ERA5-Land distribuée par Copernicus~\cite{hersbach2020era5, munozsabater2021era5land, cds}. Quatre obstacles séparent néanmoins cette disponibilité d'un usage en apprentissage automatique.
