@@ -152,18 +152,43 @@ nulle part : la variable d'ERA5 est conforme à ce qu'elle annonce, elle ne corr
 simplement pas à la grandeur dont le SPEI a besoin. Le travail n'était donc pas de corriger un
 défaut, mais d'identifier la bonne grandeur et de la produire.
 
-Elle répond à la question : \emph{combien cette surface pourrait-elle évaporer si
-l'eau ne manquait jamais}, dans les conditions du modèle atmosphérique qui l'a produite. C'est
-une borne haute théorique, et la littérature documente qu'elle dépasse largement la demande
-réelle d'un couvert végétal. La grandeur de la FAO répond à une autre question : \emph{combien
-évapore la surface conventionnelle de référence}.
+La documentation du produit est explicite sur ce point : dans ERA5-Land, cette variable est une
+\textbf{évaporation en nappe d'eau libre}, du type de celle qu'on mesure sur un bac
+d'évaporation~\cite{cds}. Le même nom recouvre d'ailleurs deux calculs différents chez le même
+fournisseur, puisque dans ERA5 il désigne l'évaporation d'une terre agricole supposée sans stress
+hydrique. La grandeur de la FAO répond à une tout autre question : \emph{combien évapore la
+surface conventionnelle de référence}, un gazon ras de \SI{0,12}{\metre}.
 
-Pour obtenir la seconde, la FAO-56 prévoit une méthode complète, qui exige le rayonnement, le
-vent et l'humidité. Ces variables n'étaient pas ingérées. Le même document recommande alors une
-méthode de repli, la formule de Hargreaves~\cite{hargreaves1985}, qui n'a besoin que des
-températures journalières minimale, maximale et moyenne, plus le rayonnement reçu au sommet de
-l'atmosphère, lequel se calcule à partir de la seule latitude et du jour de l'année. C'est cette
-formule qui a été implémentée, directement en SQL.
+L'écart d'un facteur deux s'explique alors physiquement, et non par une imprécision. Une nappe
+d'eau libre n'oppose aucune résistance de surface au passage de la vapeur et réfléchit peu le
+rayonnement, là où un couvert végétal ferme ses stomates et renvoie près du quart de l'énergie
+reçue. À ciel égal, un plan d'eau évapore environ le double d'une prairie. La variable d'ERA5-Land
+est donc juste pour ce qu'elle décrit, un lac ou un bac, et hors sujet pour un bilan hydrique de
+territoire. Le fournisseur invite du reste les utilisateurs à vérifier que la définition convient
+à leur application.
+
+Reste à choisir par quelle route l'obtenir, et c'est une décision distincte de la précédente. La
+méthode de référence de la FAO-56 est celle de Penman-Monteith, qui demande trois grandeurs
+physiques : le rayonnement net, soit l'énergie disponible pour vaporiser l'eau ; le déficit de
+pression de vapeur, soit la capacité d'absorption de l'air ; et le vent à \SI{2}{\metre}, soit la
+vitesse à laquelle cette vapeur est évacuée. ERA5-Land publie de quoi les construire toutes les
+trois, rayonnement solaire descendant, composantes du vent et point de rosée. Ces variables n'ont
+pas été ingérées, et il faut l'énoncer comme le choix de périmètre que c'est plutôt que comme une
+indisponibilité : les obtenir supposait un second flux horaire par variable, du même type que
+celui déjà en place pour les extrêmes de température, et un volume que le projet n'a pas engagé
+pour un gain de précision sur une grandeur d'entrée.
+
+La FAO-56 prévoit précisément ce cas. Sa recommandation première est d'estimer les variables
+manquantes et d'appliquer quand même Penman-Monteith ; elle propose en alternative la formule de
+Hargreaves~\cite{hargreaves1985}, son équation 52, qui n'a besoin que des températures
+journalières minimale, maximale et moyenne, plus le rayonnement reçu au sommet de l'atmosphère,
+lequel se calcule à partir de la seule latitude et du jour de l'année. C'est cette formule qui a
+été implémentée, directement en SQL. Elle ne produit pas une autre grandeur : elle produit la même
+évapotranspiration de référence, par une route moins exigeante en données. Elle la produit un peu
+moins bien, et la FAO-56 dit où : Hargreaves sous-estime au-delà de \SI{3}{\metre\per\second} de
+vent et surestime en forte humidité relative, deux régimes présents sur le territoire français.
+Ce choix garde par ailleurs les indices comparables aux travaux publiés, la littérature employant
+couramment le couple ERA5 et Hargreaves.
 
 \subsection{Ce que cela change}
 
@@ -194,26 +219,11 @@ référence}, mais une grandeur environ deux fois plus élevée. Mesuré sur les
 forçage station vaut \SI{1839}{\milli\metre\per\an} là où l'ET0 de référence se situe autour de
 \SI{818}{\milli\metre\per\an}.
 
-L'effet de cet écart a été mesuré plutôt que supposé. Sur une station de contrôle, un même
-modèle a été calibré deux fois, avec la variable brute puis avec une évaporation ramenée à
-l'ordre de grandeur de référence. Deux enseignements en ressortent.
-
-D'abord, \textbf{le modèle n'absorbe pas l'erreur d'échelle}. On pouvait espérer que le
-paramètre qui pondère l'évaporation dans la recharge s'ajuste et compense, laissant la prévision
-inchangée. Il n'en est rien : ce paramètre est borné, et la calibration le pousse à sa borne
-dans les deux cas. Il ne lui reste aucune marge pour corriger quoi que ce soit.
-
-Ensuite, l'ajustement en dépend réellement : la variance expliquée passe de \SI{72,2}{\percent}
-à \SI{68,5}{\percent} entre les deux jeux de forçage. Le fait que la variable brute donne le
-meilleur ajustement ne signifie pas qu'elle soit la bonne. Un paramètre collé à sa borne indique
-au contraire un modèle qui réclame davantage d'évaporation que son forçage ne lui en fournit,
-c'est-à-dire le symptôme d'une entrée mal dimensionnée.
-
-La portée de cette mesure doit être précisée : elle porte sur une seule station et sur une
-période de \num{385} jours, seule profondeur disponible dans la base au moment de la
-vérification. Le protocole et les valeurs obtenues sont consignés dans le dépôt de la plateforme,
-afin que la mesure puisse être rejouée plutôt que crue sur parole. Elle établit que l'écart a un effet, non son ampleur générale. Une évaluation sur
-un historique long et un échantillon de stations reste à conduire.
+Ce que cet écart change pour les calibrations n'a pas été évalué. On pourrait espérer que
+le paramètre qui pondère l'évaporation dans la recharge s'ajuste et compense, laissant la
+prévision inchangée, mais rien ne l'établit : aucune campagne comparant les deux forçages sur
+un historique long et un échantillon de stations n'a été conduite. Tant qu'elle ne l'est pas,
+l'ampleur de l'effet reste inconnue, et c'est à ce titre que l'incohérence est signalée.
 
 Pourquoi cette incohérence n'a-t-elle pas été corrigée ? Parce que la correction n'est pas un
 changement de colonne. La chaîne station ne transporte que la température moyenne, alors que la

@@ -36,5 +36,4 @@ Aucune valeur du rapport n'est estimée ni reconstituée de mémoire.
 | Presets par famille d'aquifère | `time-serie-explo/dashboard/utils/pastas/config.py` |
 | Paramètres et bornes de PhysCF | `time-serie-explo/dashboard/utils/counterfactual/perturbation.py` |
 | Critères STOWA | `time-serie-explo/dashboard/utils/pastas/stowa.py` |
-| Effet du forçage ETP sur une calibration | `time-serie-explo/docs/etp-station-mesure-2026-08-25.md` |
 | Nombre de tests et échecs documentés | `time-serie-explo/docs/README.md` |
