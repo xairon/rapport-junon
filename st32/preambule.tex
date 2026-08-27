@@ -82,6 +82,10 @@
     pdfkeywords={XAI, jumeau numérique, hydrogéologie, séries temporelles multivariées, explications contrefactuelles, attribution de caractéristiques},
 }
 
+% Les URL longues de la bibliographie ne se coupent pas d'elles-memes et
+% debordent de la justification : xurl autorise la cesure a tout caractere.
+\usepackage{xurl}
+
 % --- EN-TÊTES ET PIEDS DE PAGE ---
 \usepackage{fancyhdr}
 \pagestyle{fancy}
@@ -90,6 +94,8 @@
 \rhead{\small \color{secondary} ST3.2}
 \cfoot{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
+% A 12pt, fancyhdr reclame 13,6pt de bande d'en-tete et avertit a chaque page.
+\setlength{\headheight}{14pt}
 
 % --- RACCOURCIS ---
 \newcommand{\code}[1]{\texttt{\small #1}}

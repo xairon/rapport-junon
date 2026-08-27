@@ -15,14 +15,9 @@
 % ---------------------------------------------------------------------------
 
 % --- FONDEMENTS XAI ---
-@inproceedings{ribeiro2016lime,
-  title={``Why should I trust you?'': Explaining the predictions of any classifier},
-  author={Ribeiro, Marco Tulio and Singh, Sameer and Guestrin, Carlos},
-  booktitle={Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining},
-  pages={1135--1144},
-  year={2016}
-}
-
+% ribeiro2016lime (LIME) retire : la seule place qu'il occupait dans le texte
+% qualifiait l'importance par permutation d'approche par substitut local, ce
+% qu'elle n'est pas. Aucun passage du document n'en a legitimement besoin.
 @inproceedings{mothilal2020dice,
   title={Explaining machine learning classifiers through diverse counterfactual explanations},
   author={Mothilal, Ramaravind K and Sharma, Amit and Tan, Chenhao},
@@ -146,9 +141,11 @@
 @inproceedings{vareille2023evaluating,
   title={Evaluating Explanation Methods of Multivariate Time Series Classification Through Causal Lenses},
   author={Vareille, Etienne and Abbas, Adel and Linardi, Michele and Christophides, Vassilis},
-  booktitle={2023 IEEE International Conference on Data Science and Advanced Analytics ({DSAA})},
+  booktitle={2023 IEEE 10th International Conference on Data Science and Advanced Analytics ({DSAA})},
+  pages={1--10},
   year={2023},
-  organization={IEEE}
+  organization={IEEE},
+  doi={10.1109/DSAA60987.2023.10302482}
 }
 
 % --- CONTREFACTUELS : FONDEMENTS ET REVUES ---
@@ -282,12 +279,14 @@
 }
 
 % --- INFERENCE CAUSALE ET CONTROLE SYNTHETIQUE ---
-@article{fujii2024estimating,
+@article{fujii2025estimating,
   title={Estimating Counterfactual Treatment Outcomes Over Time in Complex Multiagent Scenarios},
   author={Fujii, Keisuke and Takeuchi, Koh and Kuribayashi, Atsushi and Takeishi, Naoya and Kawahara, Yoshinobu and Takeda, Kazuya},
   journal={IEEE Transactions on Neural Networks and Learning Systems},
-  pages={1--15},
-  year={2024},
+  volume={36},
+  number={2},
+  pages={2103--2117},
+  year={2025},
   doi={10.1109/TNNLS.2024.3361166}
 }
 
