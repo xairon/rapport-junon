@@ -1,0 +1,48 @@
+\section{Introduction et Contexte}
+\label{sec:intro}
+
+\subsection{Problématique}
+
+L'ARD JUNON vise à développer un Pôle de recherche et d'excellence sur l'utilisation de l'Intelligence Artificielle dans les problématiques environnementales en région Centre Val de Loire. Ce projet fondateur s'intéresse notamment à la création de Jumeaux Numériques de Plaine qui augmenteront les capacités de suivi et de prédiction des ressources naturelles régionales. A cette fin, JUNON focalise notamment son attention sur l'eau (quantité et qualité) ainsi que sur les flux de gaz et la qualité de l'air à l'interface des sols, considérant ces deux ressources (Eau et Air) comme prioritaires pour les populations et acteurs économiques locaux~\cite{lifat_junon}.
+
+Plus précisément, notre contribution se place dans le cadre du projet \textbf{Prédiction} qui vise la mise en place de nouveaux modèles d'IA prédictives multi-sources et explicables pour l'analyse et le suivi les données environnementales. On vise en particulier à répondre à la tâche 4 des Jumeaux Numériques en se concentrant en priorité sur la prédiction quantitative du niveau de l'eau dans la Plaine et notamment la prédiction des variations du niveau des nappes phréatiques.
+
+Au sein de ce projet Prédiction, ce rapport présente le travail réalisé dans la tâche 3.2 intitulée : ``\emph{Explicabilité et interprétabilité dans les modèles prédictifs profonds de séries temporelles}''. C'est un travail effectué en commun entre le LIFAT : N. Labroche, N. Ringuet, E. Doumard, M. Gol Pour et le BRGM : H. Breuillard.
+
+\subsection{Objectifs}
+
+Dans le cadre du projet JUNON, l'usage de modèles d'intelligence artificielle soulève plusieurs questions fondamentales. En premier lieu, il convient d'évaluer la précision prédictive de ces modèles complexes en comparaison des approches mécanistiques traditionnelles. En second lieu, il est essentiel de vérifier si leurs décisions s'appuient sur des critères physiquement cohérents du point de vue hydrogéologique. Dès lors que cette pertinence est établie, ces critères peuvent-ils être exploités pour simuler différents scénarios d'évolution et ainsi jouer pleinement le rôle d'un jumeau numérique~? Notre hypothèse repose sur l'apport de l'explicabilité de l'IA (\textit{eXplainable Artificial Intelligence} -- XAI) \cite{miller2019explanation, nauta2023anecdotal} pour répondre à ces enjeux.
+
+À ce titre, nous formalisons deux questions de recherche principales.
+
+\medskip
+\noindent
+\textbf{Attribution de caractéristiques (\textit{Feature Attribution}) --}
+Les approches par attribution de caractéristiques, adaptées aux séries temporelles \cite{saadallah2021explainable, pan2021series}, permettent d'identifier les variables et fenêtres temporelles contribuant le plus fortement à la prédiction du modèle. Des évolutions récentes comme TSHAP \cite{nguyen2025tshap} ou Vector-SHAP \cite{choi2025vector} cherchent précisément à passer à l'échelle sur ces structures de données complexes.
+
+\paragraph{Question de Recherche 1 (QR1)}
+\textit{Dans notre contexte, ces méthodes d'attribution de caractéristiques sont-elles adaptées au traitement de séries temporelles multivariées~? Est-il possible de les coupler à des interfaces de visualisation interactive afin d'offrir aux experts du domaine un moyen efficace de contrôler la qualité décisionnelle des modèles, au-delà des seuls indicateurs de performance prédictive usuels~?}
+
+\medskip
+\noindent
+\textbf{Explications contrefactuelles --}
+Les explications contrefactuelles \cite{byrne2019counterfactuals, guidotti2024counterfactual, moreira2025benchmarking} indiquent les modifications minimales nécessaires sur les données d'entrée pour infléchir la décision du modèle. Appliquées aux séries temporelles, ces approches permettent d'évaluer la pertinence de scénarios prédictifs \cite{wang2023forecastcf, delaney2021instance, lang2023sparse}. Elles s'inscrivent directement dans la philosophie d'un jumeau numérique, par exemple en simulant l'impact d'une modification des régimes de précipitation sur le niveau piézométrique prédit d'un bassin.
+
+\paragraph{Question de Recherche 2 (QR2)}
+\textit{Les différentes approches contrefactuelles pour séries temporelles produisent-elles toutes des explications pertinentes pour notre cas d'usage~? Selon quelles dimensions (faisabilité, plausibilité, métriques quantitatives) convient-il d'évaluer la qualité des contrefactuels générés, et existe-t-il une méthode optimale pour le cadre applicatif d'un jumeau numérique~?}
+
+\bigskip
+\subsection*{Développements techniques et environnement applicatif}
+
+Afin de soutenir ces travaux de recherche sur l'explicabilité appliquée aux séries temporelles multivariées \cite{petropoulos2022forecasting, kong2025deep}, nous avons développé au préalable un environnement de mise en œuvre synthétisant plusieurs enjeux du projet JUNON. La plateforme logicielle produite intègre un ensemble de fonctionnalités socles destinées à appuyer ces recherches ainsi que leurs développements futurs. Elle répond notamment aux deux verrous techniques suivants~:
+
+\paragraph{Question Technique 1 (QT1)}
+Concevoir et déployer un entrepôt de données unifié synthétisant l'ensemble des sources de données ouvertes nécessaires au Jumeau Numérique (données météorologiques, API Hub'Eau, réseaux de mesure piézométrique et bases de données géoréférencées).
+
+\paragraph{Question Technique 2 (QT2)}
+Développer une application Web interactive facilitant la constitution de jeux de données, l'exécution de modèles prédictifs de l'état de l'art, et la visualisation des prédictions. L'outil permet également d'identifier les fenêtres temporelles et variables critiques (QR1), d'intégrer des modèles mécanistiques de référence (tels que \textit{Pastas}) pour étalonner les modèles d'IA, et enfin d'exécuter des modules d'explications (QR2).
+
+\textit{Remarque :} L'intégration complète des composants avancés liés à la question QR2 constitue un travail en cours, dont le déploiement se poursuivra dans le cadre des partenariats à venir entre le BRGM et le LIFAT (notamment au travers du projet ANR AIDA).
+
+% Annonce du plan
+Ce rapport se compose de plusieurs sections. La section~\ref{sec:app} détaille le travail de préparation des données au sein d'un nouvel entrepôt de données et présente les différents modules applicatifs développés pour former l'ossature de notre plateforme d'évaluation. La section~\ref{sec:etat_art} présente les principaux modèles d'explications utilisés dans notre plateforme en mettant plus particulièrement l'accent sur les méthodes contrefactuelles existantes pour la prédiction de séries temporelles multivariées. La section~\ref{sec:methodo} formalise le protocole selon lequel ces méthodes doivent être comparées sur le cas hydrogéologique : le choix du modèle à expliquer, la spécification de la cible contrefactuelle, les dimensions d'évaluation retenues et le traitement statistique des classements. La section~\ref{sec:benchmark} rend compte de l'état d'avancement de cette évaluation : elle établit ce que la plateforme permet aujourd'hui de mesurer, expose les résultats de validation déjà obtenus sur les briques dont dépend le protocole, et délimite explicitement ce qui n'est pas encore établi, la comparaison quantitative des familles de contrefactuels restant à conduire. Enfin, la section~\ref{sec:conclusion} propose une conclusion de l'ensemble de ce travail et présente des pistes de poursuites de collaboration autour d'une sélection de questions de recherche.

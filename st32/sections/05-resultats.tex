@@ -1,0 +1,86 @@
+\newpage
+\section{Résultats et Analyse}
+\label{sec:benchmark}
+
+Cette section rend compte de l'état d'avancement de la tâche. Elle rapporte les résultats effectivement établis, qui portent sur les briques dont dépend le protocole de la section~\ref{sec:methodo}, et délimite ensuite ce qui ne l'est pas. Cette séparation est explicite parce que l'enjeu de la tâche 3.2 est la fiabilité des explications : un rapport qui présenterait comme acquis un classement de méthodes non mesuré illustrerait exactement le défaut qu'il prétend traiter.
+
+\subsection{Validation du socle de données}
+\label{sec:validation-indices}
+
+Le protocole de la section~\ref{sec:methodo} repose sur des indicateurs standardisés, employés à la fois comme variables d'entrée possibles et comme formulation de la cible contrefactuelle. Leur justesse conditionne donc celle de tout ce qui s'appuie dessus, et elle a été vérifiée.
+
+Un indice standardisé doit, par construction, suivre approximativement une loi normale centrée réduite sur sa propre période de référence. Le critère d'acceptation a été fixé \emph{avant} la mesure : moyenne voisine de zéro à $\pm\,\num{0,05}$, écart-type voisin de un à $\pm\,\num{0,05}$, et taux de saturation aux bornes inférieur à \SI{1}{\percent}. La mesure porte sur \num{41960400} valeurs couvrant \num{11496} mailles.
+
+\begin{table}[H]
+\centering
+\caption{Vérification des indices produits sur leur propre période de référence, \num{41960400} valeurs couvrant \num{11496} mailles. Le critère d'acceptation avait été fixé avant la mesure.}
+\label{tab:validation-indices}
+\begin{tabularx}{\textwidth}{@{}lXrrrr@{}}
+\toprule
+\textbf{Indice} & \textbf{Fenêtres} & \textbf{Moyenne} & \textbf{Écart-type} & \textbf{Médiane}
+& \textbf{Saturation} \\
+\midrule
+SPI  & 1/3/6/12 & $-0{,}008$ à $+0{,}002$ & \numrange{0,985}{1,031} & \numrange{0,00}{0,04} & \SIrange{0,05}{0,51}{\percent} \\
+STI  & 1/3/6/12 & $0{,}000$               & \num{0,983}            & $-0{,}09$ à $-0{,}02$ & \SIrange{0,00}{0,04}{\percent} \\
+SPEI & 1/3/6/12 & $+0{,}004$ à $+0{,}006$ & \numrange{0,999}{1,013} & \numrange{0,01}{0,03} & \SIrange{0,012}{0,035}{\percent} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Les trois indices satisfont le critère sur les quatre fenêtres d'agrégation, et la couverture du SPEI est uniforme à \SI{100}{\percent} après le changement de loi rapporté en section~\ref{sec:arbitrages}, ce qui signifie que la calibration n'est pas seulement préservée mais mesurée sur l'ensemble du domaine.
+
+Deux lectures de ces indices doivent être écartées, et elles sont consignées ici parce que l'erreur correspondante est naturelle. La classe \emph{normale} ne couvre pas la proportion théorique : elle représente \SI{54,8}{\percent} des valeurs au lieu des \SI{59,9}{\percent} attendus d'une gaussienne, alors même que l'écart-type vaut \num{1,008}, la distribution conservant des épaules légèrement plus lourdes. Cet écart est une propriété de la transformation au voisinage des bornes de classe, sans conséquence opérationnelle, et il ne doit pas être lu comme une anomalie de sécheresse. La décroissance décennale du SPEI, en revanche, est un signal climatique et non une dérive de méthode : la moyenne sur fenêtre d'un mois décroît de manière monotone, $+\num{0,038}$ dans les années 1990, $+\num{0,007}$ dans les années 2000, $-\num{0,016}$ dans les années 2010, $-\num{0,117}$ depuis 2020. Cette évolution avait été anticipée avant d'être mesurée, ce qui la distingue d'un artefact d'ajustement.
+
+\subsection{Effet mesuré du choix de forçage sur l'interprétabilité du référent}
+
+Le dispositif de la section~\ref{sec:methodo} fait du modèle mécanistique le référent contre lequel juger les explications produites sur un modèle appris. Un résultat obtenu au cours de ces travaux en limite aujourd'hui la portée, et il doit être rapporté ici plutôt que dissimulé dans les annexes techniques, parce qu'il porte directement sur la validité du protocole.
+
+Le forçage d'évapotranspiration transporté par la chaîne des stations est la variable brute d'ERA5-Land et non l'évapotranspiration de référence, soit environ le double de la grandeur attendue, \SI{1839}{\milli\metre\per\an} mesuré en base contre \SI{818}{\milli\metre\per\an} pour la référence. L'effet a été mesuré sur une station de contrôle en calibrant le même modèle deux fois. On pouvait espérer que le paramètre pondérant l'évaporation dans la recharge s'ajuste et compense, laissant la calibration inchangée. Il n'en est rien : ce paramètre est borné et la calibration le pousse à sa borne dans les deux cas, ce qui ne lui laisse aucune marge de correction, et la variance expliquée passe de \SI{72,2}{\percent} à \SI{68,5}{\percent} entre les deux jeux de forçage. Le fait que la variable brute donne le meilleur ajustement ne signifie pas qu'elle soit la bonne : un paramètre collé à sa borne indique au contraire un modèle qui réclame davantage d'évaporation que son forçage ne lui en fournit.
+
+La portée de cette mesure doit être précisée : elle porte sur une seule station et sur une période de \num{385} jours, seule profondeur disponible dans la base au moment de la vérification, et le protocole comme les valeurs obtenues sont consignés dans le dépôt de la plateforme afin que la mesure puisse être rejouée. Elle établit que l'écart a un effet, non son ampleur générale.
+
+La conséquence pour la tâche 3.2 est directe. Les calibrations mécanistiques restent utilisables pour la prévision et pour le test de cohérence croisée, qui compare deux modèles entre eux et non un paramètre à sa valeur physique. En revanche, les paramètres de ces modèles, temps de réponse et gain, ne s'interprètent pas physiquement tant que ce forçage n'est pas corrigé. Toute lecture hydrogéologique d'une fonction de réponse calibrée, et donc toute explication qui s'appuierait sur elle pour justifier une prévision, est suspendue à cette correction. C'est le premier chantier que ces travaux laissent à leur suite, et il est prioritaire sur toute campagne d'évaluation.
+
+\subsection{État de l'outillage au regard des deux questions de recherche}
+
+Le tableau~\ref{tab:etat-qr} récapitule ce que le socle apporte à chaque question et ce qui manque encore. La colonne d'état est délibérément sévère : \emph{outillé} signifie que les moyens existent, pas qu'un résultat a été produit.
+
+\begin{table}[H]
+\centering
+\caption{État d'avancement au regard des questions de recherche et des questions techniques.}
+\label{tab:etat-qr}
+\begin{tabularx}{\textwidth}{@{}L{2.2cm}YL{3.1cm}@{}}
+\toprule
+\textbf{Question} & \textbf{Ce qui a été produit} & \textbf{État} \\
+\midrule
+QT1 & Entrepôt unifié, quatre sources jointes, indicateurs standardisés validés, chaîne
+idempotente et reprenable, déploiement conteneurisé & atteint \\
+QT2 & Observatoire, laboratoire mécanistique, catalogue d'architectures profondes, traçabilité
+des expériences, modules d'explication & atteint \\
+QR1 & Cinq familles d'attribution mises en œuvre et confrontables entre elles, restitution sur
+le plan variable-temps & outillé, non évalué \\
+QR2 & Deux méthodes contrefactuelles de natures différentes, test de cohérence croisée contre
+un modèle indépendant, protocole de comparaison formalisé & outillé, non mesuré \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Ce qui n'est pas établi}
+
+Trois résultats que le lecteur pourrait attendre ne figurent pas dans ce rapport, et il faut dire pourquoi.
+
+Le \textbf{classement des architectures de prévision} sur le cas hydrogéologique n'est pas établi. Les campagnes d'entraînement conduites au cours des travaux ont servi à valider le dispositif et à orienter les développements ; les jeux de données préparés et les points de sauvegarde ont été purgés des dépôts lors de la passation. Reconstituer a posteriori un tableau de performances à partir de souvenirs ne serait pas un résultat scientifique. La campagne qui opposerait les modèles appris aux modèles mécanistiques sur un échantillon stratifié reste donc à conduire, et l'outillage nécessaire est en place pour la mener.
+
+La \textbf{comparaison quantitative des familles de contrefactuels} n'est pas davantage établie. Les deux méthodes décrites en section~\ref{sec:xai} sont opérationnelles et mettent en œuvre l'exigence de plausibilité formulée par les hydrogéologues, mais aucune évaluation n'a été conduite, sur aucun échantillon, selon aucune des dimensions du tableau~\ref{tab:dimensions}. Le protocole de la section~\ref{sec:methodo} est le livrable de cette partie de la tâche : il fixe les conventions qui manquaient, il n'en rapporte pas encore l'application. Anticiper son résultat reviendrait à préjuger de ce que la mesure doit trancher.
+
+L'\textbf{évaluation de la restitution auprès des experts}, enfin, qui constitue la seconde moitié de QR1, n'a pas été conduite. Les visualisations existent et ont été construites en dialogue avec les hydrogéologues du BRGM, mais aucun protocole d'évaluation avec utilisateurs n'a été mis en place. C'est une question distincte des précédentes, qui relève de méthodes d'évaluation propres et qui ne se déduit d'aucune métrique calculable sur les explications elles-mêmes.
+
+\subsection{Analyse}
+
+Le principal enseignement de cette première phase n'est pas d'ordre algorithmique. Il tient à ce que le cas hydrogéologique a révélé des exigences que la littérature XAI sur séries temporelles ne traite qu'incidemment.
+
+La première est que la \textbf{plausibilité n'est pas une contrainte de régularisation}. Les formulations usuelles la traitent comme un terme supplémentaire de la fonction objectif, pondéré contre la validité et la proximité. Sur des variables climatiques liées par des relations physiques, cette approche produit des scénarios qui violent ces relations d'autant moins que le poids est élevé, mais qui les violent toujours un peu, et un hydrogéologue rejette un scénario qui les viole un peu aussi sûrement qu'un scénario qui les viole beaucoup. C'est ce constat qui a conduit à changer d'espace de recherche plutôt qu'à ajuster une pondération, en optimisant sur sept paramètres de régime climatique au lieu de la série d'entrée elle-même. Le prix est une perte d'expressivité, et l'évaluation prévue doit précisément mesurer si cette perte coûte en validité ce qu'elle rapporte en plausibilité.
+
+La deuxième est que la \textbf{spécification de la cible engage le domaine et non seulement la méthode}. Exprimer la cible en niveau absolu rend les stations incomparables, alors que l'exprimer en classe standardisée les rend comparables et rejoint le vocabulaire des utilisateurs. Ce choix, qui paraît secondaire, détermine ce qu'un classement de méthodes signifiera : deux méthodes évaluées sur des cibles formulées différemment ne sont pas comparables, ce qui est l'une des causes du morcellement constaté en section~\ref{sec:etat_art}.
+
+La troisième est la valeur du \textbf{second modèle}. Le test de cohérence croisée n'est pas une métrique de plus : c'est le seul contrôle disponible sur un point où aucune observation n'existe. Sa disponibilité tient entièrement au fait que le socle a été construit en commençant par la modélisation mécanistique plutôt que par l'apprentissage profond, décision qui paraissait alors relever de la prudence méthodologique et qui s'avère fournir l'instrument de vérification dont la partie XAI avait besoin.

@@ -1,0 +1,81 @@
+\newpage
+\section{Méthodologie et Approche Proposée}
+\label{sec:methodo}
+
+La section~\ref{sec:etat_art} a établi que la comparaison directe des méthodes contrefactuelles pour la prédiction se heurte à une absence de standardisation : les travaux publiés diffèrent par la définition même de la tâche, par la façon de spécifier la sortie souhaitée, par les variables qu'ils autorisent à modifier et par les métriques qu'ils retiennent. La présente section fixe donc, pour le cas hydrogéologique, les conventions qui rendent une telle comparaison possible. Elle décrit le dispositif effectivement disponible dans la plateforme, puis le protocole selon lequel l'évaluation doit être conduite.
+
+\subsection{Architecture du dispositif d'évaluation}
+
+Évaluer une explication suppose trois objets, et non un seul : le jeu de données sur lequel le modèle a été entraîné, le modèle à expliquer, et un référent contre lequel juger l'explication produite. Le socle décrit en section~\ref{sec:app} fournit les trois, et c'est ce qui distingue le dispositif d'un banc d'essai générique.
+
+Le \textbf{jeu de données} est constitué depuis l'entrepôt, qui garantit que la cible et son forçage climatique proviennent de la même chaîne de transformation et sont validés une seule fois. Cette propriété, invisible dans l'interface, est la condition pour qu'une comparaison entre deux méthodes d'explication porte réellement sur les méthodes et non sur des préparations de données divergentes. La qualification des stations décrite en section~\ref{sec:xai}, qui écarte les chroniques trop courtes, trop lacunaires ou visiblement influencées par un prélèvement, intervient à ce stade : une explication produite sur un modèle entraîné sur une chronique perturbée par un pompage que le forçage ne contient pas n'est pas interprétable, quelle que soit la qualité de la méthode d'explication.
+
+Le \textbf{modèle à expliquer} est l'une des architectures profondes du catalogue, entraînée et enregistrée dans le registre d'expériences avec ses paramètres et ses métriques. La traçabilité n'est pas ici un confort d'ingénierie : une explication n'a de sens que rattachée sans ambiguïté au couple exact jeu de données et point de sauvegarde qui l'a produite, et l'absence de ce rattachement est l'un des motifs récurrents d'incomparabilité entre travaux publiés.
+
+Le \textbf{référent} est le modèle mécanistique calibré indépendamment sur la même station (section~\ref{sec:labo-metier}). C'est l'élément le moins commun du dispositif. La plupart des protocoles d'évaluation de contrefactuels ne disposent que du modèle expliqué lui-même et doivent donc juger l'explication à l'aune de propriétés intrinsèques, distance à l'instance d'origine, nombre de variables modifiées, appartenance au support des données. Disposer d'un second modèle du même phénomène, interprétable par construction et calibré sans jamais voir le premier, permet une vérification d'un autre ordre, développée plus bas.
+
+\subsection{Spécification de la cible contrefactuelle}
+
+La sortie d'un modèle de prévision piézométrique est continue et multi-pas, ce qui laisse ouverte la façon de spécifier ce que l'explication doit atteindre. Trois formulations sont retenues, par ordre de proximité croissante avec la question métier.
+
+La première est la \textbf{cible par bornes} sur l'horizon de prévision, dans la formulation de \textit{ForecastCF} \cite{wang2023forecastcf} : la trajectoire contrefactuelle doit rester dans un couloir défini par une borne inférieure et une borne supérieure. C'est la formulation la plus générale et la seule qui permette de comparer une méthode issue de la littérature à une méthode développée ici sans avantager l'une des deux.
+
+La deuxième est la \textbf{cible par classe standardisée}, qui exploite l'indicateur produit par l'entrepôt : la trajectoire contrefactuelle doit conduire la station à sortir d'une classe de sécheresse donnée. Cette formulation a deux vertus. Elle est comparable d'un ouvrage à l'autre, ce qu'une borne exprimée en mètres n'est pas, un même niveau absolu n'ayant pas la même signification sur deux piézomètres différents. Et elle correspond au vocabulaire déjà employé par les équipes opérationnelles, ce qui est la condition pour qu'une explication soit lisible par son destinataire réel.
+
+La troisième est la \textbf{cible par intervention}, où l'on fixe non pas la sortie mais la variable autorisée à changer, et où l'on demande de quelle amplitude. C'est la forme que prend la question dans un comité sécheresse : \emph{quel cumul de pluie sur les trois prochains mois ramènerait cette nappe en situation normale}. Elle restreint le contrefactuel à une seule dimension d'entrée et rend la réponse directement actionnable, au prix d'une validité plus difficile à atteindre, la cible pouvant être hors d'atteinte pour toute valeur admissible de la variable choisie.
+
+\subsection{Dimensions d'évaluation retenues}
+
+Les critères usuels de la littérature XAI, validité, proximité, parcimonie, actionnabilité et plausibilité \cite{guidotti2024counterfactual, moreira2025benchmarking, mothilal2020dice}, sont conservés et complétés de deux dimensions propres au cas traité. Le tableau~\ref{tab:dimensions} les récapitule avec le mode de mesure retenu pour chacune.
+
+\begin{table}[H]
+\centering
+\caption{Dimensions d'évaluation d'une explication contrefactuelle sur le cas hydrogéologique, et mode de mesure retenu pour chacune.}
+\label{tab:dimensions}
+\begin{tabularx}{\textwidth}{@{}L{3.1cm}YL{3.2cm}@{}}
+\toprule
+\textbf{Dimension} & \textbf{Ce qu'elle mesure} & \textbf{Mode de mesure} \\
+\midrule
+Validité & La prévision issue de l'entrée modifiée atteint effectivement la cible &
+Taux de succès sur l'échantillon \\
+Proximité & L'entrée modifiée reste proche de l'entrée observée &
+Distance normalisée par variable \\
+Parcimonie & Peu de variables et de pas de temps sont modifiés &
+Nombre de variables touchées, étendue temporelle \\
+Plausibilité physique & Les relations entre variables sont préservées &
+Écart au taux de Clausius-Clapeyron, bilan de masse \\
+Actionnabilité & Le scénario s'énonce dans le vocabulaire du métier &
+Réductible ou non à un petit nombre de grandeurs interprétables \\
+Cohérence croisée & Le scénario ne fait pas diverger le modèle appris du modèle mécanistique &
+Écart entre les deux modèles sur le contrefactuel, rapporté à leur écart sur l'observé \\
+Coût & Le calcul reste compatible d'un usage interactif &
+Temps de génération par instance \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Les deux dernières lignes appellent un commentaire. La \textbf{cohérence croisée} est le mécanisme de validation que la plateforme apporte en propre. Un contrefactuel est un point sur lequel aucune observation n'existe, par construction : on ne peut donc pas vérifier qu'il est correct, seulement qu'il n'est pas absurde. Le confronter à un second modèle du même phénomène, calibré indépendamment et interprétable, fournit ce contrôle négatif : si deux modèles qui s'accordaient sur la situation observée divergent fortement sur le scénario proposé, c'est que ce scénario sort du domaine où l'un des deux au moins reste valide. Le critère est indépendant de la méthode de génération, donc applicable uniformément à toutes les méthodes comparées, y compris celles importées de la littérature. Il ne mesure pas la qualité d'une explication au sens où l'entendrait un utilisateur, il élimine des explications qu'aucun utilisateur ne devrait recevoir.
+
+Le \textbf{coût} n'est pas une dimension cosmétique. La question QR1 porte sur le couplage à des interfaces de visualisation interactive, et une méthode dont la génération se compte en minutes ne se couple à rien d'interactif, quelles que soient ses qualités par ailleurs. Le distinguer explicitement évite de comparer des méthodes qui ne s'adressent pas au même usage.
+
+Ces dimensions ne sont pas indépendantes et ne se résument pas en un score unique. La littérature d'évaluation des explications sur séries temporelles multivariées le documente : les classements obtenus varient selon la métrique retenue \cite{serramazza2023evaluating}, et une lecture causale des méthodes d'attribution montre que certaines mesurent une propriété différente de celle qu'on leur prête \cite{vareille2023evaluating}. Le protocole rapporte donc les dimensions séparément, et l'arbitrage entre elles relève du cas d'usage plutôt que d'une agrégation arbitraire.
+
+\subsection{Protocole expérimental}
+
+L'\textbf{échantillon} de stations doit être stratifié par famille d'aquifère selon la typologie du tableau~\ref{tab:familles-aquiferes}, et non tiré uniformément. Le motif est hydrogéologique : la réponse d'un aquifère au forçage climatique va de la quasi-instantanéité pour un système alluvial à plusieurs années pour une craie inertielle, et une méthode contrefactuelle qui excelle sur les secondes peut échouer sur les premières. Un classement établi sur un échantillon uniforme refléterait surtout la composition du réseau de mesure français. Chaque station retenue doit par ailleurs avoir passé la qualification décrite en section~\ref{sec:xai} et disposer d'un modèle mécanistique satisfaisant les quatre critères STOWA, faute de quoi le référent n'en est pas un.
+
+Le \textbf{découpage temporel} sépare une période de calibration et d'entraînement d'une période d'évaluation postérieure, appliquée identiquement au modèle appris et au modèle mécanistique. L'exigence est ici plus stricte que dans un protocole de prévision ordinaire : le modèle mécanistique servant de référent, toute fuite d'information entre les deux périodes contaminerait la vérification de cohérence croisée en plus des métriques de prévision.
+
+Les \textbf{méthodes comparées} couvrent au minimum une méthode par famille identifiée en section~\ref{sec:etat_art} : une approche par bornes issue de la littérature, une approche par instances cherchant un analogue observé, et l'approche par paramétrisation physique développée ici. Une référence naïve doit être incluse, consistant à perturber les entrées sans aucune contrainte de plausibilité jusqu'à atteindre la cible. Son rôle est le même que celui des modèles linéaires dans le catalogue de prévision : elle borne par le haut la validité atteignable et par le bas la plausibilité, et une méthode contrainte qui ne la dépasse sur aucune dimension utile ne mérite pas son surcoût.
+
+Le \textbf{traitement statistique} des résultats suit la pratique établie pour la comparaison de plusieurs méthodes sur plusieurs jeux de données \cite{demsar2006statistical}. Chaque méthode est classée sur chaque station pour chaque dimension, un test de Friedman établit s'il existe une différence significative entre les méthodes, et le test post-hoc de Nemenyi \cite{nemenyi1963distribution} identifie les paires effectivement séparables, le résultat se lisant sur un diagramme de différence critique. Ce choix est délibérément conservateur : avec un échantillon de stations qui restera modeste au regard du nombre de méthodes comparées, une comparaison par moyennes de métriques donnerait un classement apparent que le nombre d'observations ne soutient pas.
+
+Un point demande enfin d'être fixé avant la mesure plutôt qu'après. Les seuils d'acceptation de chaque dimension, en particulier celui de la cohérence croisée qui décide du rejet d'un scénario, doivent être arrêtés avant l'exécution du protocole. C'est la règle qui a été appliquée à la validation des indicateurs de l'entrepôt, rapportée en section~\ref{sec:validation-indices}, et elle vaut ici pour la même raison : fixer un seuil après avoir vu les résultats revient à ajuster le critère à ce qu'on a obtenu.
+
+\subsection{Ce que le protocole ne tranche pas}
+
+Deux limites doivent être énoncées avec le protocole, parce qu'elles en délimitent la portée.
+
+La première est que la mesure de la plausibilité physique proposée ici est une mesure de \emph{non-violation de contraintes connues}, pas une mesure de réalisme climatique. Un scénario peut respecter le bilan de masse et le taux de Clausius-Clapeyron tout en décrivant une succession de saisons qu'aucune circulation atmosphérique ne produit. Une évaluation plus exigeante supposerait de confronter le scénario à une distribution de régimes climatiques observés ou simulés, ce qui excède le cadre de la tâche et rejoint les approches par instances, dont c'est précisément la garantie native.
+
+La seconde est que ce protocole évalue des propriétés mesurables d'une explication, non son utilité pour son destinataire. Or la question de savoir ce qu'est une bonne explication ne se réduit pas à ces propriétés, comme l'établit la littérature issue des sciences sociales \cite{miller2019explanation} et comme le rappellent les revues d'évaluation de la XAI \cite{nauta2023anecdotal}. Répondre pleinement à la seconde moitié de QR1, qui porte sur la capacité des experts à contrôler la qualité décisionnelle d'un modèle, suppose un protocole avec des hydrogéologues, distinct de celui décrit ici et qui reste à construire.

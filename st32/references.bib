@@ -1,0 +1,340 @@
+% ---------------------------------------------------------------------------
+% References propres au livrable ST3.2.
+%
+% Ce fichier est charge EN PLUS de ../bibliographie.bib, qui porte le fonds
+% commun aux deux documents du depot (sources de donnees, outils, indices,
+% modeles metier, XAI deja cite par le rapport de cloture).
+%
+% Aucune entree n'est dupliquee entre les deux fichiers : biber refuserait les
+% cles en double. Trois entrees du gabarit d'origine ont ete retirees pour
+% cette raison, et sont citees depuis le fonds commun :
+%   lundberg2017shap      -> present dans ../bibliographie.bib
+%   wang2023forecastcf    -> present dans ../bibliographie.bib
+%   wachter2017counterfactual -> meme travail que wachter2018counterfactual
+%                                du fonds commun ; c'est cette cle qui est citee.
+% ---------------------------------------------------------------------------
+
+% --- FONDEMENTS XAI ---
+@inproceedings{ribeiro2016lime,
+  title={``Why should I trust you?'': Explaining the predictions of any classifier},
+  author={Ribeiro, Marco Tulio and Singh, Sameer and Guestrin, Carlos},
+  booktitle={Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining},
+  pages={1135--1144},
+  year={2016}
+}
+
+@inproceedings{mothilal2020dice,
+  title={Explaining machine learning classifiers through diverse counterfactual explanations},
+  author={Mothilal, Ramaravind K and Sharma, Amit and Tan, Chenhao},
+  booktitle={Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency},
+  pages={607--617},
+  year={2020}
+}
+
+@article{miller2019explanation,
+  title={Explanation in Artificial Intelligence: Insights from the Social Sciences},
+  author={Miller, Tim},
+  journal={Artificial Intelligence},
+  volume={267},
+  pages={1--38},
+  year={2019},
+  doi={10.1016/j.artint.2018.07.007}
+}
+
+@article{nauta2023anecdotal,
+  title={From Anecdotal Evidence to Quantitative Evaluation Methods: A Systematic Review on Evaluating Explainable AI},
+  author={Nauta, Meike and Trienes, Jan and Pathak, Shreyasi and Nguyen, Elisa and Peters, Michelle and Schmitt, Yasmin and Schl{\"o}tterer, J{\"o}rg and van Keulen, Maurice and Seifert, Christin},
+  journal={ACM Computing Surveys},
+  volume={55},
+  number={13s},
+  pages={1--42},
+  year={2023},
+  doi={10.1145/3583558}
+}
+
+% --- CONTEXTE PREDICTION DE SERIES TEMPORELLES ---
+@article{petropoulos2022forecasting,
+  title={Forecasting: Theory and Practice},
+  author={Petropoulos, Fotios and others},
+  journal={International Journal of Forecasting},
+  volume={38},
+  number={3},
+  pages={705--871},
+  year={2022},
+  doi={10.1016/j.ijforecast.2021.11.001}
+}
+
+@article{kong2025deep,
+  title={Deep Learning for Time Series Forecasting: A Survey},
+  author={Kong, Xiangjie and Chen, Zhenghao and Liu, Weiyao and Ning, Kaili and Zhang, Lechao and Marier, Syauqie Muhammad and Liu, Yichen and Chen, Yuhao and Xia, Feng},
+  journal={International Journal of Machine Learning and Cybernetics},
+  year={2025},
+  doi={10.1007/s13042-025-02560-w}
+}
+
+@misc{wang2024deep,
+  title={Deep Time Series Models: A Comprehensive Survey and Benchmark},
+  author={Wang, Yuxuan and Wu, Haixu and Dong, Jiaxiang and Liu, Yong and Wang, Chen and Long, Mingsheng and Wang, Jianmin},
+  year={2024},
+  eprint={2407.13278},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG}
+}
+
+@inproceedings{lv2024efficient,
+  title={Efficient and Effective Time-Series Forecasting with Spiking Neural Networks},
+  author={Lv, Changze and Wang, Yansen and Han, Dongqi and Zheng, Xiaoqing and Huang, Xuanjing and Li, Dongsheng},
+  booktitle={Proceedings of the 41st International Conference on Machine Learning},
+  series={Proceedings of Machine Learning Research},
+  volume={235},
+  year={2024},
+  publisher={PMLR}
+}
+
+% --- ATTRIBUTION DE CARACTERISTIQUES (SERIES TEMPORELLES) ---
+@inproceedings{saadallah2021explainable,
+  title={Explainable Online Deep Neural Network Selection Using Adaptive Saliency Maps for Time Series Forecasting},
+  author={Saadallah, Amal and Jakobs, Matthias and Morik, Katharina},
+  booktitle={Machine Learning and Knowledge Discovery in Databases},
+  pages={404--420},
+  year={2021},
+  publisher={Springer},
+  doi={10.1007/978-3-030-86486-6_25}
+}
+
+@inproceedings{pan2021series,
+  title={Two Birds with One Stone: Series Saliency for Accurate and Interpretable Multivariate Time Series Forecasting},
+  author={Pan, Qingyi and Hu, Wenbo and Chen, Ning},
+  booktitle={Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence},
+  pages={2884--2891},
+  year={2021},
+  publisher={International Joint Conferences on Artificial Intelligence Organization},
+  doi={10.24963/ijcai.2021/397}
+}
+
+@inproceedings{nguyen2025tshap,
+  title={{TSHAP}: Fast and Exact {SHAP} for Explaining Time Series Classification and Regression},
+  author={Nguyen, Thach Le and Ifrim, Georgiana},
+  booktitle={Machine Learning and Knowledge Discovery in Databases. Research Track},
+  pages={60--77},
+  year={2025},
+  publisher={Springer},
+  doi={10.1007/978-3-032-06078-5_4}
+}
+
+@article{choi2025vector,
+  title={Vector {SHAP} Values for Machine Learning Time Series Forecasting},
+  author={Choi, Ji Eun and Shin, Ji Won and Shin, Dong Wan},
+  journal={Journal of Forecasting},
+  volume={44},
+  number={2},
+  pages={635--645},
+  year={2025},
+  doi={10.1002/for.3220}
+}
+
+% --- EVALUATION DES METHODES D'EXPLICATION ---
+@misc{serramazza2023evaluating,
+  title={Evaluating Explanation Methods for Multivariate Time Series Classification},
+  author={Serramazza, Davide Italo and Nguyen, Thu Trang and Nguyen, Thach Le and Ifrim, Georgiana},
+  year={2023},
+  eprint={2308.15223},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG}
+}
+
+@inproceedings{vareille2023evaluating,
+  title={Evaluating Explanation Methods of Multivariate Time Series Classification Through Causal Lenses},
+  author={Vareille, Etienne and Abbas, Adel and Linardi, Michele and Christophides, Vassilis},
+  booktitle={2023 IEEE International Conference on Data Science and Advanced Analytics ({DSAA})},
+  year={2023},
+  organization={IEEE}
+}
+
+% --- CONTREFACTUELS : FONDEMENTS ET REVUES ---
+@inproceedings{byrne2019counterfactuals,
+  title={Counterfactuals in Explainable Artificial Intelligence ({XAI}): Evidence from Human Reasoning},
+  author={Byrne, Ruth M. J.},
+  booktitle={Proceedings of the Twenty-Eighth International Joint Conference on Artificial Intelligence},
+  pages={6276--6282},
+  year={2019},
+  publisher={International Joint Conferences on Artificial Intelligence Organization},
+  doi={10.24963/ijcai.2019/876}
+}
+
+@article{guidotti2024counterfactual,
+  title={Counterfactual Explanations and How to Find Them: Literature Review and Benchmarking},
+  author={Guidotti, Riccardo},
+  journal={Data Mining and Knowledge Discovery},
+  volume={38},
+  number={5},
+  pages={2770--2824},
+  year={2024},
+  doi={10.1007/s10618-022-00831-6}
+}
+
+@article{moreira2025benchmarking,
+  title={Benchmarking Instance-Centric Counterfactual Algorithms for {XAI}: From White Box to Black Box},
+  author={Moreira, Catarina and Chou, Yu-Liang and Hsieh, Chihcheng and Ouyang, Chun and Pereira, Jo{\~a}o and Jorge, Joaquim},
+  journal={ACM Computing Surveys},
+  volume={57},
+  number={6},
+  pages={1--37},
+  year={2025},
+  doi={10.1145/3672553}
+}
+
+% --- CONTREFACTUELS POUR SERIES TEMPORELLES ---
+@inproceedings{delaney2021instance,
+  title={Instance-Based Counterfactual Explanations for Time Series Classification},
+  author={Delaney, Eoin and Greene, Derek and Keane, Mark T.},
+  booktitle={Case-Based Reasoning Research and Development},
+  pages={32--47},
+  year={2021},
+  publisher={Springer},
+  doi={10.1007/978-3-030-86957-1_3}
+}
+
+@inproceedings{lang2023sparse,
+  title={Generating Sparse Counterfactual Explanations for Multivariate Time Series},
+  author={Lang, Jana and Giese, Martin A. and Ilg, Winfried and Otte, Sebastian},
+  booktitle={Discovery Science},
+  pages={180--195},
+  year={2023},
+  publisher={Springer},
+  doi={10.1007/978-3-031-44223-0_15}
+}
+
+@inproceedings{wang2024comet,
+  title={{COMET}: Constrained Counterfactual Explanations for Patient Glucose Multivariate Forecasting},
+  author={Wang, Zhendong and Samsten, Isak and Miliou, Ioanna and Papapetrou, Panagiotis},
+  booktitle={2024 IEEE 37th International Symposium on Computer-Based Medical Systems ({CBMS})},
+  pages={502--507},
+  year={2024},
+  organization={IEEE},
+  doi={10.1109/CBMS61543.2024.00089}
+}
+
+@misc{kinjo2025cetx,
+  title={Counterfactual Explanation for Multivariate Time Series Forecasting with Exogenous Variables},
+  author={Kinjo, Keita},
+  year={2025},
+  eprint={2511.06906},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG}
+}
+
+@inproceedings{deng2024unraveling,
+  title={Unraveling Block Maxima Forecasting Models with Counterfactual Explanation},
+  author={Deng, Yue and Galib, Asadullah Hill and Tan, Pang-Ning and Luo, Lifeng},
+  booktitle={Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining},
+  pages={562--573},
+  year={2024},
+  publisher={ACM},
+  doi={10.1145/3637528.3671923}
+}
+
+@inproceedings{zuin2024navigating,
+  title={Navigating Time's Possibilities: Plausible Counterfactual Explanations for Multivariate Time-Series Forecast Through Genetic Algorithms},
+  author={Zuin, Gianlucca and Veloso, Adriano},
+  booktitle={2024 IEEE 23rd International Conference on Trust, Security and Privacy in Computing and Communications ({TrustCom})},
+  pages={2575--2582},
+  year={2024},
+  organization={IEEE},
+  doi={10.1109/TrustCom63139.2024.00359}
+}
+
+@inproceedings{yan2023self,
+  title={Self-Interpretable Time Series Prediction with Counterfactual Explanations},
+  author={Yan, Jingquan and Wang, Hao},
+  booktitle={Proceedings of the 40th International Conference on Machine Learning},
+  series={Proceedings of Machine Learning Research},
+  volume={202},
+  pages={39110--39125},
+  year={2023},
+  publisher={PMLR}
+}
+
+@article{sun2025no,
+  title={No {$D_{\mathrm{train}}$}: Model-Agnostic Counterfactual Explanations Using Reinforcement Learning},
+  author={Sun, Xiangyu and Aoki, Raquel and Wilson, Kevin H.},
+  journal={Transactions on Machine Learning Research},
+  year={2025},
+  note={Published June 2025}
+}
+
+@inproceedings{srinivasan2024ae,
+  title={Counterfactual Explanation for Auto-Encoder Based Time-Series Anomaly Detection},
+  author={Srinivasan, Abishek and Singapura Ravi, Varun and Andresen, Juan Carlos and Holst, Anders},
+  booktitle={PHM Society European Conference},
+  volume={8},
+  pages={1--9},
+  year={2024},
+  doi={10.36001/phme.2024.v8i1.4087}
+}
+
+@inproceedings{raman2023information,
+  title={Why Did This Model Forecast This Future? Information-Theoretic Saliency for Counterfactual Explanations of Probabilistic Regression Models},
+  author={Raman, Chirag and Nonnemaker, Alec and Villegas-Morcillo, Amelia and Hung, Hayley and Loog, Marco},
+  booktitle={Advances in Neural Information Processing Systems},
+  volume={36},
+  year={2023}
+}
+
+% --- INFERENCE CAUSALE ET CONTROLE SYNTHETIQUE ---
+@article{fujii2024estimating,
+  title={Estimating Counterfactual Treatment Outcomes Over Time in Complex Multiagent Scenarios},
+  author={Fujii, Keisuke and Takeuchi, Koh and Kuribayashi, Atsushi and Takeishi, Naoya and Kawahara, Yoshinobu and Takeda, Kazuya},
+  journal={IEEE Transactions on Neural Networks and Learning Systems},
+  pages={1--15},
+  year={2024},
+  doi={10.1109/TNNLS.2024.3361166}
+}
+
+@misc{min2024domain,
+  title={Domain Adaptation for Industrial Time-Series Forecasting via Causal Inference},
+  author={Min, Chao and Wen, Guoquan and Yuan, Jiangru and Yi, Jun and Guo, Xing},
+  year={2024},
+  eprint={2407.14214},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG}
+}
+
+@misc{li2024compositional,
+  title={Compositional Dynamic Modelling for Causal Prediction in Multivariate Time Series},
+  author={Li, Kevin and Tierney, Graham and Hellmayr, Christoph and West, Mike},
+  year={2024},
+  eprint={2406.02320},
+  archivePrefix={arXiv},
+  primaryClass={stat.ME}
+}
+
+@article{wen2025dynamical,
+  title={Dynamical Counterfactual Inference Under Time-Series Model for Waterflooding Oilfield},
+  author={Wen, Guoquan and Min, Chao and Zhang, Qingxia and Liao, Guoyong},
+  journal={Petroleum},
+  volume={11},
+  pages={113--124},
+  year={2025},
+  publisher={Elsevier},
+  doi={10.1016/j.petlm.2024.11.001}
+}
+
+% --- COMPARAISON STATISTIQUE DE METHODES ---
+@article{demsar2006statistical,
+  title   = {Statistical Comparisons of Classifiers over Multiple Data Sets},
+  author  = {Dem{\v{s}}ar, Janez},
+  journal = {Journal of Machine Learning Research},
+  volume  = {7},
+  number  = {1},
+  pages   = {1--30},
+  year    = {2006},
+  url     = {https://www.jmlr.org/papers/v7/demsar06a.html}
+}
+
+@phdthesis{nemenyi1963distribution,
+  title  = {Distribution-free Multiple Comparisons},
+  author = {Nemenyi, Peter Bjorn},
+  school = {Princeton University},
+  year   = {1963}
+}

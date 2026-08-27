@@ -1,0 +1,50 @@
+\documentclass[12pt, a4paper]{article}
+
+\input{preambule}
+
+% --- STRUCTURE DU DOCUMENT ---
+\title{
+    \vspace{2cm}
+    \Huge \textbf{\color{primary} ARD JUNON - Prédiction} \\[0.5cm]
+    \Large \color{secondary} ST3.2 Explicabilité et interprétabilité dans les modèles prédictifs profonds de séries temporelles
+    \vspace{1cm}
+}
+
+\author{
+    \textbf{N. Labroche, N. Ringuet, E. Doumard, M. Gol Pour} \\
+    \small LIFAT \\
+    \small Université de Tours \\
+    \small \href{mailto:nicolas.labroche@univ-tours.fr}{\texttt{nicolas.labroche@univ-tours.fr}}
+}
+
+\date{\today}
+
+\begin{document}
+
+% --- PAGE DE GARDE ---
+\maketitle
+\thispagestyle{empty}
+
+\vspace{3cm}
+
+\input{sections/00-resume}
+
+\newpage
+
+% --- TABLE DES MATIÈRES ---
+\tableofcontents
+\newpage
+
+% --- CORPS DU DOCUMENT ---
+\input{sections/01-introduction}
+\input{sections/02-application}
+\input{sections/03-etat-art}
+\input{sections/04-methodologie}
+\input{sections/05-resultats}
+\input{sections/06-conclusion}
+
+% --- BIBLIOGRAPHIE ---
+\newpage
+\printbibliography[heading=bibintoc,title={Références}]
+
+\end{document}

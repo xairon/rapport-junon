@@ -1,0 +1,262 @@
+\newpage
+\section{Développements techniques et environnement applicatif}
+\label{sec:app}
+
+Les deux questions de recherche posées en section~\ref{sec:intro} supposent un préalable qui n'était pas disponible au démarrage de la tâche : un jeu de données hydro-climatique consolidé, des modèles entraînés dessus, et une référence mécanistique pour les étalonner. On n'explique pas un modèle qu'on n'a pas pu entraîner, et on ne compare pas deux explications produites sur deux préparations de données différentes. Cette section décrit le socle construit pour lever ce préalable, en réponse aux questions techniques QT1 et QT2.
+
+\subsection{Le verrou levé : une donnée ouverte mais non exploitable en l'état}
+
+La donnée hydrologique française est publique et de bonne qualité. Les niveaux de nappe et les débits sont exposés par les interfaces Hub'Eau du système d'information sur l'eau~\cite{hubeau}, le référentiel hydrogéologique BDLISA décrit les entités aquifères et leur superposition~\cite{bdlisa}, et le forçage climatique est disponible par la réanalyse ERA5-Land distribuée par Copernicus~\cite{hersbach2020era5, munozsabater2021era5land, cds}. Quatre obstacles séparent néanmoins cette disponibilité d'un usage en apprentissage automatique.
+
+Le premier est l'absence de jointure entre les compartiments. Les niveaux, les débits et le climat sont publiés par des services qui s'ignorent, sans clé commune : rien ne rattache un piézomètre à la maille climatique qui le force. Or c'est précisément ce couple, niveau et forçage sur la même ligne au même jour, que consomme un modèle de prévision multivariée. Le second est la volumétrie et la fragmentation de l'historique, qui remonte à 1967 pour les chroniques et à 1950 pour le climat, et qu'aucun service ne consolide. Le troisième tient aux conventions de lecture des sources, qui ne sont pas homogènes : flux cumulés et grandeurs instantanées d'une réanalyse ne s'agrègent pas de la même façon, et une lecture naïve produit des séries fausses sans qu'aucune erreur ne soit signalée. Le quatrième est l'absence d'indicateur normalisé : une mesure brute ne dit rien de la situation qu'elle décrit tant qu'elle n'est pas rapportée à sa distribution de référence, et aucun des services amont ne fournit cette normalisation.
+
+Le socle décrit ci-après traite ces quatre points. Il se compose de deux dépôts logiciels publics et indépendants, l'entrepôt \hubeaudepot~\cite{depot_entrepot} qui répond à QT1, et la plateforme \plateforme~\cite{depot_plateforme} qui répond à QT2. Le second lit le premier en SQL et n'en connaît rien d'autre que le schéma de ses tables finales.
+
+\subsection{QT1 : un entrepôt de données hydro-climatiques unifié}
+
+\subsubsection{Architecture en trois couches}
+
+La donnée traverse trois couches de qualité croissante, matérialisées par trois schémas distincts d'une même base PostgreSQL~\cite{postgresql}, selon le patron dit \emph{médaillon} représenté figure~\ref{fig:medaillon}. Le principe est de ne jamais perdre la donnée telle qu'elle a été reçue, et de rendre chaque transformation ultérieure explicite, versionnée et rejouable, condition nécessaire pour qu'une expérience d'apprentissage soit reproductible.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\sffamily,
+  src/.style={draw=black!55, fill=white, minimum width=2.45cm, minimum height=0.95cm,
+              align=center, font=\sffamily\scriptsize},
+  couche/.style={draw=black!80, fill=white, minimum width=9.6cm, minimum height=1.25cm,
+                 align=left, font=\sffamily\small, inner xsep=10pt},
+  cote/.style={draw=black!55, fill=black!4, minimum width=4.1cm, minimum height=1.25cm,
+               align=left, font=\sffamily\scriptsize, inner xsep=8pt},
+  fl/.style={-{Stealth[length=2.6mm]}, draw=black!75, very thick},
+  outil/.style={font=\sffamily\scriptsize\itshape, color=black!65},
+]
+
+\node[src] (s1) {Hub'Eau\\piézométrie};
+\node[src, right=0.28cm of s1] (s2) {Hub'Eau\\hydrométrie};
+\node[src, right=0.28cm of s2] (s3) {Copernicus\\ERA5-Land};
+\node[src, right=0.28cm of s3] (s4) {BDLISA};
+
+\node[couche] (bronze) at ($(s1.south)!0.5!(s4.south)+(0,-2.05)$)
+  {\textbf{Bronze} \quad \scriptsize charges utiles brutes, colonnes texte\\[2pt]
+   \scriptsize\itshape on n'interprète rien};
+
+\node[couche, below=1.15cm of bronze] (silver)
+  {\textbf{Silver} \quad \scriptsize typé, nettoyé, dédupliqué\\[2pt]
+   \scriptsize\itshape toute ligne écartée garde le motif de son exclusion};
+
+\node[couche, below=1.15cm of silver] (gold)
+  {\textbf{Gold} \quad \scriptsize stations jointes au climat et au référentiel\\[2pt]
+   \scriptsize\itshape interrogeable en SQL, sans rien savoir de l'amont};
+
+\node[cote, right=0.5cm of silver] (rejets)
+  {\textbf{Rejets}\\[2pt] date absente, code nul,\\station orpheline\ldots};
+
+\node[src, below=1.1cm of gold.south, anchor=north, minimum width=5.2cm, minimum height=0.8cm] (conso)
+  {Consommateurs : plateforme,\\carnets de calcul, outils tiers};
+
+\coordinate (collecte) at ($(s1.south)!0.5!(s4.south)+(0,-0.5)$);
+\foreach \s in {s1,s2,s3,s4} \draw[draw=black!75, very thick] (\s.south) -- (\s.south |- collecte);
+\draw[draw=black!75, very thick] (s1.south |- collecte) -- (s4.south |- collecte);
+\draw[fl] (collecte) -- node[outil, right=3pt]{dlt} (bronze.north);
+
+\draw[fl] (bronze) -- node[outil, right=3pt]{dbt} (silver);
+\draw[fl] (silver) -- node[outil, right=3pt]{dbt} (gold);
+\draw[fl] (gold) -- (conso);
+\draw[fl, densely dashed, thick] (silver.east) -- (rejets.west);
+
+\end{tikzpicture}
+\caption{Les trois couches de l'entrepôt. La donnée brute n'est jamais écrasée, et les lignes écartées au nettoyage sont conservées à part avec le motif de leur exclusion : le filtrage se vérifie par une requête au lieu d'être silencieux.}
+\label{fig:medaillon}
+\end{figure}
+
+L'ingestion est assurée par dlt~\cite{dlt}, complété d'un client HTTP dédié qui porte la pagination, les tentatives successives avec temporisation exponentielle et les garde-fous contre les boucles infinies, les interfaces Hub'Eau ne se laissant pas absorber par un mécanisme générique. Les fichiers NetCDF d'ERA5-Land ne sont jamais archivés en base : ils sont téléchargés en stockage temporaire, extraits en mémoire avec xarray~\cite{xarray} et insérés directement. Deux chemins d'ingestion coexistent pour cette source, l'un pour les séries issues du pas de \SI{00}{\hour}~UTC, l'autre pour les statistiques journalières de température agrégées localement sur les vingt-quatre pas horaires, parce que flux cumulés et grandeurs instantanées ne se lisent pas de la même manière. La couche brute compte de l'ordre de \num{658000000} lignes.
+
+Les transformations sont écrites en SQL et orchestrées par dbt~\cite{dbt}, exécutées dans la base plutôt qu'en mémoire, ce qui est la seule option viable à cette volumétrie. La couche intermédiaire type, nettoie et déduplique, et sa caractéristique déterminante n'est pas le nettoyage mais sa traçabilité : les lignes écartées ne disparaissent pas, elles sont écrites dans un schéma dédié avec le motif de leur exclusion, de sorte qu'une station absente d'un jeu d'apprentissage se distingue par une requête d'une station éliminée par un critère trop strict. Les modèles de séries temporelles sont incrémentaux, avec une fenêtre de recouvrement de sept jours qui absorbe les corrections tardives publiées par les producteurs.
+
+L'orchestration est confiée à Dagster~\cite{dagster}, avec une distinction assumée entre ce qui est planifié et ce qui est déclenché par événement. L'ingestion est planifiée, huit traitements couvrant la mise à jour quotidienne des chroniques et du climat, le rafraîchissement mensuel du référentiel et le recalcul hebdomadaire des références statistiques. La transformation est déclenchée : trois capteurs lancent la chaîne dès que de nouvelles données brutes sont disponibles, ce qui évite le défaut classique des chaînes entièrement planifiées, où la transformation s'exécute à heure fixe sur des données parfois absentes et produit des résultats partiels sans que rien ne le signale.
+
+\subsubsection{Le rattachement climatique}
+
+C'est dans la couche analytique que se résout le verrou central. Chaque station piézométrique ou hydrométrique est associée à sa maille ERA5 la plus proche par une jointure spatiale du plus proche voisin exécutée par PostGIS~\cite{postgis}. Cette opération, effectuée une fois et matérialisée, transforme deux jeux de données étrangers l'un à l'autre en une chronique unique où le niveau et son forçage climatique figurent sur la même ligne, au même jour. Les faits journaliers sont stockés en \emph{hypertables} TimescaleDB~\cite{timescaledb} compressées, forme de partitionnement temporel qui maintient les performances d'interrogation sur plusieurs dizaines de millions de lignes.
+
+Deux précautions s'y attachent, et la seconde conditionne la validité des jeux de données produits. La première tient à l'emprise : la grille ingérée couvre un rectangle allant de \ang{41} à \ang{51.5} de latitude et de \ang{-5.5} à \ang{10} de longitude, soit la France métropolitaine et la Corse. Les stations ultramarines sont donc bien ingérées avec leurs mesures, mais sans aucun forçage climatique associé, et doivent être écartées explicitement de toute modélisation. La seconde porte sur les coordonnées elles-mêmes, qui servent de clé de jointure : une même maille écrite avec deux précisions flottantes différentes, \ang{48.1} d'un côté et \num{48.09999999999995} de l'autre, fait deux points distincts pour la base, et la grille se dédouble sans que rien ne le signale. Les coordonnées sont donc arrondies au pas natif de la grille, \ang{0.1}, ce qui est sans perte puisque c'est la résolution réelle du produit, et l'arrondi s'applique partout où elles servent de clé. Un test automatique garde l'invariant.
+
+L'enrichissement hydrogéologique rattache enfin les entités BDLISA aux stations, ce qui rend disponible la nature de l'aquifère observé, information que les modèles mécanistiques de la section~\ref{sec:labo-metier} exploitent pour se paramétrer. Ce rattachement appelle une réserve : le référentiel décrit les entités et leur ordre de superposition mais ne porte pas leur profondeur, de sorte que déterminer laquelle un piézomètre capte réellement reste approximatif. L'information fournie est une indication utile, pas une caractérisation certaine de l'ouvrage.
+
+\subsubsection{Des mesures aux indicateurs normalisés}
+
+Un niveau piézométrique de \SI{12,4}{\metre} n'est ni haut ni bas dans l'absolu : il l'est relativement à ce que l'ouvrage observe habituellement à cette période de l'année. L'entrepôt produit donc deux familles d'indices standardisés, calculés selon le principe commun d'ajustement d'une loi de probabilité sur la série de référence puis de projection sur une loi normale centrée réduite.
+
+Les indices \emph{par station} situent le mois courant par rapport à sa normale saisonnière, sur la fenêtre de référence 1991-2020 retenue par l'Organisation météorologique mondiale et par le BRGM. Toutes les stations ne disposant pas de trente années d'historique, la sélection de fenêtre se dégrade par paliers déclarés, la normale 1991-2020 si au moins quinze années sont disponibles, sinon la meilleure fenêtre trentenaire alignée sur les décennies, sinon l'historique complet, le palier retenu étant inscrit dans une colonne accompagnant chaque valeur. Si aucun mois n'est exploitable, l'indice prend la valeur \emph{inconnu} plutôt qu'une classe fabriquée.
+
+Les indices \emph{sur grille} sont calculés pour chaque maille de \ang{0.1} sur quatre fenêtres d'agrégation de 1, 3, 6 et 12 mois correspondant à des inerties différentes du système hydrologique, et emploient l'échelle à sept classes de McKee~\cite{mckee1993spi}. Le tableau~\ref{tab:indices-grille} en donne les trois grandeurs et la loi ajustée pour chacune.
+
+\begin{table}[H]
+\centering
+\caption{Les trois indices climatiques sur grille et la loi ajustée pour chacun.}
+\label{tab:indices-grille}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Indice} & \textbf{Grandeur} & \textbf{Ajustement} \\
+\midrule
+SPI  & Précipitation & Loi gamma, mélangée à la probabilité de cumul nul \\
+STI  & Température & Loi normale (score centré réduit) \\
+SPEI & Précipitation moins évapotranspiration & Loi logistique généralisée \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Ces indicateurs sont candidats comme variables d'entrée des modèles de prévision et servent par ailleurs de vocabulaire commun avec les équipes opérationnelles du BRGM, qui les emploient déjà pour le suivi de la situation des nappes.
+
+\subsubsection{Deux arbitrages méthodologiques}
+\label{sec:arbitrages}
+
+Deux décisions structurantes ont dû être prises lors de la construction de ces indices, et elles sont rapportées ici parce qu'elles conditionnent la validité de tout ce qui s'appuie sur l'entrepôt.
+
+Le premier arbitrage porte sur l'évapotranspiration, grandeur d'entrée du bilan hydrique. ERA5-Land fournit directement une variable nommée \emph{évaporation potentielle}, dont l'emploi paraît naturel. Comparée à la formule de Hargreaves~\cite{hargreaves1985}, méthode de repli recommandée par la référence FAO-56~\cite{allen1998fao56} lorsque le rayonnement, le vent et l'humidité ne sont pas disponibles, elle s'en écarte d'un facteur \num{2,15} sur \num{30888} couples maille-mois entre 2015 et 2025 : \SI{1756}{\milli\metre\per\an} contre \SI{818}{\milli\metre\per\an}, cette dernière valeur se situant dans l'intervalle des références publiées pour la France, \SIrange{700}{900}{\milli\metre\per\an}. La variable brute place l'intégralité du territoire en déficit hydrique permanent, y compris les années humides, ce qui est physiquement faux. Il n'y a d'erreur nulle part : la variable d'ERA5 est conforme à ce qu'elle annonce, elle répond simplement à une autre question que celle dont le bilan hydrique a besoin. C'est donc l'évapotranspiration de référence, calculée en couche analytique à partir des températures journalières, qui alimente les indices climatiques. Les deux grandeurs coexistent dans l'entrepôt et figurent côte à côte dans la table finale, ce qui a rendu la mesure comparative possible.
+
+Cet arbitrage ne vaut à ce jour que pour la chaîne climatique sur grille. La chaîne des stations expose encore la variable brute, et ce sont donc les modèles mécanistiques de la section~\ref{sec:labo-metier} qui reçoivent un forçage environ deux fois trop élevé, \SI{1839}{\milli\metre\per\an} mesuré en base. L'effet a été mesuré plutôt que supposé, sur une station de contrôle et une période de \num{385} jours : la variance expliquée passe de \SI{72,2}{\percent} à \SI{68,5}{\percent} selon le forçage employé, et le paramètre qui pondère l'évaporation dans la recharge se colle à sa borne dans les deux cas, ce qui signale un modèle réclamant davantage d'évaporation que son forçage ne lui en fournit. La mesure établit que l'écart a un effet, non son ampleur générale. La conséquence pour le présent rapport doit être énoncée sans détour : les calibrations mécanistiques restent exploitables pour la prévision, mais leurs paramètres ne s'interprètent pas physiquement tant que ce forçage n'a pas été corrigé, ce qui limite d'autant la portée d'une explication adossée à ces paramètres.
+
+Le second arbitrage porte sur la loi ajustée pour le SPEI. La formulation de l'article fondateur~\cite{vicenteserrano2010spei} emploie une loi log-logistique qui, appliquée à la grille française, ne s'ajuste que sur \SI{74,6}{\percent} des combinaisons de maille, de mois et de fenêtre. L'instrumentation des rejets a montré que la cause était unique et structurelle : cette loi ne représente qu'un sens d'asymétrie, mesuré par le rapport de L-moments $\tau_3$~\cite{hosking1990lmoments}, et la totalité des rejets vient de là. L'implémentation de référence distribuée par les auteurs de la méthode~\cite{begueria_spei_package} emploie quant à elle la logistique généralisée, qui accepte les deux sens ; c'est elle qui a été retenue. Les deux lois étant équivalentes par reparamétrage, les valeurs restent inchangées partout où la première fonctionnait, ce qui a été vérifié à un écart maximal de \num{0,000} sur \num{35614} mailles, et la couverture passe à \SI{100}{\percent}.
+
+\subsubsection{Garanties d'exploitation et reproductibilité}
+
+Trois propriétés décident de la confiance que l'on peut accorder à un jeu de données partagé, et elles ont été éprouvées en exploitation réelle plutôt que vérifiées sur le papier. L'\textbf{idempotence} : relancer une ingestion sur une période déjà chargée ne duplique rien, les lignes de la plage visée étant supprimées avant l'ajout des nouvelles. La \textbf{reprise} : le chargement initial complet, qui se compte en jours, est interruptible et redémarrable, son avancement étant persisté en base. La \textbf{maîtrise de la concurrence} : les exécutions sont contraintes par clés plutôt que globalement sérialisées, de sorte qu'un rechargement historique n'affame jamais la mise à jour quotidienne.
+
+Deux règles complètent ce dispositif, dirigées contre les défaillances qui ne s'annoncent pas, c'est-à-dire les cas où une chaîne s'exécute, se déclare réussie et livre un résultat faux. Les garanties d'unicité sont portées par le schéma de la base quand c'est possible et par l'orchestration quand ce ne l'est pas, jamais par l'hypothèse implicite que deux traitements ne se croiseront pas. Et la surveillance porte sur la fraîcheur des données plutôt que sur le succès des exécutions : comparer la date maximale présente en base à celle réellement disponible chez le fournisseur est la seule vérification qui détecte une ingestion figée sur une réponse périmée.
+
+L'ensemble est conteneurisé et se déploie par Docker Compose, versions figées dans les images, avec des configurations séparées de production et de bac à sable. Les volumes de données sont déclarés en dehors du cycle de vie de la pile, ce qui rend impossible leur destruction par une commande d'arrêt. La procédure de restauration a été vérifiée de bout en bout sur un entrepôt représentatif, \SI{4,5}{\giga\byte} et quinze tables dont six hypertables à chunks compressés, et la documentation d'installation a été éprouvée en repartant d'une machine vierge.
+
+\subsection{QT2 : une plateforme d'exploration, de modélisation et d'explication}
+
+\subsubsection{Une contrainte d'architecture posée d'emblée}
+
+La plateforme comporte trois couches, une interface web en React~\cite{react}, un service applicatif FastAPI~\cite{fastapi} et une bibliothèque métier en Python. La contrainte structurante porte sur la troisième : \textbf{la bibliothèque métier ne dépend ni du service applicatif ni de l'interface web} (figure~\ref{fig:archi-plateforme}).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\sffamily,
+  bande/.style={draw=black!70, fill=white, minimum width=10.6cm, minimum height=0.85cm,
+                align=center, font=\sffamily\footnotesize},
+  coeur/.style={draw=black, very thick, fill=black!3, minimum width=10.6cm,
+                minimum height=2.35cm, align=center, font=\sffamily\footnotesize},
+  mod/.style={draw=black!50, fill=white, minimum width=2.35cm, minimum height=0.7cm,
+              align=center, font=\sffamily\scriptsize},
+  res/.style={draw=black!55, fill=white, minimum width=3.3cm, minimum height=0.8cm,
+              align=center, font=\sffamily\scriptsize},
+  fl/.style={-{Stealth[length=2.2mm]}, draw=black!70, thick},
+  note/.style={font=\sffamily\scriptsize\itshape, color=black!60},
+]
+
+\node[bande] (spa) {\textbf{Interface web} \\[1pt]
+                    \scriptsize cartes, graphiques, suivi d'entraînement};
+\node[bande, below=0.75cm of spa] (api) {\textbf{Service applicatif} \\[1pt]
+                    \scriptsize API et flux d'événements};
+\node[coeur, below=0.75cm of api] (core) {};
+\node[anchor=north, font=\sffamily\footnotesize\bfseries, yshift=-3pt] at (core.north)
+     {Bibliothèque métier};
+\node[anchor=north, font=\sffamily\scriptsize, yshift=-17pt] at (core.north)
+     {aucune dépendance d'interface};
+
+\node[mod] (m1) at ($(core.center)+(-3.75,-0.60)$) {Préparation\\des données};
+\node[mod] (m2) at ($(core.center)+(-1.25,-0.60)$) {Modèles\\mécanistiques};
+\node[mod] (m3) at ($(core.center)+(1.25,-0.60)$)  {Prévision\\profonde};
+\node[mod] (m4) at ($(core.center)+(3.75,-0.60)$)  {Explicabilité\\contrefactuels};
+
+\node[res, below=0.95cm of core, xshift=-3.65cm] (cache) {Cache de réponses};
+\node[res, below=0.95cm of core, draw=black, very thick] (entrepot)
+     {Entrepôt \\[1pt] \scriptsize lecture SQL};
+\node[res, below=0.95cm of core, xshift=3.65cm] (registre) {Registre d'expériences};
+
+\draw[fl] (spa) -- (api);
+\draw[fl] (api) -- (core);
+\draw[fl] (core.south) -- (entrepot.north);
+\draw[fl] (core.south west) ++(1.1,0) -- ++(0,-0.3) -| (cache.north);
+\draw[fl] (core.south east) ++(-1.1,0) -- ++(0,-0.3) -| (registre.north);
+
+\node[note, below=0.14cm of entrepot] {entrepôt de la question technique QT1};
+
+\end{tikzpicture}
+\caption{Architecture de la plateforme. La bibliothèque métier est appelable depuis le service web, un script ou un carnet de calcul, sans modification. C'est cette propriété qui rend les méthodes d'explication réutilisables au-delà de l'application qui les héberge.}
+\label{fig:archi-plateforme}
+\end{figure}
+
+Cette règle a une conséquence déterminante pour un travail de recherche. Le code de préparation des données, de calibration des modèles mécanistiques, d'entraînement, d'attribution et de génération de contrefactuels s'exécute indifféremment depuis le service web, depuis un script ou depuis un carnet de calcul. Les méthodes développées pour QR1 et QR2 ne sont donc pas prisonnières de l'application : elles restent utilisables dans un protocole expérimental hors interface, ce qui est la condition pour qu'une évaluation comparative puisse être conduite dessus.
+
+\subsubsection{L'Observatoire : explorer avant de modéliser}
+
+Le premier module donne à voir la donnée consolidée. Il répond à deux besoins distincts : celui des hydrogéologues, qui ont besoin de situer une station dans son contexte, et celui des modélisateurs, qui doivent choisir leurs cas d'étude en connaissance de cause, une chronique trop courte, trop lacunaire ou visiblement perturbée par un pompage ne faisant pas un bon cas d'apprentissage. L'interface s'organise en deux volets communicants, l'exploration spatiale des stations sur fond cartographique avec superposition des entités aquifères, et l'exploration de la grille climatique nationale depuis 1950.
+
+Une règle de conception a structuré ce module et mérite d'être rapportée, parce qu'elle relève directement de la problématique d'explicabilité : \emph{soit un indicateur réellement standardisé, soit une valeur réelle affichée comme telle, jamais un intermédiaire inventé}. Concrètement, les indices standardisés sont cartographiés sur l'échelle à sept classes et les grandeurs journalières brutes sur une échelle absolue, mais les cumuls mensuels absolus ne sont pas proposés comme couches cartographiques : les cartographier supposerait un seuillage, donc une norme implicite qui, n'étant pas une référence statistique établie, serait une invention de l'outil. L'utilisateur lirait une carte de sécheresse là où il n'y a qu'un choix de bornes. Refuser cette couche coûte une fonctionnalité apparente et évite une erreur d'interprétation systématique.
+
+L'Observatoire recalcule par ailleurs le moins possible : ses points d'accès lisent les tables analytiques de l'entrepôt plutôt que de refaire le calcul, de sorte que la valeur affichée est exactement celle qui a été validée en amont.
+
+\subsubsection{Le laboratoire de modèles mécanistiques : construire la référence}
+\label{sec:labo-metier}
+
+La question QT2 demande explicitement d'intégrer des modèles mécanistiques de référence pour étalonner les modèles d'IA. Ce module y répond, et son antériorité sur le laboratoire d'apprentissage est délibérée pour trois raisons. Sans référence, une performance ne signifie rien : une architecture profonde qui n'égale pas un modèle à quelques paramètres ne mérite pas d'être déployée. Le modèle mécanistique est interprétable par construction, et fournit donc un point d'ancrage aux explications produites sur un modèle appris. Enfin, c'est le langage des interlocuteurs, le BRGM développant et employant sa propre famille de modèles à réservoirs, GARDÉNIA~\cite{gardenia} pour la simulation des niveaux et des débits d'un bassin et EROS~\cite{eros} pour les relations entre bassins.
+
+L'approche retenue est celle des modèles \emph{transfer function-noise}, mise en œuvre par la bibliothèque Pastas~\cite{pastas}. Le niveau simulé y est la somme des contributions de plusieurs facteurs de forçage, chaque contribution étant obtenue par convolution du forçage avec une fonction de réponse impulsionnelle dont la forme et les paramètres sont calibrés, un modèle de bruit rendant compte de la structure résiduelle. L'intérêt pour la problématique posée est direct : la fonction de réponse \textbf{est} l'objet d'intérêt hydrogéologique, sa forme disant comment l'aquifère amortit et retarde le signal climatique, et son intégrale de combien le niveau varie pour une sollicitation donnée. Ce ne sont pas des paramètres opaques mais des grandeurs qui s'interprètent, et c'est ce qui en fait un étalon utilisable pour juger une explication produite sur un modèle profond.
+
+La plateforme donne accès à quatre modèles de recharge, cinq formes de réponse impulsionnelle, deux modèles de bruit et deux solveurs, combinables librement. Un mécanisme de calibration automatique construit une grille de configurations candidates, calibre chacune et les classe, non pas sur un unique indicateur d'erreur mais sur les quatre critères d'acceptation STOWA~\cite{stowa2021}, standard néerlandais d'évaluation des modèles TFN : variance expliquée au-dessus d'un seuil, résidus aléatoires vérifiés par un test de séquences, temps de réponse à \SI{95}{\percent} de la réponse indicielle inférieur à la moitié de la période de calibration, et gain statistiquement significatif. Le troisième critère capture une erreur fréquente et discrète, celle d'un modèle affichant une excellente variance expliquée tout en ayant ajusté une dynamique lente que la période d'observation ne permet pas de contraindre.
+
+La grille n'explore pas l'espace des configurations à l'aveugle : elle est amorcée par des configurations recommandées selon la nature de l'aquifère observé, lue dans le référentiel BDLISA rattaché à la station par l'entrepôt (tableau~\ref{tab:familles-aquiferes}). Cette table est le produit direct des échanges avec l'expertise hydrogéologique du BRGM et traduit en choix de modélisation ce qu'un spécialiste sait du comportement de chaque milieu. Le cas karstique en est l'illustration la plus parlante : un système karstique se comporte comme deux réservoirs couplés, des conduits qui réagissent en quelques heures et une matrice qui réagit en mois, dualité qu'une réponse impulsionnelle à un seul temps caractéristique ne peut pas représenter. Ces configurations amorcent la recherche sans la contraindre, une grille de référence étant systématiquement évaluée en parallèle.
+
+\begin{table}[H]
+\centering
+\caption{Configurations de modélisation recommandées par famille d'aquifère, issues des échanges avec l'expertise hydrogéologique du BRGM.}
+\label{tab:familles-aquiferes}
+\begin{tabularx}{\textwidth}{@{}L{2.9cm}llY@{}}
+\toprule
+\textbf{Famille} & \textbf{Réponse} & \textbf{Bruit} & \textbf{Justification hydrogéologique} \\
+\midrule
+Alluvial & Exponentielle & AR & Réponse rapide, temps de réponse court, système simple \\
+Sédimentaire poreux & Gamma & AR & Réponse intermédiaire \\
+Sédimentaire, double porosité (craie) & Gamma & AR & Forte inertie, temps de réponse long \\
+Sédimentaire fracturé & Gamma & AR & Recharge complexe, modèle de recharge flexible \\
+Karstique & Double exponentielle & ARMA & Deux temps de réponse : conduits et matrice \\
+Socle, montagne & Gamma & AR & Fracturé, recharge non linéaire \\
+Volcanique & Gamma & AR & Système hétérogène \\
+Composite & Quatre paramètres & ARMA & Milieu hétérogène, modèle flexible \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Le modèle calibré n'est enfin pas seulement descriptif : il permet de répondre à des questions de la forme \emph{que se passerait-il si}, qui sont précisément celles des gestionnaires et celles auxquelles QR2 s'adresse. Quatre types de modification sont outillés, l'ajout d'un prélèvement synthétique suivant des profils réalistes par type d'usage, l'import d'une chronique de prélèvement réelle, une tendance climatique et une mise à l'échelle d'un forçage existant. Un mécanisme de bornes adaptatives estime le rabattement attendu à partir de la réponse indicielle du modèle lui-même et en dérive des bornes physiquement plausibles pour guider la saisie, de sorte que l'utilisateur n'est ni laissé libre de simuler un pompage qui viderait la nappe en un mois, ni contraint par une borne arbitraire identique partout. Ce mécanisme préfigure, dans le cadre mécanistique, la contrainte de plausibilité que la section~\ref{sec:xai} impose aux contrefactuels appris.
+
+\subsubsection{Le laboratoire d'apprentissage profond}
+
+Prévoir un niveau de nappe est un problème de série temporelle multivariée avec covariables exogènes, la cible étant le niveau et les entrées la précipitation, la température et l'évapotranspiration. Les difficultés propres au domaine sont connues : inertie très variable d'un aquifère à l'autre, non-stationnarité liée aux prélèvements, lacunes d'observation, événements extrêmes rares donc sous-représentés dans l'apprentissage. La littérature propose de nombreuses architectures~\cite{petropoulos2022forecasting, kong2025deep, wang2024deep} et aucune ne s'impose a priori ; la question pratique n'est donc pas quel modèle choisir mais comment mettre en place un dispositif permettant de trancher, et de rejouer la comparaison quand les données changent.
+
+La plateforme donne accès à une douzaine d'architectures issues de la bibliothèque Darts~\cite{darts}, couvrant les grandes familles de l'état de l'art : à mécanisme d'attention avec le \emph{temporal fusion transformer}~\cite{lim2021tft} et le transformeur classique, à décomposition par blocs avec N-BEATS et N-HiTS, récurrentes avec LSTM et GRU, convolutives, et récentes à faible coût avec TiDE, TSMixer, DLinear et NLinear. L'inclusion des dernières est délibérée : les modèles linéaires ou quasi linéaires constituent des références exigeantes sur les séries temporelles, et disposer de la référence faible dans le même outil que le modèle sophistiqué évite la comparaison biaisée par des conditions expérimentales différentes.
+
+Le protocole vise trois propriétés. La traçabilité d'abord : chaque exécution d'entraînement est enregistrée dans MLflow~\cite{mlflow} avec ses paramètres, ses métriques, ses artefacts et le modèle produit, les jeux de données préparés et les modèles entraînés faisant l'objet de registres distincts, de sorte qu'un résultat puisse être rattaché sans ambiguïté au couple exact qui l'a produit. Sans ce mécanisme, une comparaison entre deux expériences menées à quelques semaines d'intervalle n'est pas défendable, et l'évaluation comparative envisagée en section~\ref{sec:methodo} en dépend entièrement. La séparation entre l'entraînement et l'interface ensuite : le code d'entraînement n'a aucune connaissance de l'interface qui l'observe, il écrit son avancement dans un fichier d'état que la couche de présentation lit indépendamment, ce qui permet de suivre dans l'interface un entraînement lancé depuis un script. La conduite d'expériences longues enfin, appuyée sur PyTorch Lightning~\cite{pytorch_lightning} avec arrêt anticipé et suivi de l'évolution des pertes.
+
+La comparaison d'architectures n'ayant de sens que si chacune est évaluée dans une configuration raisonnable, Optuna~\cite{optuna} est intégré pour la recherche automatisée d'hyperparamètres, avec un échantillonnage guidé par les essais déjà évalués. Des configurations prêtes à l'emploi ont par ailleurs été définies par cas d'usage métier plutôt que par architecture, prévision piézométrique à sept, trente et quatre-vingt-dix jours et prévision de débit à quatorze jours, chacune fixant une architecture et un jeu d'hyperparamètres cohérents. Ces configurations sont des points de départ raisonnables et non des réglages optimisés pour une station donnée, ce que la documentation énonce explicitement. Les échanges avec les hydrogéologues ont montré que cette réserve n'est pas de pure forme : la réponse d'un aquifère à la pluie varie fortement selon sa nature, les cycles observés allant de l'annuel au pluriannuel, de sorte que la profondeur d'historique en entrée, l'horizon de prévision pertinent et le pas d'agrégation devraient être choisis par famille d'aquifère, comme le sont déjà les configurations mécanistiques. Cette adaptation n'a pas été faite pour les modèles appris et constitue vraisemblablement le premier gain à aller chercher.
+
+\subsubsection{Les modules d'explication}
+\label{sec:xai}
+
+Une prévision de niveau de nappe n'est mobilisable pour décider que si l'on peut dire sur quoi elle repose, et l'interlocuteur d'un modèle de nappe est un hydrogéologue qui n'accordera sa confiance qu'à des explications compatibles avec sa compréhension du système. Le laboratoire outille trois questions, dont les deux premières correspondent directement à QR1 et QR2.
+
+\medskip
+\noindent
+\textbf{Sur quoi le modèle s'appuie-t-il (QR1) --} Cinq familles d'attribution complémentaires sont mises en œuvre : l'importance par perturbation, dans la lignée des approches par substitut local~\cite{ribeiro2016lime}, les valeurs de Shapley~\cite{lundberg2017shap} et leur variante pour séries temporelles~\cite{bento2021timeshap}, les attributions par gradients~\cite{sundararajan2017ig, captum}, les poids d'attention pour les architectures qui en possèdent, et la décomposition du signal en tendance, saisonnalité et résidu. Les réunir dans un même outil ne vise pas l'exhaustivité mais la \textbf{confrontation} : des méthodes reposant sur des principes différents et qui convergent donnent une explication crédible, tandis que leur divergence signale une explication fragile, information qu'une méthode unique aurait masquée. Chacune est couplée à une visualisation qui projette l'attribution sur le plan variable-temps, ce qui est la forme sous laquelle un hydrogéologue peut la confronter à sa connaissance des temps de réponse de l'aquifère. C'est l'élément de réponse que la plateforme apporte à la seconde moitié de QR1, l'évaluation de cette forme de restitution auprès des experts restant à conduire.
+
+\medskip
+\noindent
+\textbf{Que se passerait-il dans d'autres conditions (QR2) --} Cette question relève des explications contrefactuelles, formalisées par Wachter \emph{et al.}~\cite{wachter2018counterfactual} et transposées depuis peu à la prévision de séries temporelles~\cite{wang2023forecastcf}. Elle a demandé un développement propre, parce que la réponse directe ne vaut rien dans ce domaine. Laisser un algorithme modifier librement les entrées jusqu'à ce que la prévision atteigne la cible produit des scénarios corrects au sens de l'optimisation et physiquement absurdes : de l'air réchauffé sans évaporation supplémentaire, une pluie incohérente d'un jour au suivant, une saison qui n'existe nulle part. Les hydrogéologues y ont substitué deux exigences, le respect du bilan de masse et la cohérence avec les échelles de temps auxquelles un aquifère réagit. C'est exactement la difficulté que la littérature désigne sous le terme de plausibilité et que la section~\ref{sec:etat_art} discute.
+
+Deux méthodes sont implémentées, de natures délibérément différentes. La première, désignée ici PhysCF, traduit ces exigences en renonçant à perturber les entrées valeur par valeur : elle ne règle que sept paramètres décrivant un régime climatique, un facteur de pluie par saison, un décalage de température, un décalage du calendrier et un résidu d'évaporation étroitement borné. L'évapotranspiration n'y est pas libre, elle est calculée à partir de la température au taux d'environ \SI{7}{\percent} par degré, ordre de grandeur tiré de la relation de Clausius-Clapeyron. Le scénario reste donc cohérent par construction plutôt que redressé après coup, et la réponse s'énonce dans les termes du métier : \emph{il aurait fallu des hivers un cinquième plus humides et un climat plus frais d'un degré}. La seconde, adaptée de CoMTE~\cite{ates2021comte}, répond à la même question en allant chercher dans l'historique une période réellement observée plutôt qu'en construisant un climat, ce qui donne un point de comparaison de nature différente : la plausibilité y est garantie par la provenance et non par la paramétrisation. Chaque scénario produit est enfin rejoué dans un modèle mécanistique calibré indépendamment, celui de la section~\ref{sec:labo-metier} ; s'il fait diverger les deux modèles bien plus qu'ils ne divergeaient sur la situation observée, il est rejeté. Ce test de cohérence croisée est le mécanisme de validation que la plateforme apporte en propre, et il est indépendant de la méthode de génération employée, donc applicable à toute méthode qu'on y intégrerait.
+
+\medskip
+\noindent
+\textbf{Cette chronique est-elle seulement explicable par le climat --} La troisième question renverse la perspective. Une chronique qu'aucun modèle climatique ne reproduit n'est pas nécessairement mal modélisée : elle peut porter la trace d'un prélèvement, que le forçage climatique ne contient pas. Le problème est non supervisé, faute d'historique étiqueté. La démarche part des résidus d'un modèle mécanistique calibré pour isoler des périodes tenues pour non perturbées, puis croise deux lectures indépendantes dont les verdicts sont fusionnés. L'explicabilité y joue un rôle inhabituel : elle ne justifie pas une prédiction, elle détecte une dérive de ce sur quoi le modèle s'appuie, signe que le régime du système a changé. L'annotation qui en résulte sert à écarter les stations impropres à l'apprentissage, et conditionne donc la constitution de l'échantillon sur lequel une évaluation comparative pourrait porter.
+
+\subsection{État de mise à disposition}
+
+Les deux dépôts sont publics sous licence MIT, l'entrepôt~\cite{depot_entrepot} et la plateforme~\cite{depot_plateforme}, chacun portant sa documentation d'installation, éprouvée depuis une machine vierge, et son manuel d'exploitation. Reprendre ces développements ne suppose ni demande d'accès ni contact préalable. La plateforme est déployée, l'interface sur l'infrastructure mutualisée de l'établissement et le calcul sur un serveur équipé d'un processeur graphique, mais son usage demeure à ce jour circonscrit au cercle du projet, l'accès étant nominatif et les comptes créés par un administrateur.
+
+Une limite d'ingénierie doit être signalée à quiconque reprend ces travaux. La suite de tests de la plateforme compte \num{552} tests dont \num{547} passent, mais aucun ne s'exécute automatiquement : les chaînes d'intégration des deux dépôts ne comportent que des étapes de construction et de déploiement, sans étape de test. Les cinq cas non passants sont documentés et aucun ne signale un défaut applicatif, mais un contrat exécutable important, celui qui garantit que la classification en sept classes est identique dans les deux dépôts, n'est de fait garanti que par la discipline de celui qui lance les tests. C'est le premier correctif à apporter.
