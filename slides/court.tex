@@ -1,0 +1,234 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+\input{preambule}
+
+\title{Un socle de données et une plateforme d'expérimentation}
+\subtitle{Pour la prévision explicable des niveaux de nappe}
+\author{Nicolas Ringuet}
+\date{\today}
+\newcommand{\titrecourt}{Socle de données et plateforme \textbullet{} ARD JUNON}
+\titlegraphic{}
+
+\begin{document}
+\renewcommand{\insertshorttitle}{\titrecourt}
+
+\pagetitre
+
+% ===========================================================================
+\begin{frame}{Le point de départ : une donnée publique, mais inexploitable}
+\framesubtitle{Le sujet portait sur l'explicabilité. Il a fallu commencer ailleurs.}
+
+\begin{columns}[T]
+\begin{column}{0.52\textwidth}
+\small
+Quatre sources ouvertes, de bonne qualité, et quatre obstacles :
+\begin{itemize}\itemsep0.35em
+  \item \textbf{aucune jointure} entre niveaux, débits et climat : rien ne rattache
+        un piézomètre à la maille qui le force ;
+  \item un \textbf{historique non consolidé}, 1967 pour les chroniques, 1950 pour le climat ;
+  \item des \textbf{conventions de lecture} hétérogènes : une lecture naïve produit des
+        séries fausses sans erreur visible ;
+  \item \textbf{aucun indicateur normalisé} : une mesure brute ne dit rien de la situation
+        qu'elle décrit.
+\end{itemize}
+\end{column}
+
+\begin{column}{0.45\textwidth}
+\vspace{0.6cm}
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize\sffamily,
+  src/.style={draw=black!55, fill=white, minimum width=2.1cm, minimum height=0.7cm, align=center}]
+  \node[src] (a) {Hub'Eau\\piézométrie};
+  \node[src, right=0.2cm of a] (b) {Hub'Eau\\hydrométrie};
+  \node[src, below=0.3cm of a] (c) {ERA5-Land};
+  \node[src, below=0.3cm of b] (d) {BDLISA};
+  \node[font=\Large\color{rougesobre}] at ($(a)!0.5!(d)$) {$\times$};
+\end{tikzpicture}
+\end{center}
+\vspace{0.3cm}
+{\footnotesize\color{grisardoise}
+Quatre services qui s'ignorent : pas de clé commune, pas de vocabulaire commun.}
+\end{column}
+\end{columns}
+
+\vspace{0.4cm}
+\begin{center}
+{\color{bleuprofond}\bfseries On n'explique pas un modèle qu'on n'a pas pu entraîner.}
+\end{center}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{L'entrepôt : de quatre sources à une requête}
+\framesubtitle{\code{hubeau\_data\_integration} \textbullet{} public, licence MIT, conteneurisé}
+
+\begin{columns}[T]
+\begin{column}{0.46\textwidth}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize\sffamily,
+  couche/.style={draw=black!75, fill=white, minimum width=4.6cm, minimum height=0.85cm, align=left,
+                 inner xsep=8pt},
+  fl/.style={-{Stealth[length=2mm]}, draw=black!75, thick}]
+  \node[font=\footnotesize\sffamily\itshape, color=black!60] (s) {4 sources ouvertes};
+  \node[couche, below=0.45cm of s] (b) {\textbf{Bronze} \tiny\ reçu tel quel};
+  \node[couche, below=0.4cm of b] (a) {\textbf{Silver} \tiny\ nettoyé, rejets tracés};
+  \node[couche, below=0.4cm of a] (g) {\textbf{Gold} \tiny\ joint au climat, indicateurs};
+  \node[font=\footnotesize\sffamily, below=0.45cm of g, draw=black!55, fill=grisclair,
+        minimum width=4.6cm, minimum height=0.6cm] (c) {interrogeable en SQL};
+  \draw[fl] (s) -- (b); \draw[fl] (b) -- node[right=2pt,font=\tiny\itshape]{dbt} (a);
+  \draw[fl] (a) -- node[right=2pt,font=\tiny\itshape]{dbt} (g); \draw[fl] (g) -- (c);
+\end{tikzpicture}
+\end{center}
+\end{column}
+
+\begin{column}{0.51\textwidth}
+\small
+\begin{apport}{Ce que ça fait}
+Chaque station est rattachée à sa maille climatique par jointure spatiale. Niveau et forçage
+figurent sur la même ligne, au même jour. La chaîne est idempotente, reprenable après
+interruption, et les lignes écartées au nettoyage restent consultables avec le motif de leur
+exclusion.
+\end{apport}
+
+\begin{apport}{Ce que ça change}
+Obtenir soixante ans de niveaux joints à leur climat demandait plusieurs semaines de
+préparation. C'est aujourd'hui une requête.
+\end{apport}
+
+\vspace{0.2em}
+{\footnotesize
+\chiffre{\num{658}~M}{lignes en couche brute} \textbullet{}
+\chiffre{4}{sources} \textbullet{}
+\chiffre{1950}{$\rightarrow$ aujourd'hui}\par}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{La plateforme : explorer, modéliser, expliquer}
+\framesubtitle{\code{time-serie-explo} \textbullet{} quatre modules sur une bibliothèque métier commune}
+
+\begin{columns}[T]
+\begin{column}{0.44\textwidth}
+\capture[1.0]{observatoire-carte.png}{L'Observatoire : carte des stations portant leur
+indicateur de situation, entités aquifères en fond.}
+\end{column}
+
+\begin{column}{0.53\textwidth}
+\small
+\begin{description}[Explicabilité]\itemsep0.5em
+  \item[\color{bleuprofond}Observatoire] Explorer stations et climat \emph{avant} de modéliser.
+  \item[\color{bleuprofond}Modèles métier] Calibration automatique, configurations par famille
+        d'aquifère. La référence interprétable.
+  \item[\color{bleuprofond}Apprentissage] Douze architectures profondes, expériences traçables,
+        recherche d'hyperparamètres.
+  \item[\color{bleuprofond}Explicabilité] Cinq familles d'attribution, et des contrefactuels
+        contraints par la physique.
+\end{description}
+
+\vspace{0.3em}
+{\footnotesize\color{grisardoise} La bibliothèque métier ne dépend ni du serveur ni de
+l'interface.\par}
+
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Deux résultats que le socle a produits}
+\framesubtitle{Ni l'un ni l'autre n'était l'objectif : ce sont des conditions de validité}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+{\color{bleuprofond}\bfseries L'évapotranspiration n'était pas la bonne grandeur}
+\vspace{0.3em}
+
+\small
+ERA5-Land publie une « évaporation potentielle » qui décrit en réalité une \textbf{nappe d'eau
+libre}. Le bilan hydrique a besoin de l'évapotranspiration de référence de la FAO, celle d'un
+gazon ras.
+
+\vspace{0.15em}
+\begin{center}\footnotesize
+\begin{tabular}{@{}lr@{}}
+\toprule
+Variable brute ERA5-Land & \SI{1756}{\milli\metre\per\an} \\
+Référence FAO, calculée  & \SI{818}{\milli\metre\per\an} \\
+\midrule
+Rapport & $\times\,\num{2,15}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.15em}
+La première met la France en déficit permanent, années pluvieuses comprises. Aucun test
+logiciel ne détecte cela : le calcul était juste, la grandeur ne l'était pas.
+\end{column}
+
+\begin{column}{0.48\textwidth}
+{\color{bleuprofond}\bfseries Les indicateurs produits sont vérifiés}
+\vspace{0.3em}
+
+\small
+Un indice standardisé doit suivre une loi normale centrée réduite sur sa période de
+référence. Le critère a été fixé \textbf{avant} la mesure.
+
+\vspace{0.15em}
+\begin{center}\footnotesize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+ & Moyenne & Écart-type \\
+\midrule
+SPI  & \numrange{-0,008}{0,002} & \numrange{0,985}{1,031} \\
+STI  & \num{0,000}              & \num{0,983} \\
+SPEI & \numrange{0,004}{0,006}  & \numrange{0,999}{1,013} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.15em}
+Mesuré sur \num{41960400} valeurs. L'indicateur piézométrique reprend la méthode du BRGM,
+pour rester comparable aux valeurs qu'il diffuse.
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Ce qui est acquis, ce qui ne l'est pas}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+{\color{vertsobre}\bfseries Acquis}
+\vspace{0.3em}
+\small
+\begin{itemize}\itemsep0.3em
+  \item un entrepôt national, reprenable, documenté, avec ses indicateurs validés ;
+  \item une plateforme d'expérimentation traçable, utilisable par des non-spécialistes ;
+  \item deux méthodes contrefactuelles contraintes par la physique, vérifiables contre un
+        modèle métier indépendant ;
+  \item deux dépôts publics sous licence MIT, installables depuis une machine vierge.
+\end{itemize}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+{\color{rougesobre}\bfseries Non établi}
+\vspace{0.3em}
+\small
+\begin{itemize}\itemsep0.3em
+  \item \textbf{aucun classement des architectures} sur le cas hydrogéologique : les campagnes
+        ont validé le dispositif, pas comparé les méthodes ;
+  \item \textbf{aucune évaluation des contrefactuels} : le protocole est écrit, la campagne
+        reste à conduire ;
+  \item la page qui pilote les contrefactuels \textbf{n'est pas branchée} dans l'interface ;
+  \item le forçage d'évapotranspiration de la chaîne station reste à corriger.
+\end{itemize}
+\end{column}
+\end{columns}
+
+\vspace{0.3cm}
+\begin{center}\small
+{\color{bleuprofond}\bfseries L'outillage est en place ; ce sont les résultats qui restent à
+produire.}
+\end{center}
+\end{frame}
+
+\end{document}

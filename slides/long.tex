@@ -1,0 +1,633 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+\input{preambule}
+
+\title{Un socle de données et une plateforme d'expérimentation}
+\subtitle{Pour la prévision explicable des niveaux de nappe}
+\author{Nicolas Ringuet}
+\date{\today}
+\newcommand{\titrecourt}{Socle de données et plateforme \textbullet{} ARD JUNON}
+
+\begin{document}
+\renewcommand{\insertshorttitle}{\titrecourt}
+
+\pagetitre
+
+% ===========================================================================
+\begin{frame}{Le sujet, et pourquoi il a fallu commencer ailleurs}
+\vspace{-4pt}
+
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
+\small
+Le sujet assigné portait sur l'\textbf{explicabilité des modèles de prévision} appliqués aux
+nappes. La motivation est opérationnelle : une prévision qu'on ne sait pas justifier ne sera pas
+retenue à l'appui d'un arrêté de restriction d'usage.
+
+\vspace{0.5em}
+Il s'est heurté à un obstacle matériel. La donnée hydrologique française est publique, mais
+éparpillée entre des services qui s'ignorent.
+
+\vspace{0.4em}
+{\color{bleuprofond}\bfseries On n'explique pas un modèle qu'on n'a pas pu entraîner.}
+
+\vspace{0.5em}
+Construire le socle est devenu le premier travail. Ce qui suit décrit ce qu'il permet, et ce
+qu'il n'établit pas.
+\end{column}
+
+\begin{column}{0.42\textwidth}
+\vspace{0.3cm}
+\small
+\begin{description}\itemsep0.5em
+  \item[\color{bleuprofond}QT1] Un entrepôt unifiant les sources ouvertes nécessaires au jumeau
+        numérique.
+  \item[\color{bleuprofond}QT2] Une plateforme pour constituer des jeux, entraîner, comparer et
+        expliquer.
+  \item[\color{bleuprofond}QR1] Les méthodes d'attribution sont-elles exploitables par un
+        expert du domaine~?
+  \item[\color{bleuprofond}QR2] Les contrefactuels produisent-ils des scénarios pertinents~?
+\end{description}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Le verrou : quatre obstacles entre la donnée publique et l'apprentissage}
+
+\small
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{apport}{1. Aucune jointure entre les compartiments}
+Niveaux, débits et climat sont publiés par des services sans clé commune. Rien ne rattache un
+piézomètre à la maille climatique qui le force, alors que c'est exactement ce couple que
+consomme un modèle multivarié.
+\end{apport}
+
+\begin{apport}{2. Un historique non consolidé}
+1967 pour les chroniques, 1950 pour le climat, et aucun service ne les consolide.
+\end{apport}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\begin{apport}{3. Des conventions de lecture hétérogènes}
+Flux cumulés et grandeurs instantanées d'une réanalyse ne s'agrègent pas de la même façon. Une
+lecture naïve produit des séries fausses sans qu'aucune erreur ne soit signalée.
+\end{apport}
+
+\begin{apport}{4. Aucun indicateur normalisé}
+Un niveau de \SI{12,4}{\metre} n'est ni haut ni bas dans l'absolu. Il l'est relativement à ce
+que l'ouvrage observe habituellement à cette période.
+\end{apport}
+\end{column}
+\end{columns}
+
+\vspace{0.3cm}
+{\footnotesize\color{grisardoise} Sources : Hub'Eau (piézométrie, hydrométrie), Copernicus
+ERA5-Land (climat), BDLISA (référentiel hydrogéologique).}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{L'entrepôt : trois couches, une garantie par couche}
+\framesubtitle{\code{hubeau\_data\_integration} \textbullet{} PostgreSQL, TimescaleDB, PostGIS}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize\sffamily,
+  couche/.style={draw=black!75, fill=white, minimum width=5.2cm, minimum height=0.95cm,
+                 align=left, inner xsep=8pt},
+  fl/.style={-{Stealth[length=2mm]}, draw=black!75, thick}]
+  \node[font=\footnotesize\sffamily\itshape, color=black!60] (s) {Hub'Eau \textbullet{} ERA5-Land \textbullet{} BDLISA};
+  \node[couche, below=0.4cm of s] (b) {\textbf{Bronze}\\[1pt] \tiny reçu tel quel, colonnes texte};
+  \node[couche, below=0.35cm of b] (a) {\textbf{Silver}\\[1pt] \tiny typé, dédupliqué, rejets tracés};
+  \node[couche, below=0.35cm of a] (g) {\textbf{Gold}\\[1pt] \tiny joint au climat, indicateurs};
+  \node[draw=black!55, fill=grisclair, minimum width=5.2cm, minimum height=0.6cm,
+        below=0.4cm of g, font=\footnotesize\sffamily] (c) {consommable en SQL};
+  \node[draw=black!55, fill=black!4, right=0.35cm of a, minimum width=2.2cm,
+        minimum height=0.95cm, align=center, font=\tiny] (r) {Rejets\\motif conservé};
+  \draw[fl] (s) -- (b);
+  \draw[fl] (b) -- node[right=2pt,font=\tiny\itshape]{dbt} (a);
+  \draw[fl] (a) -- node[right=2pt,font=\tiny\itshape]{dbt} (g);
+  \draw[fl] (g) -- (c);
+  \draw[fl, densely dashed] (a) -- (r);
+\end{tikzpicture}
+\end{center}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\small
+\begin{apport}{Ne jamais perdre la donnée reçue}
+La couche brute n'interprète rien. Toute décision appartient aux couches suivantes, où elle est
+lisible et rejouable. C'est la condition pour qu'une expérience soit reproductible.
+\end{apport}
+
+\begin{apport}{Rendre le filtrage vérifiable}
+Les lignes écartées sont écrites à part avec le motif de leur exclusion : une station absente
+d'un jeu se distingue par une requête d'une station éliminée par un critère trop strict. Le
+schéma des tables finales est le seul contrat que connaît un consommateur.
+\end{apport}
+
+\vspace{0.2em}
+{\footnotesize \chiffre{\num{658}~M}{lignes brutes} \textbullet{}
+\chiffre{8}{traitements planifiés} \textbullet{} \chiffre{3}{capteurs}\par
+\color{grisardoise} L'ingestion est planifiée, la transformation déclenchée par événement.\par}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+% ===========================================================================
+\begin{frame}{Le cœur de l'entrepôt : rattacher chaque station à son climat}
+\vspace{-4pt}
+
+\begin{columns}[T]
+\begin{column}{0.46\textwidth}
+\vspace{0.5cm}
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize\sffamily]
+  \draw[step=0.62cm, black!25] (0,0) grid (2.48,1.86);
+  \node[circle, fill=bleuclair, inner sep=2pt] (p) at (1.55,1.1) {};
+  \node[font=\tiny, above right=0pt of p] {station};
+  \draw[-{Stealth[length=2mm]}, thick, rougesobre] (p) -- (1.24,0.93);
+  \node[font=\tiny, color=rougesobre, below left=-2pt of p] {maille};
+  \node[font=\tiny\itshape, color=black!60, below=0.15cm of current bounding box.south]
+       {grille \ang{0.1}, PostGIS, plus proche voisin};
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.4cm}
+{\footnotesize\color{grisardoise} Effectuée une fois, matérialisée. Le niveau et son forçage
+figurent ensuite sur la même ligne, au même jour.\par}
+\end{column}
+
+\begin{column}{0.50\textwidth}
+\small
+\begin{apport}{Deux précautions, dont une invisible}
+L'emprise s'arrête à la métropole : les stations ultramarines sont ingérées mais \textbf{sans
+forçage climatique}, et doivent être écartées explicitement.
+\end{apport}
+
+\begin{apport}{Le piège des coordonnées}
+Une même maille écrite \ang{48.1} d'un côté et \num{48.09999999999995} de l'autre fait deux
+points distincts : la grille se dédouble sans que rien ne le signale. Les coordonnées sont
+arrondies au pas natif, partout où elles servent de clé. Un test garde l'invariant.
+\end{apport}
+
+\begin{apport}{Enrichissement hydrogéologique}
+Les entités BDLISA rattachées aux stations rendent disponible la nature de l'aquifère. Le
+référentiel ne porte pas la profondeur : c'est une indication, pas une certitude.
+\end{apport}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Des mesures aux indicateurs comparables}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\small
+\begin{apport}{Par station : l'indicateur piézométrique standardisé}
+La méthode n'a pas été inventée ici : elle reprend celle que le BRGM a proposée pour le Bulletin
+de situation hydrologique. Caractère mensuel, minimum de quinze années par mois et sept classes
+sont repris tels quels.
+
+\vspace{0.3em}
+Reprendre une méthode publiée plutôt qu'en définir une ajustée à nos données est un choix de
+\textbf{comparabilité} : les valeurs restent lisibles par les équipes qui diffusent déjà cet
+indicateur.
+\end{apport}
+
+\vspace{0.2em}
+{\footnotesize\color{grisardoise} Écart assumé : référence 1991--2020 au lieu de 1981--2010,
+pour s'aligner sur la normale de l'OMM et sur la chaîne climatique.\par}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\small
+\begin{apport}{Sur grille : trois indices, quatre fenêtres}
+Pour chaque maille de \ang{0.1}, sur 1, 3, 6 et 12 mois, correspondant à des inerties
+différentes du système hydrologique.
+\end{apport}
+
+\vspace{0.2em}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}llY@{}}
+\toprule
+\textbf{Indice} & \textbf{Grandeur} & \textbf{Loi} \\
+\midrule
+SPI  & Précipitation & Gamma \\
+STI  & Température & Normale \\
+SPEI & P moins ETP & Logistique généralisée \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.5em}
+{\footnotesize La loi de l'article fondateur du SPEI ne s'ajustait que sur \SI{74,6}{\percent}
+du domaine, pour une raison structurelle : elle ne représente qu'un sens d'asymétrie. La loi de
+l'implémentation de référence porte la couverture à \SI{100}{\percent}.\par}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Un arbitrage qui décidait de la justesse de tout l'aval}
+\framesubtitle{Le calcul était juste, le code sans faute, la grandeur employée ne l'était pas}
+
+\begin{columns}[T]
+\begin{column}{0.50\textwidth}
+\small
+ERA5-Land publie une variable nommée « évaporation potentielle ». La documentation du produit en
+fait une \textbf{évaporation en nappe d'eau libre}, du type mesuré sur un bac. Le bilan hydrique
+a besoin d'autre chose : l'évapotranspiration de référence de la FAO, celle d'un gazon ras bien
+alimenté en eau.
+
+\vspace{0.4em}
+L'écart s'explique physiquement. Une nappe d'eau n'oppose aucune résistance de surface au
+passage de la vapeur et réfléchit peu le rayonnement ; un couvert végétal ferme ses stomates et
+renvoie près du quart de l'énergie reçue.
+\end{column}
+
+\begin{column}{0.46\textwidth}
+\vspace{0.2cm}
+\footnotesize
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Variable brute ERA5-Land & \SI{1756}{\milli\metre\per\an} \\
+Référence FAO, calculée & \SI{818}{\milli\metre\per\an} \\
+\midrule
+Rapport & $\times\,\num{2,15}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.4em}
+\small
+La première place \textbf{l'intégralité du territoire en déficit hydrique permanent}, années
+pluvieuses comprises, ce qui est physiquement faux. La seconde est dans l'intervalle des
+références publiées pour la France.
+
+\vspace{0.4em}
+{\footnotesize\color{grisardoise} Seule la confrontation aux ordres de grandeur connus pouvait
+le révéler. Aucun test logiciel ne détecte ce genre de défaut.\par}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Les indicateurs produits sont vérifiés, contre un critère fixé d'avance}
+
+\begin{columns}[T]
+\begin{column}{0.56\textwidth}
+\small
+Un indice standardisé doit, par construction, suivre approximativement une loi normale centrée
+réduite \emph{sur sa propre période de référence}. C'est une propriété vérifiable.
+
+\vspace{0.3em}
+Le critère d'acceptation a été fixé \textbf{avant} la mesure : moyenne à $\pm\,\num{0,05}$,
+écart-type à $\pm\,\num{0,05}$, saturation aux bornes sous \SI{1}{\percent}. Fixer le seuil
+avant de mesurer évite de l'ajuster au résultat obtenu.
+
+\vspace{0.4em}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}Yrrr@{}}
+\toprule
+\textbf{Indice} & \textbf{Moyenne} & \textbf{Écart-type} & \textbf{Saturation} \\
+\midrule
+SPI  & \numrange{-0,008}{0,002} & \numrange{0,985}{1,031} & \SIrange{0,05}{0,51}{\percent} \\
+STI  & \num{0,000}              & \num{0,983}             & \SIrange{0,00}{0,04}{\percent} \\
+SPEI & \numrange{0,004}{0,006}  & \numrange{0,999}{1,013} & \SIrange{0,012}{0,035}{\percent} \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3em}
+{\footnotesize \num{41960400} valeurs, \num{11496} mailles, quatre fenêtres. Critère satisfait
+partout.\par}
+\end{column}
+
+\begin{column}{0.40\textwidth}
+\small
+\begin{apport}{Un signal, pas un artefact}
+La moyenne du SPEI sur un mois décroît de décennie en décennie :
+\end{apport}
+
+\vspace{0.2em}
+\footnotesize
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Années 1990 & $+\num{0,038}$ \\
+Années 2000 & $+\num{0,007}$ \\
+Années 2010 & $-\num{0,016}$ \\
+Depuis 2020 & $-\num{0,117}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.4em}
+\small
+Cette évolution avait été \textbf{anticipée avant d'être mesurée}, ce qui la distingue d'une
+dérive de méthode. Elle traduit un assèchement.
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{La plateforme : une architecture qui survit à son interface}
+\framesubtitle{\code{time-serie-explo} \textbullet{} React, FastAPI, bibliothèque métier Python}
+
+\begin{columns}[T]
+\begin{column}{0.50\textwidth}
+\vspace{0.3cm}
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize\sffamily,
+  bande/.style={draw=black!70, fill=white, minimum width=6.2cm, minimum height=0.65cm, align=center},
+  mod/.style={draw=black!50, fill=white, minimum width=1.42cm, minimum height=0.6cm,
+              align=center, font=\tiny},
+  fl/.style={-{Stealth[length=1.8mm]}, draw=black!70}]
+  \node[bande] (spa) {Interface web};
+  \node[bande, below=0.35cm of spa] (api) {Service applicatif};
+  \node[draw=black, very thick, fill=black!3, minimum width=6.2cm, minimum height=1.5cm,
+        below=0.35cm of api] (core) {};
+  \node[anchor=north, font=\footnotesize\sffamily\bfseries, yshift=-2pt] at (core.north) {Bibliothèque métier};
+  \node[mod] at ($(core.center)+(-2.28,-0.28)$) {Données};
+  \node[mod] at ($(core.center)+(-0.76,-0.28)$) {Métier};
+  \node[mod] at ($(core.center)+(0.76,-0.28)$)  {Prévision};
+  \node[mod] at ($(core.center)+(2.28,-0.28)$)  {Explications};
+  \node[draw=black, very thick, minimum width=2.6cm, minimum height=0.55cm,
+        below=0.4cm of core, font=\footnotesize\sffamily] (e) {Entrepôt, en SQL};
+  \draw[fl] (spa) -- (api); \draw[fl] (api) -- (core); \draw[fl] (core) -- (e);
+\end{tikzpicture}
+\end{center}
+\end{column}
+
+\begin{column}{0.46\textwidth}
+\small
+\begin{apport}{La contrainte structurante}
+La bibliothèque métier \textbf{ne dépend ni du service applicatif ni de l'interface web}.
+\end{apport}
+
+\begin{apport}{Pourquoi c'est déterminant}
+Préparation des données, calibration, entraînement, attribution et contrefactuels s'exécutent
+indifféremment depuis le service web, depuis un script ou depuis un carnet de calcul. Les
+méthodes développées ne sont pas prisonnières de l'application : si l'interface était
+abandonnée, elles resteraient utilisables.
+\end{apport}
+
+\vspace{0.2em}
+{\footnotesize\color{grisardoise} Trois environnements séparés, production, calcul sur processeur
+graphique et développement, avec leurs propres volumes et bases.\par}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{L'Observatoire : donner à voir avant de modéliser}
+
+\begin{columns}[T]
+\begin{column}{0.52\textwidth}
+\capture[1.0]{observatoire-carte.png}{Carte des stations piézométriques portant leur indicateur
+de situation, avec les entités aquifères BDLISA en fond et le découpage en secteurs.}
+\end{column}
+
+\begin{column}{0.44\textwidth}
+\small
+\begin{apport}{Deux publics, deux usages}
+Les \textbf{hydrogéologues} situent une station dans son contexte : quelle nappe, comment elle se
+comporte face à ses voisines, où elle en est dans son historique. Les \textbf{modélisateurs}
+repèrent les chroniques trop courtes, trop lacunaires ou perturbées par un pompage, avant
+d'entraîner.
+\end{apport}
+
+\begin{apport}{Une règle de conception}
+\emph{Soit un indicateur réellement standardisé, soit une valeur réelle affichée comme telle.
+Jamais un intermédiaire inventé.} Les cumuls absolus ne sont donc pas cartographiés : les
+seuiller supposerait une norme que l'outil inventerait, et l'utilisateur lirait une carte de
+sécheresse là où il n'y a qu'un choix de bornes.
+\end{apport}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Le laboratoire de modèles métier : construire la référence}
+\framesubtitle{Sans référence, une performance ne signifie rien}
+
+\begin{columns}[T]
+\begin{column}{0.50\textwidth}
+\capture[1.0]{pastas-calibration.png}{Calibration d'un modèle à fonction de transfert sur une
+station : ajustement, réponse impulsionnelle et diagnostics de résidus.}
+\end{column}
+
+\begin{column}{0.46\textwidth}
+\small
+\begin{apport}{Ce que le modèle apporte}
+Le niveau simulé est la somme de contributions obtenues par convolution du forçage avec une
+\textbf{fonction de réponse impulsionnelle} calibrée. Cette fonction \emph{est} l'objet d'intérêt
+hydrogéologique : sa forme dit comment l'aquifère amortit et retarde le signal climatique, son
+intégrale de combien le niveau varie pour une sollicitation donnée.
+\end{apport}
+
+\begin{apport}{Calibration automatique}
+Une grille de configurations est calibrée puis classée sur quatre critères normalisés, dont un
+qui écarte les modèles dont la mémoire excède les données disponibles.
+\end{apport}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{L'apport hydrogéologique inscrit dans le code}
+\framesubtitle{Une connaissance qui ne s'obtient pas par validation croisée}
+
+\begin{columns}[T]
+\begin{column}{0.60\textwidth}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}llY@{}}
+\toprule
+\textbf{Famille} & \textbf{Réponse} & \textbf{Justification} \\
+\midrule
+Alluvial & Exponentielle & Réponse rapide, système simple \\
+Sédimentaire poreux & Gamma & Réponse intermédiaire \\
+Craie, double porosité & Gamma & Forte inertie \\
+Sédimentaire fracturé & Gamma & Recharge complexe \\
+Karstique & Double exp. & Deux temps : conduits et matrice \\
+Socle, montagne & Gamma & Recharge non linéaire \\
+Volcanique & Gamma & Système hétérogène \\
+Composite & 4 paramètres & Milieu hétérogène \\
+\bottomrule
+\end{tabularx}
+\end{column}
+
+\begin{column}{0.36\textwidth}
+\small
+\begin{apport}{Le cas karstique}
+Un karst se comporte comme deux réservoirs couplés : des conduits qui réagissent en heures, une
+matrice qui réagit en mois. Une réponse à un seul temps caractéristique ne peut pas représenter
+cette dualité.
+\end{apport}
+
+\vspace{0.2em}
+{\footnotesize\color{grisardoise} Ces configurations amorcent la recherche, elles ne la
+contraignent pas : une grille de référence est évaluée en parallèle, de sorte qu'une station
+atypique n'est jamais enfermée dans la recommandation de sa famille.\par}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Le laboratoire d'apprentissage : rendre les comparaisons possibles}
+\vspace{-4pt}
+
+\begin{columns}[T]
+\begin{column}{0.50\textwidth}
+\capture[1.0]{ia-entrainement.png}{Suivi d'entraînement en temps réel : évolution des pertes en
+apprentissage et en validation, avec arrêt anticipé.}
+\end{column}
+
+\begin{column}{0.46\textwidth}
+\small
+\begin{apport}{Un catalogue sous interface unique}
+Douze architectures : attention (\emph{temporal fusion transformer}), décomposition par blocs
+(N-BEATS, N-HiTS), récurrentes, convolutives, et récentes à faible coût (TiDE, DLinear).
+\end{apport}
+
+\begin{apport}{Pourquoi inclure les modèles linéaires}
+Ce sont des références exigeantes. Une architecture lourde qui ne les dépasse pas doit être
+écartée, et les avoir dans le même outil évite la comparaison biaisée.
+\end{apport}
+
+\begin{apport}{Traçabilité}
+Chaque exécution est enregistrée avec ses paramètres, ses métriques et le modèle produit. Sans
+cela, comparer deux expériences séparées de quelques semaines n'est pas défendable.
+\end{apport}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Expliquer : sur quoi le modèle s'appuie}
+
+\begin{columns}[T]
+\begin{column}{0.50\textwidth}
+\capture[1.0]{ia-explicabilite.png}{Panneau d'explicabilité d'une prévision : attribution
+projetée sur le plan variable-temps.}
+\end{column}
+
+\begin{column}{0.46\textwidth}
+\small
+\begin{apport}{Cinq familles, pour les confronter}
+Importance par perturbation, valeurs de Shapley et leur variante pour séries temporelles,
+attributions par gradients, poids d'attention, décomposition du signal.
+\end{apport}
+
+\begin{apport}{Ce que la confrontation apporte}
+Les réunir ne vise pas l'exhaustivité. Des méthodes reposant sur des principes différents et qui
+\textbf{convergent} donnent une explication crédible ; leur \textbf{divergence} signale une
+explication fragile, information qu'une méthode unique aurait masquée.
+\end{apport}
+
+\vspace{0.2em}
+{\footnotesize\color{grisardoise} Quatre des cinq familles sont atteignables depuis l'interface.
+Les poids d'attention existent en bibliothèque et en API, mais aucun composant de l'interface ne
+les sollicite.\par}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Expliquer : que se passerait-il dans d'autres conditions}
+\framesubtitle{Le contrefactuel doit rester physiquement possible, sinon il ne vaut rien}
+
+\begin{columns}[T]
+\begin{column}{0.49\textwidth}
+\small
+\begin{apport}{Le problème}
+Modifier librement les entrées jusqu'à atteindre la cible produit des scénarios corrects au sens
+de l'optimisation et \textbf{physiquement absurdes} : de l'air réchauffé sans évaporation
+supplémentaire, une saison qui n'existe nulle part.
+\end{apport}
+
+\begin{apport}{Pourquoi une pénalité ne suffit pas}
+Un expert rejette un scénario qui viole un peu les relations physiques aussi sûrement qu'un
+scénario qui les viole beaucoup. Ce n'est pas une grandeur continue pour lui, c'est un test de
+recevabilité.
+\end{apport}
+\end{column}
+
+\begin{column}{0.47\textwidth}
+\small
+\begin{apport}{Deux réponses de natures différentes}
+\textbf{PhysCF} change d'espace de recherche : sept paramètres de régime climatique,
+l'évapotranspiration étant calculée depuis la température. Plausibilité garantie \emph{par
+construction}.
+
+\vspace{0.25em}
+\textbf{CoMTE} cherche dans l'historique une période réellement observée. Plausibilité garantie
+\emph{par la provenance}.
+\end{apport}
+
+\begin{apport}{Une réponse énonçable}
+\emph{« Il aurait fallu des hivers un cinquième plus humides et un climat plus frais d'un
+degré. »}
+\end{apport}
+
+\vspace{0.1em}
+{\footnotesize\color{grisardoise} Chaque scénario est rejoué dans un modèle métier indépendant :
+s'il fait diverger les deux modèles bien plus que sur l'observé, il est rejeté.\par}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Bilan : ce qui est acquis, ce qui ne l'est pas, par quoi commencer}
+\vspace{-4pt}
+
+\begin{columns}[T]
+\begin{column}{0.32\textwidth}
+{\color{vertsobre}\bfseries Acquis}
+\vspace{0.2em}
+\footnotesize
+\begin{itemize}\itemsep0.25em
+  \item entrepôt national reprenable, indicateurs validés contre un critère fixé d'avance ;
+  \item plateforme traçable, cœur réutilisable hors de l'application ;
+  \item référence métier interprétable, paramétrée par famille d'aquifère ;
+  \item deux méthodes contrefactuelles contraintes, vérifiables contre un modèle indépendant.
+\end{itemize}
+\end{column}
+
+\begin{column}{0.32\textwidth}
+{\color{rougesobre}\bfseries Non établi}
+\vspace{0.2em}
+\footnotesize
+\begin{itemize}\itemsep0.25em
+  \item aucun classement des architectures : les campagnes ont validé le dispositif, pas comparé
+        les méthodes ;
+  \item aucune évaluation des contrefactuels : le protocole est écrit, la campagne reste à
+        conduire ;
+  \item la page qui pilote les contrefactuels n'est pas branchée dans l'interface ;
+\end{itemize}
+\end{column}
+
+\begin{column}{0.32\textwidth}
+{\color{bleuprofond}\bfseries Par quoi commencer}
+\vspace{0.2em}
+\footnotesize
+\begin{enumerate}\itemsep0.25em
+  \item aligner le forçage d'évapotranspiration de la chaîne station : il conditionne toute
+        interprétation physique ;
+  \item brancher la route de l'interface contrefactuelle ;
+  \item exécuter la campagne comparative, échantillon stratifié par famille d'aquifère ;
+  \item adapter les configurations d'apprentissage par famille d'aquifère.
+\end{enumerate}
+
+\vspace{0.3em}
+{\scriptsize\color{grisardoise} Sujets ouverts avec le BRGM : nappe-rivière, double porosité,
+nappes captives.\par}
+\end{column}
+\end{columns}
+\end{frame}
+
+\end{document}

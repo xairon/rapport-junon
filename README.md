@@ -35,11 +35,13 @@ Les deux sont publics, sous licence MIT.
 ## Compiler
 
 ```bash
-make                  # produit les deux PDF
+make                  # produit tous les PDF
 make main             # rapport de clôture seul
 make st32             # livrable ST3.2 seul
+make slides           # les deux jeux de diapositives
 ./verifier.sh         # compile le rapport et contrôle le rendu
 ./verifier-st32.sh    # idem pour le ST3.2
+./verifier-slides.sh  # idem pour les diapositives
 ```
 
 `latexmk` enchaîne les passes et appelle `biber`. Sans `latexmk` :
@@ -54,6 +56,11 @@ pdflatex main && biber main && pdflatex main && pdflatex main
 `chapitres/` contient un fichier par chapitre et `bibliographie.bib` les 46 références
 partagées par les deux documents. Une
 version antérieure du plan est figée dans `versions/plan-v2/`, sous le tag `plan-v2`.
+
+`slides/` porte deux jeux de diapositives tirés du rapport, `court.tex` (5 diapositives de
+contenu) et `long.tex` (15), sur un préambule commun. Les captures d'écran vont dans
+`slides/captures/`, dont le README liste ce qu'il reste à photographier ; tant qu'un fichier
+manque, un cadre en pointillés rappelle ce qu'il doit montrer.
 
 `st32/` porte le livrable ST3.2 : `st32.tex` (document maître), `preambule.tex` (gabarit
 Labroche, adapté à biblatex), `sections/` et `references.bib` (33 références propres, dont le
