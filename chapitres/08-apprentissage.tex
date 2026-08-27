@@ -118,6 +118,13 @@ même outil ne vise pas l'exhaustivité mais la \textbf{confrontation} : des mé
 des principes différents et qui convergent donnent une explication crédible, tandis que leur
 divergence signale une explication fragile, information qu'une méthode unique aurait masquée.
 
+Quatre de ces cinq familles sont atteignables depuis l'interface, dans le panneau
+d'explicabilité de la page de prévision : l'importance par perturbation, les valeurs de Shapley,
+les attributions par gradients et la décomposition du signal. Les poids d'attention font
+exception. Le calcul existe dans la bibliothèque, le point d'accès existe dans l'API et le
+client web sait l'appeler, mais aucun composant de l'interface ne le sollicite : ils ne sont donc
+pas accessibles à un utilisateur.
+
 La deuxième question relève des explications contrefactuelles, formalisées par Wachter
 \emph{et al.}~\cite{wachter2018counterfactual} et transposées depuis peu à la prévision de
 séries temporelles~\cite{wang2023forecastcf}. Elle a demandé un développement propre, parce que
@@ -145,6 +152,16 @@ comparaison de nature différente. Chaque scénario produit est enfin rejoué da
 calibré indépendamment, celui du chapitre~\ref{ch:metier} : s'il fait diverger les deux modèles
 bien plus qu'ils ne divergeaient sur la situation observée, il est rejeté.
 
+Ces deux méthodes et leur validation croisée sont livrées dans la bibliothèque métier et
+exposées par l'API, où elles disposent chacune de leur point d'accès. Elles ne sont en revanche
+\textbf{pas atteignables depuis l'interface}. La page qui les pilote existe dans le dépôt, avec
+son sélecteur de cible et sa vue de comparaison, mais elle n'est déclarée dans aucune route de
+l'application : le laboratoire d'intelligence artificielle propose quatre onglets, données,
+entraînement, prévision et modèles, et aucun d'eux ne mène aux contrefactuels. Un utilisateur ne
+peut donc en produire aucun sans passer par l'API ou par un carnet de calcul. Rebrancher cette
+page est un travail court, puisque tout ce qu'elle appelle fonctionne, mais il n'a pas été fait
+et il conditionne tout usage par un non-développeur.
+
 La troisième question renverse la perspective. Une chronique qu'aucun modèle climatique ne
 reproduit n'est pas nécessairement mal modélisée : elle peut porter la trace d'un prélèvement,
 que le forçage climatique ne contient pas. Le problème est non supervisé, faute d'historique
@@ -170,9 +187,11 @@ campagne d'évaluation comparative, qui opposerait les modèles appris aux modè
 chapitre~\ref{ch:metier} sur un échantillon représentatif de stations et de familles
 d'aquifères, reste donc à conduire, et l'outillage nécessaire est en place pour la mener.
 
-Cela vaut au même titre pour les outils d'analyse. Ils sont opérationnels, ils mettent en œuvre
-l'exigence formulée par les hydrogéologues, et le dispositif prévoit de quoi les comparer entre
-eux comme de quoi vérifier leurs résultats sur un modèle indépendant. Mais aucune évaluation
+Cela vaut au même titre pour les outils d'analyse. Ils mettent en œuvre l'exigence formulée par
+les hydrogéologues, et le dispositif prévoit de quoi les comparer entre eux comme de quoi
+vérifier leurs résultats sur un modèle indépendant. Ils sont opérationnels au niveau de la
+bibliothèque et de l'API ; pour les contrefactuels, ils ne le sont pas au niveau de l'interface,
+faute du branchement signalé plus haut. Mais aucune évaluation
 quantitative n'a été conduite, sur aucun échantillon, selon aucune métrique de qualité
 d'explication établie. Ces développements sont \textbf{préliminaires}, et c'est leur objet :
 la question de ce qu'est une bonne explication relève des travaux en cours évoqués au

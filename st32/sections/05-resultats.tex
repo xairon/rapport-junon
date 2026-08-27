@@ -41,7 +41,7 @@ La conséquence pour la tâche 3.2 est directe. Les calibrations mécanistiques 
 
 \subsection{État de l'outillage au regard des deux questions de recherche}
 
-Le tableau~\ref{tab:etat-qr} récapitule ce que le socle apporte à chaque question et ce qui manque encore. La colonne d'état est délibérément sévère : \emph{outillé} signifie que les moyens existent, pas qu'un résultat a été produit.
+Le tableau~\ref{tab:etat-qr} récapitule ce que le socle apporte à chaque question et ce qui manque encore. La colonne d'état est délibérément sévère : \emph{outillé} signifie que les moyens existent, pas qu'un résultat a été produit, et la mention \emph{exposé} distingue ce qu'un utilisateur peut atteindre depuis l'application de ce qui ne s'exécute que par l'API ou un carnet de calcul.
 
 \begin{table}[H]
 \centering
@@ -56,16 +56,20 @@ idempotente et reprenable, déploiement conteneurisé & atteint \\
 QT2 & Observatoire, laboratoire mécanistique, catalogue d'architectures profondes, traçabilité
 des expériences, modules d'explication & atteint \\
 QR1 & Cinq familles d'attribution mises en œuvre et confrontables entre elles, restitution sur
-le plan variable-temps & outillé, non évalué \\
+le plan variable-temps ; quatre d'entre elles accessibles dans l'interface & outillé, exposé,
+non évalué \\
 QR2 & Deux méthodes contrefactuelles de natures différentes, test de cohérence croisée contre
-un modèle indépendant, protocole de comparaison formalisé & outillé, non mesuré \\
+un modèle indépendant, protocole de comparaison formalisé & outillé, non exposé dans
+l'interface, non mesuré \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{Ce qui n'est pas établi}
 
-Trois résultats que le lecteur pourrait attendre ne figurent pas dans ce rapport, et il faut dire pourquoi.
+Quatre choses que le lecteur pourrait attendre ne figurent pas dans ce rapport, et il faut dire pourquoi.
+
+Le \textbf{pilotage des contrefactuels depuis l'interface} n'est pas livré. La page correspondante existe dans le dépôt et l'API répond, mais aucune route de l'application n'y mène, de sorte que les méthodes de la section~\ref{sec:xai} restent hors de portée d'un utilisateur non développeur. C'est un défaut de branchement, court à corriger, et non une lacune de méthode ; il est signalé ici parce qu'il change ce que la plateforme permet aujourd'hui de faire, et parce qu'il conditionne toute évaluation associant des hydrogéologues.
 
 Le \textbf{classement des architectures de prévision} sur le cas hydrogéologique n'est pas établi. Les campagnes d'entraînement conduites au cours des travaux ont servi à valider le dispositif et à orienter les développements ; les jeux de données préparés et les points de sauvegarde ont été purgés des dépôts lors de la passation. Reconstituer a posteriori un tableau de performances à partir de souvenirs ne serait pas un résultat scientifique. La campagne qui opposerait les modèles appris aux modèles mécanistiques sur un échantillon stratifié reste donc à conduire, et l'outillage nécessaire est en place pour la mener.
 

@@ -32,9 +32,10 @@ préalables et postérieurs ; scénarios prospectifs à bornes physiquement dér
 Apprentissage & Catalogue d'une douzaine d'architectures de prévision profonde ; optimisation
 d'hyperparamètres ; traçabilité des expériences ; suivi d'entraînement en temps réel ;
 configurations prêtes à l'emploi par cas d'usage métier \\
-Explicabilité & Attribution multi-méthodes ; contrefactuels sous contrainte physique avec
-couplage thermodynamique et validation par modèle indépendant ; détection non supervisée
-d'influence anthropique \\
+Explicabilité & Attribution multi-méthodes, dont quatre familles accessibles dans l'interface ;
+contrefactuels sous contrainte physique avec couplage thermodynamique et validation par modèle
+indépendant, livrés en bibliothèque et en API mais non branchés dans l'interface ; détection non
+supervisée d'influence anthropique \\
 Ingénierie & Deux dépôts conteneurisés, reproductibles et documentés pour la reprise ;
 environnements de développement et de production séparés \\
 \bottomrule
@@ -49,8 +50,10 @@ Elle a été instrumentée de bout en bout ; elle n'a pas été conclue.
 \textbf{Ce qui a été atteint} : l'outillage complet que le sujet supposait, jusqu'aux méthodes
 d'explication elles-mêmes. Parmi elles, les contrefactuels sous contrainte physique s'attaquent
 directement à ce qui rend l'explicabilité délicate dans ce domaine, à savoir qu'une explication
-physiquement incohérente n'est pas une explication. Ces développements restent préliminaires :
-ils sont opérationnels et prêts à être éprouvés, ils ne sont pas validés.
+physiquement incohérente n'est pas une explication. Ces développements restent préliminaires à
+deux titres : ils ne sont pas validés, et la page d'interface qui devait les mettre à portée d'un
+hydrogéologue n'est pas branchée dans l'application, de sorte qu'ils ne s'exécutent aujourd'hui
+que par l'API ou par un carnet de calcul.
 
 \textbf{Ce qui n'a pas été atteint} : l'évaluation quantitative comparée des méthodes, faute de
 temps une fois l'infrastructure construite. C'est le travail le plus immédiatement accessible à
@@ -137,9 +140,10 @@ Des modèles à expliquer & Douze architectures de prévision profonde sous inte
 traçabilité des expériences \\
 Une référence interprétable à laquelle confronter les explications & Modèles à fonction de
 transfert calibrés, dont les paramètres ont un sens hydrogéologique \\
-Des méthodes d'attribution & Cinq familles complémentaires, confrontables entre elles \\
+Des méthodes d'attribution & Cinq familles complémentaires, confrontables entre elles, dont
+quatre accessibles dans l'interface \\
 Des explications actionnables & Contrefactuels sous contrainte physique, mettant en œuvre les
-critères formulés par les hydrogéologues \\
+critères formulés par les hydrogéologues, appelables par l'API et non par l'interface \\
 Un moyen de valider une explication & Rejeu du scénario dans un modèle métier indépendant \\
 Des cas d'étude qualifiés & Détection non supervisée d'influence anthropique, permettant
 d'écarter les chroniques impropres \\
@@ -160,10 +164,10 @@ de résultats à venir.
 \begin{enumerate}
   \item \textbf{Les modèles métier sont calibrés sur une évapotranspiration inadaptée.} La
   chaîne des stations transporte encore la variable brute, environ deux fois supérieure à
-  l'évapotranspiration de référence employée par la chaîne climatique. La mesure présentée au
-  chapitre~\ref{ch:indicateurs} montre que le modèle n'absorbe pas cet écart : le paramètre qui
-  pondère l'évaporation sature à sa borne, et l'ajustement en dépend. Les prévisions restent
-  exploitables, mais les paramètres calibrés n'ont pas d'interprétation physique directe.
+  l'évapotranspiration de référence employée par la chaîne climatique. Ce que cet écart change
+  pour les calibrations n'a pas été évalué, aucune campagne comparant les deux forçages n'ayant
+  été conduite. Les prévisions restent exploitables, mais les paramètres calibrés n'ont pas
+  d'interprétation physique directe tant que ce point n'est pas tranché.
   Aligner la chaîne des stations est le premier chantier, et il précède toute campagne de
   calibration.
 
@@ -176,6 +180,15 @@ de résultats à venir.
   sont bien identiques et le test qui les compare existe de part et d'autre, mais rien ne le
   lance. Tant que les vérifications dépendent d'une initiative humaine, la confiance dans les
   évolutions décroît avec le temps. C'est le chantier le moins coûteux et le plus rentable.
+
+  \item \textbf{Les contrefactuels ne sont pas atteignables depuis l'interface.} La page qui les
+  pilote existe dans le dépôt, avec son sélecteur de cible, sa vue de comparaison et son appel à
+  la validation par modèle indépendant, et tout ce qu'elle appelle fonctionne. Mais elle n'est
+  déclarée dans aucune route de l'application, et le laboratoire d'intelligence artificielle
+  n'expose que ses quatre onglets de données, d'entraînement, de prévision et de modèles. Les
+  méthodes ne s'exécutent donc aujourd'hui que par l'API ou par un carnet de calcul. Le même
+  constat vaut, plus modestement, pour les poids d'attention côté attribution. Rebrancher la
+  route est court ; ne pas le faire prive de l'outil le public auquel il était destiné.
 
   \item \textbf{Aucun résultat de performance comparée n'est établi.} Les campagnes
   d'entraînement ont validé le dispositif, non classé les méthodes ; les jeux préparés et les
@@ -260,7 +273,8 @@ répondre « pourquoi » et « que se passerait-il si » dans les termes du mét
 sous contrainte physique décrits en section~\ref{sec:physcf} sont directement conçus pour cet
 usage : ils produisent des scénarios énonçables, du type « il aurait fallu des hivers un
 cinquième plus humides et un climat plus frais d'un degré », plutôt que des perturbations
-numériques.
+numériques. Leur mise à portée effective d'un gestionnaire suppose toutefois le branchement de
+l'interface signalé au chapitre~\ref{ch:apprentissage}.
 
 \section{État de passation}
 
