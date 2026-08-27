@@ -26,8 +26,25 @@ pour chaque maille du territoire.
 \section{Les indices par station}
 
 L'indicateur piézométrique standardisé et son équivalent pour les débits situent le mois courant
-par rapport à sa normale saisonnière. La méthode est centralisée dans un unique module, et
-l'application ne la recalcule pas : elle lit les tables produites par l'entrepôt.
+par rapport à sa normale saisonnière. La méthode n'a pas été inventée ici : elle suit celle que
+le BRGM a proposée pour le Bulletin de situation hydrologique~\cite{seguin2015ips}, précisée
+ensuite par une note d'utilisation~\cite{klinka2016ips} et éprouvée par une comparaison avec
+l'indicateur qu'elle remplaçait~\cite{seguin2016ipsbilan}. Ce choix est délibéré. Il aurait été
+possible de définir un indice maison, mieux ajusté à nos données ; il aurait été inutilisable
+pour les équipes qui publient déjà l'IPS, et incomparable aux valeurs qu'elles diffusent.
+Reprendre la méthode publiée place le socle dans le vocabulaire de ses destinataires et rattache
+la chaîne à une famille d'indices standardisés établie, celle du SPI de
+McKee~\cite{mckee1993spi} dont l'IPS transpose le principe aux niveaux de nappe.
+
+Trois points de la méthode BRGM sont repris tels quels : le caractère mensuel de l'indicateur,
+l'exigence d'un minimum de quinze années d'observation pour un mois donné, et la classification
+en sept classes. Deux points s'en écartent, et ils sont signalés parce qu'ils changent les
+valeurs. La période de référence retenue est 1991--2020 plutôt que 1981--2010, pour s'aligner sur
+la normale en vigueur à l'Organisation météorologique mondiale et sur celle qu'emploie la chaîne
+climatique de l'entrepôt, ce qui rend les deux familles d'indices comparables entre elles. Et le
+passage au score suit un rang percentile empirique plutôt qu'un ajustement paramétrique, choix
+dont l'effet est discuté plus loin. La méthode est par ailleurs centralisée dans un unique
+module, et l'application ne la recalcule pas : elle lit les tables produites par l'entrepôt.
 
 \begin{table}[H]
 \centering
