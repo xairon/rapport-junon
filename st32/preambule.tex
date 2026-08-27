@@ -9,6 +9,37 @@
 %     requis par la section des developpements techniques.
 % ---------------------------------------------------------------------------
 
+% ---------------------------------------------------------------------------
+% CHAMPS ADMINISTRATIFS
+%
+% Seule la STRUCTURE de la page de garde vient du gabarit consulte (un livrable
+% d'une autre equipe) : les libelles de formulaire, l'ordre des blocs, le
+% tableau des auteurs, les deux logos. Aucun contenu de ce document n'est repris.
+%
+% ATTENTION, une valeur fait exception et doit etre verifiee avant remise :
+% le numero de convention ci-dessous a ete RECOPIE de ce gabarit. Il identifie
+% le projet PREDICTION, donc il s'applique vraisemblablement aussi a nous, mais
+% cela n'a pas ete verifie sur le texte de la convention. A confirmer.
+%
+% Deux autres champs sont deduits de ce que le present document declare de
+% lui-meme, et non d'une source administrative :
+%   - le numero de livrable (le gabarit numerote « L1.1 », ce document s'annonce
+%     « ST3.2 » : verifier lequel la convention emploie) ;
+%   - l'organisme porteur du livrable.
+%
+% La date doit etre figee a la remise, et non laissee a \today. Et les prenoms
+% de deux coauteurs manquent : voir sections/00-couverture.tex.
+% ---------------------------------------------------------------------------
+\newcommand{\projetLivrable}{PREDICTION -- ARD CVL JUNON}
+\newcommand{\conventionLivrable}{Convention d'Application
+  N\textsuperscript{o}2021 00146736 / N\textsuperscript{o}2022 00151803}
+\newcommand{\intituleLivrable}{ST3.2 Explicabilité et interprétabilité dans les
+  modèles prédictifs profonds de séries temporelles}
+\newcommand{\organismeLivrable}{Université de Tours, LIFAT}
+\newcommand{\dateLivrable}{\today}
+\newcommand{\titreCourant}{Explicabilité et interprétabilité dans les modèles prédictifs
+  profonds de séries temporelles}
+
 % --- PAQUETS DE BASE ---
 \usepackage[utf8]{inputenc}
 \usepackage[french]{babel}
@@ -87,12 +118,14 @@
 \usepackage{xurl}
 
 % --- EN-TÊTES ET PIEDS DE PAGE ---
+% Le gabarit porte le titre du livrable en en-tete et « Page N sur M » en pied.
+\usepackage{lastpage}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\small \color{secondary} ARD JUNON - Prédiction}
+\lhead{\small \color{secondary} \titreCourant}
 \rhead{\small \color{secondary} ST3.2}
-\cfoot{\thepage}
+\cfoot{\small \color{secondary} Page \thepage{} sur \pageref{LastPage}}
 \renewcommand{\headrulewidth}{0.4pt}
 % A 12pt, fancyhdr reclame 13,6pt de bande d'en-tete et avertit a chaque page.
 \setlength{\headheight}{14pt}
