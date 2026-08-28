@@ -1,7 +1,7 @@
 % ---------------------------------------------------------------------------
 % Preambule commun aux deux jeux de diapositives.
-% Compilation : pdflatex (voir Makefile a la racine, cibles slides-court et
-% slides-long). Pas de bibliographie : les diapositives ne citent pas.
+% Compilation : pdflatex (voir Makefile a la racine, cible slides). Pas de
+% bibliographie : les diapositives ne citent pas.
 % ---------------------------------------------------------------------------
 
 \usepackage[T1]{fontenc}
@@ -35,6 +35,24 @@
 \setbeamercolor{normal text}{fg=black}
 \setbeamercolor{alerted text}{fg=rougesobre}
 
+% --- Bandeau de sections ---------------------------------------------------
+% Une capture plein cadre coupe l'auditoire du fil du propos : le bandeau dit
+% en permanence dans quelle partie on se trouve. Il ne s'affiche que si le
+% document declare des sections, de sorte que le jeu court reste nu.
+\setbeamercolor{section in head/foot}{fg=grisardoise}
+\setbeamerfont{section in head/foot}{size=\tiny}
+\setbeamercolor{section in head/foot shaded}{fg=black!35}
+\newif\ifbandeau\bandeaufalse
+\setbeamertemplate{headline}{%
+  \ifbandeau
+    \hbox{\begin{beamercolorbox}[wd=\paperwidth,ht=1.6ex,dp=0.5ex,leftskip=1.2em,
+                                 rightskip=1.2em]{}%
+      \tiny\insertsectionnavigationhorizontal{0.96\paperwidth}{}{}%
+    \end{beamercolorbox}}%
+    \vskip-0.2ex\hrule height 0.3pt width \paperwidth
+  \fi
+}
+
 % --- Pied de page : titre court et numero ----------------------------------
 \setbeamertemplate{footline}{%
   \hbox{\begin{beamercolorbox}[wd=\paperwidth,ht=2.2ex,dp=1.4ex,leftskip=1.2em,rightskip=1.2em]{}%
@@ -57,30 +75,91 @@
 \DeclareSIUnit{\an}{an}
 
 % --- Raccourcis ------------------------------------------------------------
-\newcommand{\code}[1]{\texttt{\small #1}}
+% Sans forcage de taille : \code apparait aussi dans une legende en \scriptsize,
+% ou un \small la rendrait plus grosse que la phrase qui la porte.
+\newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\chiffre}[2]{{\color{bleuprofond}\bfseries #1}~{\small #2}}
 
-% --- Emplacement de capture -------------------------------------------------
-% Affiche la capture si le fichier existe, sinon un cadre qui dit precisement
-% ce qu'il faut photographier. Les diapositives compilent donc avant que les
-% captures soient prises, et se completent sans retouche quand elles arrivent.
-% Usage : \capture[largeur]{nom-du-fichier}{ce qu'il faut montrer}
-\newcommand{\capture}[3][0.86]{%
-  \begin{center}
-  \IfFileExists{captures/#2}%
-    {\includegraphics[width=#1\linewidth,keepaspectratio]{captures/#2}}%
-    {\begin{tikzpicture}
-       \node[draw=grisardoise, dashed, thick, fill=grisclair, rounded corners=2pt,
-             minimum width=#1\linewidth, minimum height=0.40\paperheight,
-             align=center, text width=0.8\linewidth, font=\small\color{grisardoise}]
-            {\textbf{Capture à insérer} : \code{#2}\\[0.4em] #3};
-     \end{tikzpicture}}%
-  \end{center}}
+% --- Captures de la plateforme ---------------------------------------------
+% Les originaux de figures/ sont des fenetres de 3840 px : projetees en entier,
+% leur texte d'interface mesure environ 1 mm et ne se lit pas. Les vues de
+% figures/vues/ cadrent la zone qui porte le propos (voir figures/recadrer.sh).
+% Un filet clair detache la capture, qui est sombre, du fond blanc.
+%
+% Usage : \vue[largeur relative]{nom-de-vue}
+% Le filet compte dans la largeur du resultat : sans le \dimexpr, une vue en
+% pleine largeur deborde de 2\fboxrule.
+\newcommand{\vue}[2][1.0]{%
+  {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.4pt}%
+   \fcolorbox{black!30}{white}{\includegraphics[width=\dimexpr#1\linewidth-2\fboxrule\relax]%
+     {../figures/vues/#2.png}}}}
 
-% Bloc « ce que ça fait / ce que ça donne », sans encadre colore.
+% Variante bornee en largeur ET en hauteur : sur une diapositive, c'est la
+% hauteur qui manque, et une vue large deborde sous le pied de page sans que
+% LaTeX ne signale autre chose qu'une \vbox trop haute.
+% Usage : \vueb[largeur relative]{hauteur en fraction de \paperheight}{nom}
+\newcommand{\vueb}[3][1.0]{%
+  {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.4pt}%
+   \fcolorbox{black!30}{white}{\includegraphics[width=\dimexpr#1\linewidth-2\fboxrule\relax,
+     height=#2\paperheight,keepaspectratio]{../figures/vues/#3.png}}}}
+
+% Diapositive dont la capture est le propos : image au plus grand, puis une
+% seule ligne qui dit ce qu'il faut y lire. Rien d'autre, jamais.
+% Usage : \cadre{titre}{nom-de-vue}{cle de lecture}
+\newcommand{\cadre}[3]{%
+\begin{frame}{#1}
+  \vspace{-0.15cm}
+  \begin{center}\vueb[0.98]{0.575}{#2}\end{center}
+  \vspace{0.15cm}
+  {\scriptsize\color{grisardoise} #3\par}
+\end{frame}}
+
+% Variante pour une vue peu allongee : sur une diapositive 16:9, une image de
+% format 3:2 bornee en hauteur laisse un tiers de la largeur vide. La cle de
+% lecture occupe alors la colonne de droite au lieu du dessous.
+% Usage : \cadrecote{titre}{nom-de-vue}{cle de lecture}
+\newcommand{\cadrecote}[3]{%
+\begin{frame}{#1}
+  \vspace{-0.15cm}
+  \begin{columns}[T]
+  \begin{column}{0.60\textwidth}
+    \vueb{0.62}{#2}
+  \end{column}
+  \begin{column}{0.37\textwidth}
+    \vspace{0.2cm}
+    {\footnotesize\color{grisardoise} #3\par}
+  \end{column}
+  \end{columns}
+\end{frame}}
+
+% Deux vues cote a cote, une legende chacune. Les images sont centrees dans une
+% bande de hauteur fixe, faute de quoi deux formats differents desalignent les
+% legendes.
+% Usage : \cadredouble{titre}{vue1}{legende1}{vue2}{legende2}
+\newcommand{\cadredouble}[5]{%
+\begin{frame}{#1}
+  \vspace{-0.1cm}
+  \begin{columns}[T]
+  \begin{column}{0.485\textwidth}
+    \parbox[t][0.40\paperheight][c]{\linewidth}{\centering\vueb{0.40}{#2}}
+    \vspace{0.1cm}
+    {\scriptsize\color{grisardoise} #3\par}
+  \end{column}
+  \begin{column}{0.485\textwidth}
+    \parbox[t][0.40\paperheight][c]{\linewidth}{\centering\vueb{0.40}{#4}}
+    \vspace{0.1cm}
+    {\scriptsize\color{grisardoise} #5\par}
+  \end{column}
+  \end{columns}
+\end{frame}}
+
+% Bloc « ce que ca fait / ce que ca donne », sans encadre colore.
 \newenvironment{apport}[1]{%
   \par\vspace{0.22em}\noindent{\color{bleuprofond}\bfseries #1}\par\vspace{0.1em}
   \begingroup\small}{\endgroup\par\vspace{0.14em}}
+
+% Mention de provenance : ce que la capture montre est un cas, pas un resultat.
+\newcommand{\lecas}[1]{{\scriptsize\color{black!45} #1\par}}
 
 % --- Page de titre ---------------------------------------------------------
 \newcommand{\pagetitre}{%

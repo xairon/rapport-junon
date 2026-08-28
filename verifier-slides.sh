@@ -8,13 +8,36 @@ for f in court long; do
   o=$(grep -c 'Overfull \\vbox' $f.log);      [ "$o" -eq 0 ] || { echo "ECHEC $f : $o diapo(s) qui debordent"; ok=1; }
   u=$(grep -i 'undefined' $f.log | grep -vc 'Font shape'); [ "$u" -eq 0 ] || { echo "ECHEC $f : $u reference(s) non resolue(s)"; ok=1; }
 done
-# nombre de diapositives attendu : 1 page de titre + 5, et + 15
+# nombre de diapositives attendu : 1 page de titre + 6, et + 23
 nc=$(pdfinfo court.pdf | awk '/Pages/{print $2}')
 nl=$(pdfinfo long.pdf  | awk '/Pages/{print $2}')
-[ "$nc" -eq 6 ]  || { echo "ECHEC court : $nc pages au lieu de 6"; ok=1; }
-[ "$nl" -eq 16 ] || { echo "ECHEC long : $nl pages au lieu de 16"; ok=1; }
-# toute capture attendue est-elle presente ?
-manque=$(grep -ho '\\capture\[[^]]*\]{[^}]*}' court.tex long.tex | sed 's/.*{//;s/}//' | sort -u \
-         | while read -r c; do [ -f "captures/$c" ] || echo "$c"; done | wc -l)
-[ "$ok" -eq 0 ] && echo "OK  court $nc diapos, long $nl diapos, $manque capture(s) encore a prendre"
+[ "$nc" -eq 7 ]  || { echo "ECHEC court : $nc pages au lieu de 7"; ok=1; }
+[ "$nl" -eq 24 ] || { echo "ECHEC long : $nl pages au lieu de 24"; ok=1; }
+
+# Les images reellement incluses sont lues dans les .fls, non devinees dans le
+# .tex : une vue passee en second argument de \cadre echappe a toute regex
+# ligne a ligne, et un controle qui ne voit rien passe sans rien verifier.
+images=$(cat court.fls long.fls | awk '/^INPUT .*\.png$/{print $2}' | sed 's|^\./||' | sort -u)
+
+# 1. Aucune capture d'origine n'est incluse telle quelle : une fenetre de
+#    3840 px projetee en entier a un texte d'interface d'environ 1 mm. Seuls
+#    les deux logos echappent a la regle.
+brut=$(echo "$images" | grep -c '\.\./figures/[a-z0-9-]*\.png$')
+logos=$(echo "$images" | grep -c '\.\./figures/logo-')
+[ "$brut" -eq "$logos" ] || {
+  echo "ECHEC capture d'origine incluse hors figures/vues/ :"
+  echo "$images" | grep '\.\./figures/[a-z0-9-]*\.png$' | grep -v 'logo-' | sed 's/^/       /'
+  ok=1; }
+
+# 2. Toute vue employee est derivable : figures/recadrer.sh doit la produire.
+#    Sans ce controle, un PNG depose a la main dans figures/vues/ survivrait a
+#    une regeneration et le recadrage ne serait plus reproductible.
+nv=0
+for v in $(echo "$images" | grep '/vues/' | sed 's|.*/vues/||;s|\.png$||'); do
+  nv=$((nv + 1))
+  grep -q "^recadre $v " ../figures/recadrer.sh || {
+    echo "ECHEC vue $v absente de figures/recadrer.sh"; ok=1; }
+done
+
+[ "$ok" -eq 0 ] && echo "OK  court $nc diapos, long $nl diapos, $nv vues toutes derivables"
 exit $ok

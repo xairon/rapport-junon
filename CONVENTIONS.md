@@ -37,3 +37,20 @@ Aucune valeur du rapport n'est estimée ni reconstituée de mémoire.
 | Paramètres et bornes de PhysCF | `time-serie-explo/dashboard/utils/counterfactual/perturbation.py` |
 | Critères STOWA | `time-serie-explo/dashboard/utils/pastas/stowa.py` |
 | Nombre de tests et échecs documentés | `time-serie-explo/docs/README.md` |
+| Chiffres cités en légende de figure (métriques de calibration, écarts de prévision, fiches de station, assiette du classement) | La capture elle-même, reproduite dans la figure : la source est sous les yeux du lecteur |
+
+## Statut des captures
+
+Une capture montre un **cas d'usage de l'instrument**, jamais un résultat. Le rapport n'établit
+aucun classement d'architectures ni aucune évaluation d'explication (chapitre 7), et une figure ne
+doit pas laisser croire le contraire : toute légende dont la capture porte une métrique de modèle
+ou un indicateur calculé sur un ouvrage se termine par la mention `\lecas`, qui le dit. Un chiffre
+de couverture, comme le nombre de stations classées, n'en relève pas.
+
+Une capture n'entre dans un document que si l'image porte mieux qu'une phrase, c'est-à-dire pour
+une carte ou un graphique. Un tableau de chiffres se recompose en LaTeX : dans le pixel, il n'est
+lisible ni en projection ni à l'impression.
+
+Une légende décrit ce que la capture montre réellement. Elle ne décrit pas la fonctionnalité que
+l'écran aurait pu montrer : sur la carte régionale, ce sont les départements qui sont affichés en
+fond, pas les entités BDLISA, même si la couche existe.

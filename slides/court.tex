@@ -18,7 +18,7 @@
 \framesubtitle{Le sujet portait sur l'explicabilité. Il a fallu commencer ailleurs.}
 
 \begin{columns}[T]
-\begin{column}{0.52\textwidth}
+\begin{column}{0.54\textwidth}
 \small
 Quatre sources ouvertes, de bonne qualité, et quatre obstacles :
 \begin{itemize}\itemsep0.35em
@@ -32,7 +32,7 @@ Quatre sources ouvertes, de bonne qualité, et quatre obstacles :
 \end{itemize}
 \end{column}
 
-\begin{column}{0.45\textwidth}
+\begin{column}{0.43\textwidth}
 \vspace{0.6cm}
 \begin{center}
 \begin{tikzpicture}[font=\footnotesize\sffamily,
@@ -50,7 +50,7 @@ Quatre services qui s'ignorent : pas de clé commune, pas de vocabulaire commun.
 \end{column}
 \end{columns}
 
-\vspace{0.4cm}
+\vspace{0.35cm}
 \begin{center}
 {\color{bleuprofond}\bfseries On n'explique pas un modèle qu'on n'a pas pu entraîner.}
 \end{center}
@@ -99,40 +99,6 @@ préparation. C'est aujourd'hui une requête.
 \chiffre{\num{658}~M}{lignes en couche brute} \textbullet{}
 \chiffre{4}{sources} \textbullet{}
 \chiffre{1950}{$\rightarrow$ aujourd'hui}\par}
-\end{column}
-\end{columns}
-\end{frame}
-
-% ===========================================================================
-\begin{frame}{La plateforme : explorer, modéliser, expliquer}
-\framesubtitle{\code{time-serie-explo} \textbullet{} quatre modules sur une bibliothèque métier commune}
-
-\begin{columns}[T]
-\begin{column}{0.44\textwidth}
-\capture[1.0]{observatoire-carte.png}{L'Observatoire : carte des stations portant leur
-indicateur de situation, entités aquifères en fond.}
-
-\vspace{0.15cm}
-\capture[0.9]{observatoire-chronique-niveau-contexte-climatique.png}{La chronique d'une station
-croisée avec ses indicateurs climatiques.}
-\end{column}
-
-\begin{column}{0.53\textwidth}
-\small
-\begin{description}[Explicabilité]\itemsep0.5em
-  \item[\color{bleuprofond}Observatoire] Explorer stations et climat \emph{avant} de modéliser.
-  \item[\color{bleuprofond}Modèles métier] Calibration automatique, configurations par famille
-        d'aquifère. La référence interprétable.
-  \item[\color{bleuprofond}Apprentissage] Douze architectures profondes, expériences traçables,
-        recherche d'hyperparamètres.
-  \item[\color{bleuprofond}Explicabilité] Cinq familles d'attribution, et des contrefactuels
-        contraints par la physique.
-\end{description}
-
-\vspace{0.3em}
-{\footnotesize\color{grisardoise} La bibliothèque métier ne dépend ni du serveur ni de
-l'interface.\par}
-
 \end{column}
 \end{columns}
 \end{frame}
@@ -192,6 +158,65 @@ SPEI & \numrange{0,004}{0,006}  & \numrange{0,999}{1,013} \\
 \vspace{0.15em}
 Mesuré sur \num{41960400} valeurs. L'indicateur piézométrique reprend la méthode du BRGM,
 pour rester comparable aux valeurs qu'il diffuse.
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{La plateforme : explorer, modéliser, expliquer}
+\framesubtitle{\code{time-serie-explo} \textbullet{} quatre modules sur une bibliothèque métier commune}
+
+\begin{columns}[T]
+\begin{column}{0.56\textwidth}
+\vspace{-0.15cm}
+\vue{carte-nationale}
+\vspace{0.15cm}
+\lecas{Nappes et rivières à l'échelle du pays, animées de 2000 à 2026. Le compteur du bas donne
+l'assiette réelle : \num{2610} piézomètres classés sur \num{22407} recensés.}
+\end{column}
+
+\begin{column}{0.41\textwidth}
+\footnotesize
+\begin{description}[Explicabilité]\itemsep0.4em
+  \item[\color{bleuprofond}Observatoire] Explorer stations et climat \emph{avant} de modéliser.
+  \item[\color{bleuprofond}Modèles métier] Calibration automatique, configurations par famille
+        d'aquifère. La référence interprétable.
+  \item[\color{bleuprofond}Apprentissage] Douze architectures profondes, expériences traçables.
+  \item[\color{bleuprofond}Explicabilité] Cinq familles d'attribution, contrefactuels contraints
+        par la physique.
+\end{description}
+
+\vspace{0.5em}
+{\color{grisardoise} La bibliothèque métier ne dépend ni du serveur ni de l'interface : les
+méthodes restent utilisables sans l'application.\par}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{De la station à la prévision, sur un même ouvrage}
+
+\vue{pastas-ajustement}
+\vspace{0.1cm}
+{\scriptsize\color{grisardoise} Le modèle métier : trente ans de niveau observé (gris) et simulé
+(cyan). La forme de la fonction de réponse calibrée \emph{est} l'objet d'intérêt
+hydrogéologique.\par}
+
+\vspace{0.15cm}
+\begin{columns}[T]
+\begin{column}{0.42\textwidth}
+\vue{prevision-fenetre}
+\end{column}
+
+\begin{column}{0.55\textwidth}
+\footnotesize
+\begin{apport}{Le modèle appris, sur période réservée}
+Une fenêtre de trente jours du jeu de test confrontée aux observations, avec ses écarts chiffrés.
+Le même ouvrage sert de bout en bout, du contexte climatique à la prévision.
+\end{apport}
+\vspace{0.2em}
+\lecas{Un cas, non un résultat d'évaluation : aucune campagne comparative n'a été conduite, et
+c'est ce qui reste à faire.}
 \end{column}
 \end{columns}
 \end{frame}

@@ -96,7 +96,31 @@ et hydrométriques sur fond cartographique, avec superposition des entités aqui
 BDLISA et d'un découpage en secteurs hydrogéologiques. Les indicateurs de situation y sont
 portés directement par les stations, ce qui donne une lecture immédiate de l'état du territoire.
 La comparaison entre stations est possible, avec conservation de la sélection d'une vue à
-l'autre.
+l'autre. La figure~\ref{fig:obs-carte-nationale} en donne la vue d'ensemble, la
+figure~\ref{fig:obs-station} la lecture d'un ouvrage particulier.
+
+\begin{figure}[htbp]
+\centering
+\vue[0.97]{carte-nationale}
+\caption{Le volet nappes et rivières à l'échelle du pays. Chaque pastille agrège les stations
+d'un groupe et porte la couleur de leur classe de situation ; le curseur du bas rejoue la période
+2000--2026 saison par saison. Le compteur donne l'assiette réelle du classement, \num{2610}
+piézomètres classés sur \num{22407} recensés et \num{2170} stations hydrométriques sur
+\num{6253} : les stations non classées le sont faute d'historique suffisant pour standardiser, et
+l'écart est visible plutôt que masqué.}
+\label{fig:obs-carte-nationale}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\vue[0.97]{carte-regionale}
+\caption{La même carte à l'échelle régionale, une station sélectionnée. Le panneau de gauche
+porte l'indicateur de situation, la position de la mesure du mois sur les sept classes de
+référence, la profondeur d'historique, et les stations de la même entité hydrogéologique BDLISA
+avec leur propre classe. C'est cette mise en regard, faite manuellement sur plusieurs sources,
+que le volet remplace par une sélection. \lecas}
+\label{fig:obs-station}
+\end{figure}
 
 Le second, le climat, donne l'exploration de la grille nationale de \ang{0.1} selon trois
 vues : une vue de
@@ -106,7 +130,28 @@ d'une maille depuis 1950 (pluie comparée à la normale, indices sur plusieurs f
 
 Les deux volets communiquent : depuis la carte des nappes, un lien contextuel ouvre le climat de
 la maille correspondante ; depuis la fiche d'une station, on accède à son contexte climatique
-local.
+local. La figure~\ref{fig:obs-climat} montre ce croisement sur une station, la
+figure~\ref{fig:obs-comparaison} la comparaison inter-annuelle.
+
+\begin{figure}[htbp]
+\centering
+\vue[0.97]{contexte-spi}
+\caption{Le contexte climatique d'une station, sur la même page que sa chronique : indice
+standardisé de précipitation sur trois mois depuis dix ans, coloré selon les sept classes, et
+cumuls glissants comparés à la normale 1991--2020. Les valeurs affichées sont celles produites et
+validées au chapitre~\ref{ch:indicateurs}, non un recalcul.}
+\label{fig:obs-climat}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\vue[0.97]{comparaison-annees}
+\caption{La comparaison inter-annuelle : plusieurs années superposées mois par mois sur le même
+ouvrage, à sélectionner dans la liste des années disponibles. La lecture recherchée est
+qualitative, situer l'année courante parmi les années remarquables, et elle ne suppose aucun
+seuillage inventé.}
+\label{fig:obs-comparaison}
+\end{figure}
 
 \section{Une règle de conception qui a structuré l'interface}
 

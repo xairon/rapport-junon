@@ -67,6 +67,28 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,backgrounds,calc}
 
+% --- Captures de la plateforme --------------------------------------------
+% Les originaux de figures/ sont des fenetres de 3840 px : reproduits en entier
+% sur la largeur d'une page A4, leur texte d'interface mesure environ 1 mm. Les
+% vues de figures/vues/ cadrent la zone qui porte le propos, ce qui multiplie
+% l'echelle par deux a six ; figures/recadrer.sh les derive des originaux, qui
+% ne sont jamais modifies. Un filet clair detache la capture, qui est sombre,
+% du blanc de la page.
+%
+% Usage : \vue[largeur relative]{nom-de-vue}
+% Le filet compte dans la largeur du resultat : sans le \dimexpr, une vue en
+% pleine largeur deborde de 2\fboxrule et LaTeX signale une \hbox trop large.
+\newcommand{\vue}[2][1.0]{%
+  {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.4pt}%
+   \fcolorbox{black!30}{white}{\includegraphics[width=\dimexpr#1\linewidth-2\fboxrule\relax]%
+     {figures/vues/#2.png}}}}
+
+% Rappel de statut, en fin de legende : ce qu'une capture montre est un cas
+% d'usage de l'instrument, jamais un resultat d'evaluation. Le rapport n'en
+% conduit aucune (chapitre~\ref{ch:apprentissage}).
+\newcommand{\lecas}{\emph{Valeurs lues sur la capture : elles illustrent
+l'instrument, elles ne constituent pas un résultat d'évaluation.}}
+
 % --- Encadrés -------------------------------------------------------------
 \usepackage[most]{tcolorbox}
 

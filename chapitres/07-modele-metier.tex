@@ -39,7 +39,30 @@ climatique ; son intégrale dit de combien le niveau varie pour une sollicitatio
 sont pas des paramètres opaques, ce sont des grandeurs qui s'interprètent.
 
 La plateforme donne accès à quatre modèles de recharge, cinq formes de réponse impulsionnelle proposées à la sélection,
-deux modèles de bruit et deux solveurs, combinables librement.
+deux modèles de bruit et deux solveurs, combinables librement. La figure~\ref{fig:pastas-config}
+montre l'écran où ces choix se posent, la figure~\ref{fig:pastas-parametres} ce que la
+calibration en retourne.
+
+\begin{figure}[htbp]
+\centering
+\vue[0.36]{pastas-configuration}
+\caption{L'écran de calibration. Chaque choix porte sa justification en clair, parce que
+l'utilisateur visé n'est pas l'auteur de la bibliothèque : le modèle de recharge renvoie à sa
+référence, la forme de réponse à son nombre de paramètres, le modèle de bruit à ce qu'il corrige.
+La configuration proposée par défaut est celle que recommande la famille d'aquifère de la station,
+selon la table~\ref{tab:familles-aquiferes}.}
+\label{fig:pastas-config}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\vue{pastas-parametres}
+\caption{Les paramètres calés et leur erreur type. Ce sont les grandeurs qui s'interprètent :
+le gain, le temps caractéristique en jours, la forme de la réponse Gamma, le coefficient
+d'évapotranspiration. Une erreur type du même ordre que la valeur signale un paramètre que les
+données ne contraignent pas. \lecas}
+\label{fig:pastas-parametres}
+\end{figure}
 
 \section{Calibration automatique et critères de qualité}
 
@@ -68,7 +91,30 @@ et les diagnostics de résidus présentés plus loin en fournissent la seconde �
 
 Le troisième critère capture une erreur fréquente et discrète :
 un modèle peut afficher une excellente variance expliquée tout en ayant ajusté une dynamique
-lente que la période d'observation ne permet pas de contraindre. Le critère l'écarte.
+lente que la période d'observation ne permet pas de contraindre. Le critère l'écarte. C'est
+pourquoi le verdict STOWA figure à part de l'erreur dans le classement, comme le montre la
+figure~\ref{fig:pastas-calibration-auto} : un bon critère de Nash-Sutcliffe ne suffit pas à
+rendre un modèle identifiable.
+
+\begin{figure}[htbp]
+\centering
+\vue{pastas-calibration-auto}
+\caption{Le classement produit par la calibration automatique sur une station. Les configurations
+sont calibrées, évaluées sur une période réservée, puis triées ; le verdict STOWA est porté dans
+sa propre colonne. Le temps indiqué par configuration rend le coût de l'exploration explicite,
+ce qui compte quand elle doit être répétée sur un échantillon de stations. \lecas}
+\label{fig:pastas-calibration-auto}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\vue{pastas-galerie}
+\caption{Les modèles calés restent en galerie, avec leur structure, leurs métriques de
+calibration et de validation et leur critère d'information. Comparer plusieurs structures sur une
+même station devient une lecture plutôt qu'une campagne à reconstituer, ce qui est la condition
+pratique de la démarche décrite plus haut : partir du modèle le plus simple, puis enrichir. \lecas}
+\label{fig:pastas-galerie}
+\end{figure}
 
 \section{L'apport hydrogéologique : des configurations par famille d'aquifère}
 
@@ -120,13 +166,51 @@ La calibration est accompagnée d'un dispositif de vérification qui va au-delà
 
 Le modèle est calibré sur une période et évalué sur une période distincte, avec les indicateurs usuels en hydrologie (efficience de
 Nash-Sutcliffe, critère de Kling-Gupta, erreur quadratique moyenne), complétés par l'examen de
-l'autocorrélation et de la normalité des résidus.
+l'autocorrélation et de la normalité des résidus. Les figures~\ref{fig:pastas-ajustement}
+et~\ref{fig:pastas-diagnostics} en donnent les deux lectures, celle de l'ajustement et celle des
+résidus.
+
+\begin{figure}[htbp]
+\centering
+\vue{pastas-metriques}\\[0.35em]
+\vue{pastas-ajustement}
+\caption{Un modèle calibré, sur une station. En haut les métriques des deux périodes, séparées
+plutôt que fondues, de sorte qu'une dégradation entre calibration et validation se voie. En bas
+l'ajustement sur trente ans, observé et simulé superposés, la contribution de la recharge en
+dessous, et le trait vertical marquant la bascule d'une période à l'autre. \lecas}
+\label{fig:pastas-ajustement}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\vue{pastas-diagnostics}
+\caption{Les diagnostics de résidus. Les tests sont affichés avec leur verdict, et le texte de
+chaque graphique dit ce qu'il faut y chercher plutôt que de supposer la statistique acquise. Un
+ajustement satisfaisant assorti d'une structure résiduelle marquée n'est pas un rejet : c'est
+l'indication de ce que la structure ne capte pas encore.}
+\label{fig:pastas-diagnostics}
+\end{figure}
 
 Avant même la calibration, la chronique est examinée :
 qualité et continuité des entrées, valeurs aberrantes, corrélations croisées avec le forçage,
 décomposition du signal, analyse spectrale, analyse des tarissements. Ce faisceau permet de
 détecter en amont les situations où la modélisation est vouée à l'échec, plutôt que de le
 découvrir dans un mauvais ajustement.
+
+Une seconde lecture complète la première, celle des \textbf{signatures hydrologiques}
+(figure~\ref{fig:pastas-radar}). Un modèle peut être juste en moyenne et faux sur la dynamique ;
+comparer l'observé au simulé sur la saisonnalité, les vitesses de montée et de descente ou les
+constantes de tarissement met en évidence ce qu'une métrique d'erreur agrège.
+
+\begin{figure}[htbp]
+\centering
+\vue[0.72]{pastas-radar}
+\caption{Les signatures hydrologiques, observées (bleu) contre simulées (orange), rapportées à
+une échelle commune. Vingt-neuf signatures sont calculées, avec le rapport du simulé à l'observé
+pour chacune ; le radar n'en porte que les principales. Les grandeurs retenues sont celles que
+l'hydrogéologue nomme, non des statistiques génériques.}
+\label{fig:pastas-radar}
+\end{figure}
 
 Les résidus peuvent enfin être examinés conjointement sur plusieurs stations, ce qui fait apparaître les structures communes, donc d'origine régionale ou
 climatique, et les distingue des particularités locales.
@@ -141,6 +225,20 @@ des profils réalistes par type d'usage, alimentation en eau potable, irrigation
 chacun avec sa saisonnalité propre. L'\textbf{import d'une chronique de prélèvement réelle}
 permet de rejouer un pompage documenté plutôt que simulé. Enfin, une \textbf{tendance climatique}
 et une \textbf{mise à l'échelle} d'un forçage existant complètent la panoplie.
+
+La figure~\ref{fig:scenario} montre la construction d'un de ces scénarios.
+
+\begin{figure}[htbp]
+\centering
+\vue{scenario-preselections}\\[0.35em]
+\vue{scenario-stress}
+\caption{La construction d'un scénario prospectif. En haut les scénarios préconfigurés, dont les
+débits sont proposés d'après la famille d'aquifère de la station. En bas la modification de
+stress elle-même : un type d'usage, un profil temporel, une durée et un débit, plutôt qu'une
+perturbation libre des entrées. La plage de débit annoncée sous le champ est dérivée de la
+réponse indicielle du modèle calibré, mécanisme décrit ci-dessous.}
+\label{fig:scenario}
+\end{figure}
 
 Reste le mécanisme des \textbf{bornes adaptatives}. Lorsqu'un utilisateur
 simule un prélèvement, la question « quel débit est plausible ici ? » n'a pas de réponse

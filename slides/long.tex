@@ -11,10 +11,13 @@
 \renewcommand{\insertshorttitle}{\titrecourt}
 
 \pagetitre
+\bandeautrue
 
 % ===========================================================================
+\section{Le verrou}
+% ===========================================================================
 \begin{frame}{Le sujet, et pourquoi il a fallu commencer ailleurs}
-\vspace{-4pt}
+\vspace{-2pt}
 
 \begin{columns}[T]
 \begin{column}{0.55\textwidth}
@@ -39,8 +42,7 @@ qu'il n'établit pas.
 \vspace{0.3cm}
 \small
 \begin{description}\itemsep0.5em
-  \item[\color{bleuprofond}QT1] Un entrepôt unifiant les sources ouvertes nécessaires au jumeau
-        numérique.
+  \item[\color{bleuprofond}QT1] Un entrepôt unifiant les sources ouvertes du jumeau numérique.
   \item[\color{bleuprofond}QT2] Une plateforme pour constituer des jeux, entraîner, comparer et
         expliquer.
   \item[\color{bleuprofond}QR1] Les méthodes d'attribution sont-elles exploitables par un
@@ -52,7 +54,7 @@ qu'il n'établit pas.
 \end{frame}
 
 % ===========================================================================
-\begin{frame}{Le verrou : quatre obstacles entre la donnée publique et l'apprentissage}
+\begin{frame}{Quatre obstacles entre la donnée publique et l'apprentissage}
 
 \small
 \begin{columns}[T]
@@ -86,6 +88,8 @@ que l'ouvrage observe habituellement à cette période.
 ERA5-Land (climat), BDLISA (référentiel hydrogéologique).}
 \end{frame}
 
+% ===========================================================================
+\section{Le socle}
 % ===========================================================================
 \begin{frame}{L'entrepôt : trois couches, une garantie par couche}
 \framesubtitle{\code{hubeau\_data\_integration} \textbullet{} PostgreSQL, TimescaleDB, PostGIS}
@@ -137,9 +141,8 @@ schéma des tables finales est le seul contrat que connaît un consommateur.
 \end{frame}
 
 % ===========================================================================
-% ===========================================================================
 \begin{frame}{Le cœur de l'entrepôt : rattacher chaque station à son climat}
-\vspace{-4pt}
+\vspace{-2pt}
 
 \begin{columns}[T]
 \begin{column}{0.46\textwidth}
@@ -156,27 +159,27 @@ schéma des tables finales est le seul contrat que connaît un consommateur.
 \end{tikzpicture}
 \end{center}
 
-\vspace{0.4cm}
-{\footnotesize\color{grisardoise} Effectuée une fois, matérialisée. Le niveau et son forçage
+\vspace{0.35cm}
+{\footnotesize\color{grisardoise} Effectuée une fois, matérialisée : le niveau et son forçage
 figurent ensuite sur la même ligne, au même jour.\par}
 \end{column}
 
 \begin{column}{0.50\textwidth}
 \small
 \begin{apport}{Deux précautions, dont une invisible}
-L'emprise s'arrête à la métropole : les stations ultramarines sont ingérées mais \textbf{sans
-forçage climatique}, et doivent être écartées explicitement.
+L'emprise s'arrête à la métropole : les stations ultramarines sont ingérées \textbf{sans forçage
+climatique}, et doivent être écartées.
 \end{apport}
 
 \begin{apport}{Le piège des coordonnées}
 Une même maille écrite \ang{48.1} d'un côté et \num{48.09999999999995} de l'autre fait deux
 points distincts : la grille se dédouble sans que rien ne le signale. Les coordonnées sont
-arrondies au pas natif, partout où elles servent de clé. Un test garde l'invariant.
+arrondies au pas natif partout où elles servent de clé, et un test garde l'invariant.
 \end{apport}
 
 \begin{apport}{Enrichissement hydrogéologique}
-Les entités BDLISA rattachées aux stations rendent disponible la nature de l'aquifère. Le
-référentiel ne porte pas la profondeur : c'est une indication, pas une certitude.
+Les entités BDLISA rattachées aux stations donnent la nature de l'aquifère. Le référentiel ne
+porte pas la profondeur : c'est une indication, pas une certitude.
 \end{apport}
 \end{column}
 \end{columns}
@@ -335,6 +338,8 @@ dérive de méthode. Elle traduit un assèchement.
 \end{frame}
 
 % ===========================================================================
+\section{L'Observatoire}
+% ===========================================================================
 \begin{frame}{La plateforme : une architecture qui survit à son interface}
 \framesubtitle{\code{time-serie-explo} \textbullet{} React, FastAPI, bibliothèque métier Python}
 
@@ -384,87 +389,151 @@ graphique et développement, avec leurs propres volumes et bases.\par}
 \end{frame}
 
 % ===========================================================================
-\begin{frame}{L'Observatoire : donner à voir avant de modéliser}
+\cadrecote{L'Observatoire : la couverture nationale, animée}
+{carte-nationale}
+{Nappes et rivières de 2000 à 2026, saison par saison.
+
+\vspace{0.5em}
+Chaque pastille porte le nombre de stations de son groupe et la couleur de leur classe de
+situation.
+
+\vspace{0.5em}
+Le compteur du bas donne l'assiette réelle : \num{2610} piézomètres classés sur \num{22407}
+recensés, \num{2170} stations hydrométriques sur \num{6253}. Les stations non classées le sont
+faute d'historique suffisant, et cela se voit.}
+
+% ===========================================================================
+\begin{frame}{Situer une station, avant de la modéliser}
 
 \begin{columns}[T]
-\begin{column}{0.52\textwidth}
-\capture[1.0]{observatoire-carte.png}{Carte des stations piézométriques portant leur indicateur
-de situation, avec les entités aquifères BDLISA en fond et le découpage en secteurs.}
+\begin{column}{0.58\textwidth}
+\vspace{-0.1cm}
+\vueb{0.56}{carte-regionale}
 \end{column}
 
-\begin{column}{0.44\textwidth}
-\small
-\begin{apport}{Deux publics, deux usages}
+\begin{column}{0.39\textwidth}
+\footnotesize
+\begin{apport}{Deux publics}
 Les \textbf{hydrogéologues} situent une station dans son contexte : quelle nappe, comment elle se
-comporte face à ses voisines, où elle en est dans son historique. Les \textbf{modélisateurs}
-repèrent les chroniques trop courtes, trop lacunaires ou perturbées par un pompage, avant
-d'entraîner.
+comporte face à ses voisines. Les \textbf{modélisateurs} repèrent les chroniques trop courtes ou
+perturbées par un pompage, avant d'entraîner.
 \end{apport}
 
 \begin{apport}{Une règle de conception}
-\emph{Soit un indicateur réellement standardisé, soit une valeur réelle affichée comme telle.
-Jamais un intermédiaire inventé.} Les cumuls absolus ne sont donc pas cartographiés : les
-seuiller supposerait une norme que l'outil inventerait, et l'utilisateur lirait une carte de
-sécheresse là où il n'y a qu'un choix de bornes.
+\emph{Soit un indicateur standardisé, soit une valeur réelle affichée comme telle. Jamais un
+intermédiaire inventé.}
 \end{apport}
+
+\vspace{0.2em}
+\lecas{Épieds-en-Beauce : indicateur \num{+0,41}, classe « normal », \num{112,01} contre
+\num{112,10} habituellement en août sur la référence 1991--2020, \num{12050} mesures sur soixante
+ans, et les quinze stations de la même entité BDLISA avec leur classe.}
 \end{column}
 \end{columns}
 \end{frame}
 
 % ===========================================================================
-\begin{frame}{L'Observatoire en images : la couverture nationale et le contexte climatique}
-\begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\capture[0.95]{observatoire-carte-nappes-rivieres-animation.png}{Vue nationale des nappes et
-rivières, animation temporelle saisonnière 2000--2026.}
-\end{column}
-\begin{column}{0.48\textwidth}
-\capture[0.95]{observatoire-chronique-niveau-contexte-climatique.png}{Chronique piézométrique
-d'une station croisée avec ses indicateurs climatiques (SPI, cumuls vs normale 1991--2020).}
-\end{column}
-\end{columns}
-\end{frame}
+\cadredouble{Croiser le niveau et le climat, sur la même page}
+{contexte-spi}
+{Le contexte climatique de la station : SPI sur trois mois depuis dix ans, coloré par classe, et
+les cumuls glissants comparés à la normale 1991--2020. Ici \SI{-41}{\percent} sur trois mois.}
+{comparaison-annees}
+{La comparaison interannuelle : cinq années superposées mois par mois. C'est ce geste, fait à la
+main sur plusieurs sources, que l'Observatoire remplace par une sélection.}
 
+% ===========================================================================
+\section{Modéliser}
 % ===========================================================================
 \begin{frame}{Le laboratoire de modèles métier : construire la référence}
 \framesubtitle{Sans référence, une performance ne signifie rien}
 
-\begin{columns}[T]
-\begin{column}{0.50\textwidth}
-\capture[1.0]{pastas-calibration.png}{Calibration d'un modèle à fonction de transfert sur une
-station : ajustement, réponse impulsionnelle et diagnostics de résidus.}
-\end{column}
-
-\begin{column}{0.46\textwidth}
 \small
 \begin{apport}{Ce que le modèle apporte}
 Le niveau simulé est la somme de contributions obtenues par convolution du forçage avec une
 \textbf{fonction de réponse impulsionnelle} calibrée. Cette fonction \emph{est} l'objet d'intérêt
 hydrogéologique : sa forme dit comment l'aquifère amortit et retarde le signal climatique, son
-intégrale de combien le niveau varie pour une sollicitation donnée.
+intégrale de combien le niveau varie pour une sollicitation donnée. Ce ne sont pas des paramètres
+opaques, ce sont des grandeurs qui s'interprètent, et qui sortent de la calibration avec leur
+erreur type.
 \end{apport}
 
-\begin{apport}{Calibration automatique}
-Une grille de configurations est calibrée puis classée sur quatre critères normalisés, dont un
-qui écarte les modèles dont la mémoire excède les données disponibles.
-\end{apport}
+\vspace{0.15cm}
+\vue{pastas-parametres}
+
+\vspace{0.15cm}
+{\scriptsize\color{grisardoise} \code{recharge\_A} est le gain, \code{recharge\_a} le temps
+caractéristique en jours, \code{recharge\_n} la forme de la réponse Gamma, \code{recharge\_f} le
+coefficient d'évapotranspiration. Quatre modèles de recharge, cinq formes de réponse, deux
+modèles de bruit et deux solveurs sont combinables.\par}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Calibrer, puis valider sur une période réservée}
+
+\vue{pastas-ajustement}
+
+\vspace{0.15cm}
+\begin{columns}[T]
+\begin{column}{0.52\textwidth}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}Yrrrr@{}}
+\toprule
+ & \textbf{NSE} & \textbf{KGE} & \textbf{EVP} & \textbf{RMSE} \\
+\midrule
+Calibration \tiny 1994--2017 & \num{0,754} & \num{0,800} & \SI{75,5}{\percent} & \num{1,119} \\
+Validation \tiny 2017--2026  & \num{0,765} & \num{0,892} & \SI{79,5}{\percent} & \num{1,161} \\
+\bottomrule
+\end{tabularx}
+\end{column}
+
+\begin{column}{0.45\textwidth}
+\footnotesize
+La validation ne se dégrade pas : la structure n'a pas absorbé le bruit de la période de
+calibration. Le trait vertical marque la bascule entre les deux périodes.
+
+\vspace{0.3em}
+\lecas{Une station, non un résultat d'évaluation.}
 \end{column}
 \end{columns}
 \end{frame}
 
 % ===========================================================================
-\begin{frame}{Pastas Lab : comparer les structures avant de choisir}
+\begin{frame}{Diagnostiquer : ce que le modèle ne capte pas}
+
+\vue{pastas-diagnostics}
+
+\vspace{0.12cm}
+{\scriptsize\color{grisardoise} Les résidus, contre six tests dont le verdict est affiché en
+clair. Ici quatre échouent : l'ajustement est bon, la structure résiduelle ne l'est pas. C'est le
+point de départ de l'enrichissement du modèle, non un rejet.\par}
+
+\vspace{0.2cm}
 \begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\capture[0.95]{pastas-lab-galerie-modeles-tfn-nse-evp.png}{Galerie des modèles calés par
-piézomètre : chaque structure (réponse Gamma/Exponentielle, bruit) comparée sur NSE, EVP et AIC.}
+\begin{column}{0.38\textwidth}
+\vue{pastas-radar}
 \end{column}
-\begin{column}{0.48\textwidth}
-\capture[0.95]{pastas-lab-calibration-automatique-resultats.png}{Calibration automatique : huit
-configurations testées et classées sur les critères STOWA, validation 70/30.}
+
+\begin{column}{0.59\textwidth}
+\footnotesize
+\begin{apport}{Un modèle peut être juste en moyenne et faux sur la dynamique}
+Les signatures hydrologiques comparent l'observé (bleu) au simulé (orange) sur des grandeurs que
+l'hydrogéologue reconnaît : saisonnalité de Pardé, amplitude saisonnière, vitesses de montée et
+de descente, constantes de tarissement et de récupération.
+\end{apport}
+\vspace{0.1em}
+\lecas{Vingt-neuf signatures sont calculées, avec le rapport simulé sur observé pour chacune.}
 \end{column}
 \end{columns}
 \end{frame}
+
+% ===========================================================================
+\cadre{Comparer les structures plutôt qu'en choisir une}
+{pastas-calibration-auto}
+{Huit configurations calibrées en \SI{31,2}{\second} sur une station, classées sur les critères
+d'acceptation STOWA avec validation 70/30. Le verdict STOWA est porté à part de l'erreur, parce
+qu'un bon NSE ne suffit pas à rendre un modèle identifiable : le troisième critère écarte les
+modèles dont la mémoire excède la période observée. Les modèles calés restent en galerie, avec
+leur structure et leurs métriques, de sorte que la comparaison se relit sans être refaite.}
 
 % ===========================================================================
 \begin{frame}{L'apport hydrogéologique inscrit dans le code}
@@ -506,75 +575,97 @@ atypique n'est jamais enfermée dans la recommandation de sa famille.\par}
 \end{frame}
 
 % ===========================================================================
+\section{Prévoir}
+% ===========================================================================
 \begin{frame}{Le laboratoire d'apprentissage : rendre les comparaisons possibles}
-\vspace{-4pt}
 
-\begin{columns}[T]
-\begin{column}{0.50\textwidth}
-\capture[1.0]{ia-entrainement.png}{Suivi d'entraînement en temps réel : évolution des pertes en
-apprentissage et en validation, avec arrêt anticipé.}
-\end{column}
-
-\begin{column}{0.46\textwidth}
 \small
 \begin{apport}{Un catalogue sous interface unique}
 Douze architectures : attention (\emph{temporal fusion transformer}), décomposition par blocs
-(N-BEATS, N-HiTS), récurrentes, convolutives, et récentes à faible coût (TiDE, DLinear).
+(N-BEATS, N-HiTS), récurrentes, convolutives, et récentes à faible coût (TiDE, DLinear). Les
+modèles linéaires sont des références exigeantes : une architecture lourde qui ne les dépasse pas
+doit être écartée, et les avoir dans le même outil évite la comparaison biaisée par des
+conditions expérimentales différentes.
 \end{apport}
 
-\begin{apport}{Pourquoi inclure les modèles linéaires}
-Ce sont des références exigeantes. Une architecture lourde qui ne les dépasse pas doit être
-écartée, et les avoir dans le même outil évite la comparaison biaisée.
-\end{apport}
+\vspace{0.1cm}
+\vue{ia-modele}
 
-\begin{apport}{Traçabilité}
-Chaque exécution est enregistrée avec ses paramètres, ses métriques et le modèle produit. Sans
-cela, comparer deux expériences séparées de quelques semaines n'est pas défendable.
-\end{apport}
-\end{column}
-\end{columns}
+\vspace{0.12cm}
+{\scriptsize\color{grisardoise} Chaque exécution est enregistrée avec ses paramètres et ses
+métriques : architecture, jeu de données horodaté et sa période, covariables retenues, fenêtre
+d'entrée et horizon. Sans cela, comparer deux expériences séparées de quelques semaines n'est pas
+défendable.\par}
 \end{frame}
 
 % ===========================================================================
-\begin{frame}{Prévision : la fenêtre glissante sur le jeu de test}
-\capture[0.85]{lab-ia-prevision-nhits-fenetre-glissante.png}{Prévision à 30 jours d'un modèle
-NHITS multivarié sur le jeu de test, avec les prédicteurs climatiques en entrée.}
-\end{frame}
+\cadre{Prévoir : une fenêtre glissante sur la période réservée}
+{ia-jeu-de-test}
+{Le jeu de test entier, de 2021 à 2026, que le modèle n'a jamais vu. La zone claire est la
+fenêtre d'entrée, 365 jours de contexte ; la bande ocre est l'horizon de prévision, 30 jours. Les
+deux se déplacent ensemble sur toute la période, ce qui évite de conclure d'une fenêtre unique et
+bien choisie.}
 
 % ===========================================================================
-\begin{frame}{Prévision : la fenêtre à 30 jours, de près}
-\capture[0.95]{prevision-piezometrie-evaluation-30j.png}{Fenêtre de prévision comparée aux
-observations : métriques MAE, RMSE, biais et précision directionnelle.}
-\end{frame}
-
-% ===========================================================================
-\begin{frame}{Expliquer : sur quoi le modèle s'appuie}
+\begin{frame}{Lire ce que vaut une prévision}
 
 \begin{columns}[T]
-\begin{column}{0.50\textwidth}
-\capture[1.0]{ia-explicabilite.png}{Panneau d'explicabilité d'une prévision : attribution
-projetée sur le plan variable-temps.}
+\begin{column}{0.62\textwidth}
+\vue{prevision-fenetre}
 \end{column}
-
-\begin{column}{0.46\textwidth}
-\small
-\begin{apport}{Cinq familles, pour les confronter}
-Importance par perturbation, valeurs de Shapley et leur variante pour séries temporelles,
-attributions par gradients, poids d'attention, décomposition du signal.
-\end{apport}
-
-\begin{apport}{Ce que la confrontation apporte}
-Les réunir ne vise pas l'exhaustivité. Des méthodes reposant sur des principes différents et qui
-\textbf{convergent} donnent une explication crédible ; leur \textbf{divergence} signale une
-explication fragile, information qu'une méthode unique aurait masquée.
-\end{apport}
-
-\vspace{0.2em}
-{\footnotesize\color{grisardoise} Quatre des cinq familles sont atteignables depuis l'interface.
-Les poids d'attention existent en bibliothèque et en API, mais aucun composant de l'interface ne
-les sollicite.\par}
+\begin{column}{0.34\textwidth}
+\vue{prevision-metriques}
 \end{column}
 \end{columns}
+
+\vspace{0.25cm}
+{\footnotesize La fenêtre de près, prévision contre observations. L'erreur absolue moyenne vaut
+\SI{0,045}{\metre} et le biais \num{+0,027}~m sur trente points, mais c'est la dernière ligne qui
+se commente : \SI{7,8}{\percent} de l'écart interquartile de la série. Une erreur en mètres ne
+veut rien dire tant qu'elle n'est pas rapportée à l'amplitude de l'ouvrage.\par}
+\vspace{0.1em}
+\lecas{Une fenêtre sur une station, non un résultat d'évaluation : aucune campagne comparative
+n'a été conduite.}
+\end{frame}
+
+% ===========================================================================
+\section{Expliquer}
+% ===========================================================================
+\begin{frame}{Expliquer : sur quoi le modèle s'appuie}
+\framesubtitle{Cinq familles réunies pour être confrontées, non pour l'exhaustivité}
+
+\vspace{0.15cm}
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize\sffamily,
+  fam/.style={draw=black!55, fill=white, minimum width=2.25cm, minimum height=1.0cm,
+              align=center, font=\tiny, inner sep=2pt},
+  sortie/.style={draw=black!60, minimum width=4.6cm, minimum height=0.72cm, align=center,
+                 font=\scriptsize},
+  fl/.style={-{Stealth[length=1.8mm]}, draw=black!60}]
+  \node[fam] (f1) {Importance par\\perturbation};
+  \node[fam, right=0.22cm of f1] (f2) {Valeurs de\\Shapley};
+  \node[fam, right=0.22cm of f2] (f3) {Attributions par\\gradients};
+  \node[fam, right=0.22cm of f3, draw=black!30, text=black!45] (f4) {Poids\\d'attention};
+  \node[fam, right=0.22cm of f4] (f5) {Décomposition\\du signal};
+  \node[draw=black, very thick, fill=black!3, below=0.75cm of f3,
+        minimum width=3.4cm, minimum height=0.7cm, font=\scriptsize] (c) {Confrontation};
+  \foreach \n in {f1,f2,f3,f4,f5} \draw[fl] (\n) -- (c);
+  \node[sortie, below left=0.7cm and -1.4cm of c, draw=vertsobre, text=vertsobre]
+       (ok) {\textbf{convergence} : explication crédible};
+  \node[sortie, below right=0.7cm and -1.4cm of c, draw=ocre, text=ocre]
+       (ko) {\textbf{divergence} : explication fragile};
+  \draw[fl] (c) -- (ok); \draw[fl] (c) -- (ko);
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.1cm}
+{\footnotesize Des méthodes reposant sur des principes différents et qui convergent donnent une
+explication crédible ; leur divergence signale une explication fragile, information qu'une
+méthode unique aurait masquée.\par}
+\vspace{0.1em}
+{\scriptsize\color{grisardoise} Quatre des cinq familles sont atteignables depuis l'interface. Les
+poids d'attention (en grisé) existent en bibliothèque et en API, mais aucun composant de
+l'interface ne les sollicite.\par}
 \end{frame}
 
 % ===========================================================================
@@ -622,25 +713,40 @@ s'il fait diverger les deux modèles bien plus que sur l'observé, il est rejet�
 \end{frame}
 
 % ===========================================================================
-\begin{frame}{Un scénario contrefactuel en pratique}
+\begin{frame}{Un scénario prospectif en pratique}
+
+\vue{scenario-preselections}
+\vspace{0.1cm}
+{\scriptsize\color{grisardoise} Les scénarios préconfigurés, dont les débits sont proposés
+d'après la famille d'aquifère de la station : forage d'eau potable, irrigation saisonnière,
+pompage industriel, sécheresses, tendance climatique.\par}
+
+\vspace{0.2cm}
 \begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\capture[0.95]{scenario-pompage-industriel-impulsion.png}{Configuration d'un scénario : stress
-de pompage industriel en impulsion, appliqué à un modèle calé.}
+\begin{column}{0.63\textwidth}
+\vue{scenario-stress}
 \end{column}
-\begin{column}{0.48\textwidth}
-\small
+
+\begin{column}{0.34\textwidth}
+\footnotesize
 \begin{apport}{Un stress, pas une entrée libre}
-Le scénario se construit sur des \emph{stress} physiques (pompage, sécheresse, tendance
-climatique) et une fonction de réponse calibrée, plutôt que par perturbation libre des entrées.
-La plausibilité est contrainte par construction.
+Le scénario se construit sur des \emph{stress} physiques et une fonction de réponse calibrée,
+plutôt que par perturbation libre des entrées.
+\end{apport}
+
+\begin{apport}{Des bornes dérivées du modèle}
+« Quel débit est plausible ici ? » n'a pas de réponse universelle. La plage proposée,
+\numrange{30}{400}~m\textsuperscript{3}/j pour cet ouvrage, est estimée depuis la réponse
+indicielle du modèle lui-même.
 \end{apport}
 \end{column}
 \end{columns}
 \end{frame}
 
 % ===========================================================================
-\begin{frame}{Bilan : ce qui est acquis, ce qui ne l'est pas, par quoi commencer}
+\section{Bilan}
+% ===========================================================================
+\begin{frame}{Ce qui est acquis, ce qui ne l'est pas, par quoi commencer}
 \vspace{-4pt}
 
 \begin{columns}[T]
@@ -677,7 +783,7 @@ La plausibilité est contrainte par construction.
   \item aligner le forçage d'évapotranspiration de la chaîne station : il conditionne toute
         interprétation physique ;
   \item brancher la route de l'interface contrefactuelle ;
-  \item exécuter la campagne comparative, échantillon stratifié par famille d'aquifère ;
+  \item exécuter la campagne comparative, stratifiée par famille d'aquifère ;
   \item adapter les configurations d'apprentissage par famille d'aquifère.
 \end{enumerate}
 

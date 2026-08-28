@@ -38,6 +38,18 @@ sophistiqué évite la comparaison biaisée par des conditions expérimentales d
 
 Une fabrique de modèles instancie dynamiquement l'architecture demandée en validant ses
 hyperparamètres, ce qui permet d'ajouter une architecture sans modifier l'interface ni l'API.
+La figure~\ref{fig:ia-config} montre l'écran où une expérience se déclare.
+
+\begin{figure}[htbp]
+\centering
+\vue[0.44]{ia-configuration}
+\caption{La déclaration d'un entraînement. L'écran expose ce qui doit rester explicite pour
+qu'une expérience soit rejouable : architecture, jeu de données horodaté avec sa période et son
+nombre de lignes, covariables retenues, fonction de perte, fenêtre d'entrée et horizon de sortie,
+partage entre entraînement et validation. Le préréglage métier, en tête, permet de ne rien régler
+du tout.}
+\label{fig:ia-config}
+\end{figure}
 
 \section{Le protocole expérimental}
 
@@ -60,6 +72,19 @@ La conduite d'expériences longues, enfin. L'entraînement s'appuie sur PyTorch 
 processeur graphique lorsque celui-ci est disponible, avec arrêt anticipé et suivi de
 l'évolution des pertes en apprentissage et en validation. L'utilisateur voit progresser son
 entraînement au lieu d'attendre un résultat opaque, et peut l'interrompre s'il diverge.
+
+Le modèle produit conserve ensuite ce qui l'a fait (figure~\ref{fig:ia-modele}), de sorte qu'une
+prévision se rattache sans ambiguïté au couple exact qui l'a produite.
+
+\begin{figure}[htbp]
+\centering
+\vue{ia-modele}
+\caption{Un modèle entraîné, tel que la page de prévision le présente : architecture, station,
+jeu de données horodaté, variables employées, métriques de test, et la fenêtre d'entrée comme
+l'horizon avec lesquels il a été appris. Un modèle dont on ne saurait pas dire ces choses ne
+serait pas comparable à un autre. \lecas}
+\label{fig:ia-modele}
+\end{figure}
 
 \section{Optimisation d'hyperparamètres}
 
@@ -97,6 +122,43 @@ choisis selon le type de nappe, comme le sont déjà les configurations de modè
 chapitre~\ref{ch:metier}. Cette adaptation par famille d'aquifère n'a pas été faite pour les
 modèles appris : elle constitue une piste identifiée, et vraisemblablement le premier gain à
 aller chercher.
+
+\section{Lire une prévision avant de l'expliquer}
+
+Le dispositif expose la prévision de deux manières complémentaires, dont la seconde conditionne
+ce qu'on peut dire de la première.
+
+La première est la \textbf{fenêtre glissante} sur le jeu de test
+(figure~\ref{fig:ia-jeu-de-test}). La fenêtre d'entrée et l'horizon se déplacent ensemble sur
+toute la période réservée, ce qui évite de conclure d'une fenêtre unique et bien choisie.
+
+\begin{figure}[htbp]
+\centering
+\vue{ia-jeu-de-test}
+\caption{Le jeu de test entier, que le modèle n'a pas vu à l'entraînement. La zone claire est la
+fenêtre d'entrée, la bande ocre l'horizon de prévision, et les deux se positionnent n'importe où
+sur la période. La vue d'ensemble sert d'abord à situer la fenêtre examinée dans la dynamique de
+l'ouvrage, saison humide ou étiage.}
+\label{fig:ia-jeu-de-test}
+\end{figure}
+
+La seconde est la \textbf{fenêtre examinée de près}, avec ses écarts chiffrés
+(figure~\ref{fig:prevision}). L'erreur y est rapportée à l'amplitude de l'ouvrage, et non
+seulement exprimée en mètres : une erreur de quelques centimètres n'a pas le même sens sur une
+nappe dont le battement annuel est décimétrique et sur une nappe dont il dépasse le mètre. C'est
+cette mise en rapport, plus que l'erreur brute, qui permet à un hydrogéologue de dire si la
+prévision lui sert.
+
+\begin{figure}[htbp]
+\centering
+\vue[0.62]{prevision-fenetre}\hfill\vue[0.33]{prevision-metriques}
+\caption{Une fenêtre de prévision confrontée aux observations, et les écarts associés. La
+dernière ligne du panneau rapporte l'erreur absolue moyenne et l'erreur quadratique à l'écart
+interquartile de la série, ce qui les rend comparables d'un ouvrage à l'autre. La précision
+directionnelle indique par ailleurs la part des pas où le sens de variation est correct, qui est
+souvent ce qui intéresse un gestionnaire. \lecas}
+\label{fig:prevision}
+\end{figure}
 
 \section{Analyser les prévisions produites}
 \label{sec:xai}
