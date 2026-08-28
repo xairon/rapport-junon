@@ -39,5 +39,12 @@ for v in $(echo "$images" | grep '/vues/' | sed 's|.*/vues/||;s|\.png$||'); do
     echo "ECHEC vue $v absente de figures/recadrer.sh"; ok=1; }
 done
 
-[ "$ok" -eq 0 ] && echo "OK  court $nc diapos, long $nl diapos, $nv vues toutes derivables"
+# 3. Toute vue projetee reste lisible depuis une salle. C'est l'echelle
+#    appliquee qui compte, non la largeur : une vue etroite en colonne peut
+#    etre lisible, une vue large d'un panneau dense ne l'est pas. Ce controle
+#    a ete ajoute apres qu'une capture de formulaire s'est retrouvee reproduite
+#    a 2,3 cm de haut, ce que les trois verificateurs laissaient passer.
+lis=$(python3 ../verifier-lisibilite.py court.pdf long.pdf) || { echo "$lis"; ok=1; }
+
+[ "$ok" -eq 0 ] && echo "OK  court $nc diapos, long $nl diapos, $nv vues toutes derivables, ${lis#OK  }"
 exit $ok
