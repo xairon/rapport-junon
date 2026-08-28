@@ -32,6 +32,14 @@ dans le langage des hydrogéologues, et dit aussi ce qu'elle n'établit pas.
 
 Les deux sont publics, sous licence MIT.
 
+Deux dépôts complémentaires portent des travaux personnels menés dans le cadre du poste, décrits
+à la section 7.8 du rapport. Le socle ne dépend d'aucun des deux.
+
+| Dépôt | Objet | État |
+|---|---|---|
+| [physcf](https://github.com/xairon/physcf) | Prototype de recherche des contrefactuels sous contrainte physique, dont la bibliothèque métier intègre le cœur. Quatre sites couvrant le gradient réactif vers inertiel, article rédigé jusqu'au protocole | Campagne expérimentale non conduite, section de résultats vide |
+| [aida_embedding_benchmark](https://github.com/xairon/aida_embedding_benchmark) | Comparaison de sept encodeurs de séries temporelles sur 5 116 stations piézométriques, avec partage de validation croisée par département | Résultats acquis et article complet ; campagne du protocole principal non versionnée, carnets de vérification non exécutés |
+
 ## Compiler
 
 ```bash

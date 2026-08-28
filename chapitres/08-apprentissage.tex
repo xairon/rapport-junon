@@ -200,8 +200,9 @@ aquifère réagit.
 \subsection{Contrefactuels sous contrainte physique}
 \label{sec:physcf}
 
-L'implémentation retenue les traduit en renonçant à perturber les entrées valeur par valeur.
-Elle ne règle que sept paramètres décrivant un régime climatique : un facteur de pluie par
+L'implémentation retenue, désignée \physcf{}, a été conçue au cours de ces travaux et fait
+l'objet d'un article séparé (section~\ref{sec:travaux-perso}). Elle traduit ces exigences en
+renonçant à perturber les entrées valeur par valeur, et ne règle que sept paramètres décrivant un régime climatique : un facteur de pluie par
 saison, un décalage de température, un décalage du calendrier, et un résidu d'évaporation
 étroitement borné. L'évapotranspiration n'est pas libre, elle est calculée à partir de la
 température au taux d'environ \SI{7}{\percent} par degré, ordre de grandeur tiré de la relation
@@ -215,7 +216,8 @@ calibré indépendamment, celui du chapitre~\ref{ch:metier} : s'il fait diverger
 bien plus qu'ils ne divergeaient sur la situation observée, il est rejeté.
 
 Ces deux méthodes et leur validation croisée sont livrées dans la bibliothèque métier et
-exposées par l'API, où elles disposent chacune de leur point d'accès. Elles ne sont en revanche
+exposées par l'API, où elles disposent chacune de leur point d'accès. Le prototype de recherche
+dont \physcf{} est issue vit dans un dépôt distinct, décrit plus loin. Elles ne sont en revanche
 \textbf{pas atteignables depuis l'interface}. La page qui les pilote existe dans le dépôt, avec
 son sélecteur de cible et sa vue de comparaison, mais elle n'est déclarée dans aucune route de
 l'application : le laboratoire d'intelligence artificielle propose quatre onglets, données,
@@ -233,6 +235,106 @@ fusionnés. L'explicabilité y joue un rôle inhabituel : elle ne justifie pas u
 détecte une dérive de ce sur quoi le modèle s'appuie, signe que le régime du système a changé.
 L'annotation qui en résulte sert à écarter les stations impropres à l'apprentissage, et figure
 parmi les cas d'usage identifiés avec le BRGM.
+
+\section{Deux travaux personnels conduits en marge}
+\label{sec:travaux-perso}
+
+Deux questions soulevées par la plateforme ne pouvaient pas être traitées avec elle. Toutes deux
+demandaient de sortir de l'application pour isoler la question de l'outil qui la pose, et toutes
+deux ont donné lieu à un développement séparé, mené à titre personnel dans le cadre de ces
+travaux. Elles figurent ici parce qu'elles éclairent des choix décrits plus haut, et parce qu'un
+repreneur qui ignorerait la seconde referait une erreur qu'elle documente.
+
+\subsection{Le prototype de contrefactuels sous contrainte physique}
+
+La méthode décrite en section~\ref{sec:physcf} devait être évaluée, et la plateforme ne s'y
+prête pas : elle mêle l'instrument et le cas, alors qu'une évaluation demande un petit nombre de
+sites choisis, des modèles entraînés pour eux et des mesures répétables. Le prototype
+\physcf{} a donc été construit à part, autour de quatre stations couvrant le gradient qui va de
+l'aquifère le plus réactif au plus inertiel : un alluvial de Moselle, un karst du Val d'Orléans,
+une craie de la Somme et un calcaire de Beauce.
+
+Le but est de vérifier une hypothèse précise : que le choix de \emph{l'espace} de perturbation
+compte davantage que celui de l'algorithme d'optimisation. Une méthode de référence opérant en
+espace brut, sur un millier de dimensions avec des pénalités molles, est comparée à \physcf{}, qui
+optimise quatre à sept paramètres dans un espace où la cohérence physique est vraie par
+construction. Chaque scénario est confronté à un modèle métier calibré indépendamment.
+
+Ce qui est acquis est le dispositif complet : les opérateurs de perturbation, l'optimisation par
+gradient et par recherche bayésienne, la validation croisée par le modèle métier, les cibles
+définies sur les classes de l'indicateur piézométrique, et la suite de tests qui les couvre.
+L'article est rédigé, jusqu'au protocole expérimental inclus. Sa section de résultats attend la
+campagne : elle n'a pas été conduite, et le chapitre~\ref{ch:bilan} dit ce qu'il faut pour la
+mener.
+
+\subsection{Un banc d'essai des représentations de chroniques piézométriques}
+
+La détection des chroniques perturbées par un prélèvement, évoquée en section~\ref{sec:xai},
+prévoit un étage qui suit la dérive d'une représentation apprise de la chronique. Rien ne disait
+quel encodeur employer, et la littérature ne comparait aucune de ces méthodes sur des données
+hydrogéologiques. La question s'est révélée plus large que son motif : elle porte sur ce qu'une
+compression apprise retient d'une chronique piézométrique.
+
+Sept encodeurs ont été comparés sur \num{5116} stations, avec un partage de validation croisée
+par département qui interdit à une station de se retrouver du même côté que ses voisines
+immédiates. Le protocole principal est \textbf{univarié} : chaque encodeur ne reçoit que le
+niveau. Une variante y ajoute les trois covariables climatiques, non comme un raffinement mais
+comme une expérience de contrôle.
+
+\begin{table}[H]
+\centering
+\caption{Classification du milieu hydrogéologique à partir du seul niveau, précision équilibrée
+sous partage spatial. La dernière colonne mesure ce que la représentation retient de la
+latitude, quantité qui n'a aucune raison d'aider à reconnaître un aquifère.}
+\label{tab:banc-plongements}
+\begin{tabularx}{\textwidth}{@{}Yrrl@{}}
+\toprule
+\textbf{Encodeur} & \textbf{Précision équilibrée} & \textbf{$R^2$ latitude} & \textbf{Nature} \\
+\midrule
+Signatures hydrologiques & \num{0,303} & \num{-0,021} & 29 descripteurs métier \\
+Catch22                  & \num{0,259} & \num{0,117}  & statistiques génériques \\
+MultiRocket              & \num{0,256} & \num{0,365}  & convolutions aléatoires \\
+SoftCLT                  & \num{0,241} & \num{0,222}  & contrastif appris \\
+TS2Vec                   & \num{0,233} & \num{0,174}  & contrastif appris \\
+Analyse en composantes   & \num{0,170} & \num{0,003}  & référence linéaire \\
+Bruit gaussien           & \num{0,148} & \num{-0,012} & référence basse \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Trois résultats en sortent. Le premier est que \textbf{vingt-neuf descripteurs écrits à la main
+devancent l'apprentissage contrastif} sur le signal endogène, avec un écart statistiquement
+significatif contre les deux encodeurs contrastifs et un écart non significatif contre les deux
+jeux de descripteurs génériques. Une recherche d'hyperparamètres dédiée à l'un des encodeurs
+contrastifs n'en comble que \numrange{0,015}{0,020}, le reste étant structurel plutôt qu'un
+défaut de réglage. Les mêmes descripteurs prédisent les signatures physiques d'une chronique
+avec un coefficient de détermination proche de \num{0,89}, contre \numrange{0,08}{0,19} pour les
+représentations apprises.
+
+Le deuxième porte sur la validation. Une validation croisée qui ignore la structure spatiale
+porte la valeur de \num{0,303} à \num{0,376} pour le même encodeur : l'autocorrélation
+géographique des étiquettes suffit à gonfler une performance sans qu'aucune erreur de calcul ne
+soit commise.
+
+Le troisième est le plus utile ici, et le plus inattendu. \textbf{Ajouter les covariables
+climatiques brutes améliore la classification, et pour la mauvaise raison.} La précision
+équilibrée gagne de \numrange{0,059}{0,146} selon l'encodeur, mais la latitude devient au même
+moment prédictible à partir de la représentation, avec un gain de \numrange{0,488}{0,633} sur le
+même coefficient. Deux stations voisines partagent leur maille climatique ; le forçage écrit donc
+dans la représentation une structure géographiquement lisse, et l'essentiel du gain apparent est
+un transfert de cette structure, non un progrès de discrimination hydrogéologique.
+
+Ce résultat conditionne l'interprétation des modèles multivariés de ce chapitre, qui consomment
+exactement ces trois covariables. Une réserve accompagne cependant sa transposition : le banc
+travaille sur une grille au quart de degré, alors que l'entrepôt en produit une au dixième de
+degré, dont la structure est moins lisse. Le mécanisme vaut, son ampleur reste à mesurer sur la
+chaîne décrite au chapitre~\ref{ch:entrepot}. Le remède proposé, employer des anomalies ou une
+recharge dérivée du modèle métier plutôt que le forçage brut, figure parmi les chantiers du
+chapitre~\ref{ch:bilan}.
+
+Le banc explique enfin pourquoi l'étage de dérive de représentation reste inerte dans la
+plateforme : les encodeurs qu'il attend ne se sont pas montrés supérieurs, sur le signal
+endogène, à des descripteurs que la bibliothèque métier calcule déjà.
 
 \section{Ce qui est établi, et ce qui ne l'est pas}
 
