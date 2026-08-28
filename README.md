@@ -69,7 +69,7 @@ partagées par les deux documents. Une
 version antérieure du plan est figée dans `versions/plan-v2/`, sous le tag `plan-v2`.
 
 `slides/` porte deux jeux de diapositives tirés du rapport, `court.tex` (7 diapositives de
-contenu) et `long.tex` (25, réparties en six parties signalées par un bandeau), sur un préambule
+contenu) et `long.tex` (19, réparties en sept parties signalées par un bandeau), sur un préambule
 commun.
 
 `figures/` porte les captures d'écran de la plateforme et les deux logos. Les captures sont des

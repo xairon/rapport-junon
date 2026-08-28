@@ -185,54 +185,6 @@ porte pas la profondeur : c'est une indication, pas une certitude.
 \end{columns}
 \end{frame}
 
-% ===========================================================================
-\begin{frame}{Des mesures aux indicateurs comparables}
-
-\begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\small
-\begin{apport}{Par station : l'indicateur piézométrique standardisé}
-La méthode n'a pas été inventée ici : elle reprend celle que le BRGM a proposée pour le Bulletin
-de situation hydrologique. Caractère mensuel, minimum de quinze années par mois et sept classes
-sont repris tels quels.
-
-\vspace{0.3em}
-Reprendre une méthode publiée plutôt qu'en définir une ajustée à nos données est un choix de
-\textbf{comparabilité} : les valeurs restent lisibles par les équipes qui diffusent déjà cet
-indicateur.
-\end{apport}
-
-\vspace{0.2em}
-{\footnotesize\color{grisardoise} Écart assumé : référence 1991--2020 au lieu de 1981--2010,
-pour s'aligner sur la normale de l'OMM et sur la chaîne climatique.\par}
-\end{column}
-
-\begin{column}{0.48\textwidth}
-\small
-\begin{apport}{Sur grille : trois indices, quatre fenêtres}
-Pour chaque maille de \ang{0.1}, sur 1, 3, 6 et 12 mois, correspondant à des inerties
-différentes du système hydrologique.
-\end{apport}
-
-\vspace{0.2em}
-\footnotesize
-\begin{tabularx}{\linewidth}{@{}llY@{}}
-\toprule
-\textbf{Indice} & \textbf{Grandeur} & \textbf{Loi} \\
-\midrule
-SPI  & Précipitation & Gamma \\
-STI  & Température & Normale \\
-SPEI & P moins ETP & Logistique généralisée \\
-\bottomrule
-\end{tabularx}
-
-\vspace{0.5em}
-{\footnotesize La loi de l'article fondateur du SPEI ne s'ajustait que sur \SI{74,6}{\percent}
-du domaine, pour une raison structurelle : elle ne représente qu'un sens d'asymétrie. La loi de
-l'implémentation de référence porte la couverture à \SI{100}{\percent}.\par}
-\end{column}
-\end{columns}
-\end{frame}
 
 % ===========================================================================
 \begin{frame}{Un arbitrage qui décidait de la justesse de tout l'aval}
@@ -410,44 +362,7 @@ Le compteur du bas donne l'assiette réelle : \num{2610} piézomètres classés 
 recensés, \num{2170} stations hydrométriques sur \num{6253}. Les stations non classées le sont
 faute d'historique suffisant, et cela se voit.}
 
-% ===========================================================================
-\begin{frame}{Situer une station, avant de la modéliser}
 
-\begin{columns}[T]
-\begin{column}{0.58\textwidth}
-\vspace{-0.1cm}
-\vueb{0.56}{carte-regionale}
-\end{column}
-
-\begin{column}{0.39\textwidth}
-\footnotesize
-\begin{apport}{Deux publics}
-Les \textbf{hydrogéologues} situent une station dans son contexte : quelle nappe, comment elle se
-comporte face à ses voisines. Les \textbf{modélisateurs} repèrent les chroniques trop courtes ou
-perturbées par un pompage, avant d'entraîner.
-\end{apport}
-
-\begin{apport}{Une règle de conception}
-\emph{Soit un indicateur standardisé, soit une valeur réelle affichée comme telle. Jamais un
-intermédiaire inventé.}
-\end{apport}
-
-\vspace{0.2em}
-\lecas{Épieds-en-Beauce : indicateur \num{+0,41}, classe « normal », \num{112,01} contre
-\num{112,10} habituellement en août sur la référence 1991--2020, \num{12050} mesures sur soixante
-ans, et les quinze stations de la même entité BDLISA avec leur classe.}
-\end{column}
-\end{columns}
-\end{frame}
-
-% ===========================================================================
-\cadredouble{Croiser le niveau et le climat, sur la même page}
-{contexte-spi}
-{Le contexte climatique de la station : SPI sur trois mois depuis dix ans, coloré par classe, et
-les cumuls glissants comparés à la normale 1991--2020. Ici \SI{-41}{\percent} sur trois mois.}
-{comparaison-annees}
-{La comparaison interannuelle : cinq années superposées mois par mois. C'est ce geste, fait à la
-main sur plusieurs sources, que l'Observatoire remplace par une sélection.}
 
 % ===========================================================================
 \section{Modéliser}
@@ -505,43 +420,7 @@ calibration. Le trait vertical marque la bascule entre les deux périodes.
 \end{columns}
 \end{frame}
 
-% ===========================================================================
-\begin{frame}{Diagnostiquer : ce que le modèle ne capte pas}
 
-\vue{pastas-diagnostics}
-
-\vspace{0.12cm}
-{\scriptsize\color{grisardoise} Les résidus, contre six tests dont le verdict est affiché en
-clair. Ici quatre échouent : l'ajustement est bon, la structure résiduelle ne l'est pas. C'est le
-point de départ de l'enrichissement du modèle, non un rejet.\par}
-
-\vspace{0.2cm}
-\begin{columns}[T]
-\begin{column}{0.38\textwidth}
-\vue{pastas-radar}
-\end{column}
-
-\begin{column}{0.59\textwidth}
-\footnotesize
-\begin{apport}{Un modèle peut être juste en moyenne et faux sur la dynamique}
-Les signatures hydrologiques comparent l'observé (bleu) au simulé (orange) sur des grandeurs que
-l'hydrogéologue reconnaît : saisonnalité de Pardé, amplitude saisonnière, vitesses de montée et
-de descente, constantes de tarissement et de récupération.
-\end{apport}
-\vspace{0.1em}
-\lecas{Vingt-neuf signatures sont calculées, avec le rapport simulé sur observé pour chacune.}
-\end{column}
-\end{columns}
-\end{frame}
-
-% ===========================================================================
-\cadre{Comparer les structures plutôt qu'en choisir une}
-{pastas-calibration-auto}
-{Huit configurations calibrées en \SI{31,2}{\second} sur une station, sur la période de
-calibration. Le verdict STOWA occupe sa propre colonne parce qu'il ne se déduit pas de l'erreur :
-son troisième critère écarte les modèles dont la mémoire excède la période observée, et ici aucune
-configuration ne le satisfait entièrement alors que la meilleure atteint un NSE de \num{0,589}.
-Les modèles calés restent en galerie, de sorte que la comparaison se relit sans être refaite.}
 
 % ===========================================================================
 \begin{frame}{L'apport hydrogéologique inscrit dans le code}
@@ -614,27 +493,6 @@ fenêtre d'entrée, 365 jours de contexte ; la bande ocre est l'horizon de prév
 deux se déplacent ensemble sur toute la période, ce qui évite de conclure d'une fenêtre unique et
 bien choisie.}
 
-% ===========================================================================
-\begin{frame}{Lire ce que vaut une prévision}
-
-\begin{columns}[T]
-\begin{column}{0.62\textwidth}
-\vue{prevision-fenetre}
-\end{column}
-\begin{column}{0.34\textwidth}
-\vue{prevision-metriques}
-\end{column}
-\end{columns}
-
-\vspace{0.25cm}
-{\footnotesize La fenêtre de près, prévision contre observations. L'erreur absolue moyenne vaut
-\SI{0,045}{\metre} et le biais \num{+0,027}~m sur trente points, mais c'est la dernière ligne qui
-se commente : \SI{7,8}{\percent} de l'écart interquartile de la série. Une erreur en mètres ne
-veut rien dire tant qu'elle n'est pas rapportée à l'amplitude de l'ouvrage.\par}
-\vspace{0.1em}
-\lecas{Une fenêtre sur une station, non un résultat d'évaluation : aucune campagne comparative
-n'a été conduite.}
-\end{frame}
 
 % ===========================================================================
 \section{Expliquer}

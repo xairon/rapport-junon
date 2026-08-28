@@ -12,7 +12,7 @@ done
 nc=$(pdfinfo court.pdf | awk '/Pages/{print $2}')
 nl=$(pdfinfo long.pdf  | awk '/Pages/{print $2}')
 [ "$nc" -eq 8 ]  || { echo "ECHEC court : $nc pages au lieu de 8"; ok=1; }
-[ "$nl" -eq 26 ] || { echo "ECHEC long : $nl pages au lieu de 26"; ok=1; }
+[ "$nl" -eq 20 ] || { echo "ECHEC long : $nl pages au lieu de 20"; ok=1; }
 
 # Les images reellement incluses sont lues dans les .fls, non devinees dans le
 # .tex : une vue passee en second argument de \cadre echappe a toute regex
