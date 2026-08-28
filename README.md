@@ -37,8 +37,8 @@ Deux dépôts complémentaires portent des travaux personnels menés dans le cad
 
 | Dépôt | Objet | État |
 |---|---|---|
-| [physcf](https://github.com/xairon/physcf) | Prototype de recherche des contrefactuels sous contrainte physique, dont la bibliothèque métier intègre le cœur. Quatre sites couvrant le gradient réactif vers inertiel, article rédigé jusqu'au protocole | Campagne expérimentale non conduite, section de résultats vide |
-| [aida_embedding_benchmark](https://github.com/xairon/aida_embedding_benchmark) | Comparaison de sept encodeurs de séries temporelles sur 5 116 stations piézométriques, avec partage de validation croisée par département | Résultats acquis et article complet ; campagne du protocole principal non versionnée, carnets de vérification non exécutés |
+| [physcf](https://github.com/xairon/physcf) | Prototype de recherche des contrefactuels sous contrainte physique, dont la bibliothèque métier intègre le cœur. Quatre sites couvrant le gradient réactif vers inertiel, protocole d'évaluation écrit | Campagne expérimentale non conduite, tableaux de résultats vides |
+| [aida_embedding_benchmark](https://github.com/xairon/aida_embedding_benchmark) | Comparaison de sept encodeurs de séries temporelles sur 5 116 stations piézométriques, avec partage de validation croisée par département | Résultats acquis ; campagne du protocole principal non versionnée, carnets de vérification non exécutés |
 
 ## Compiler
 

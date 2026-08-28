@@ -200,9 +200,10 @@ aquifère réagit.
 \subsection{Contrefactuels sous contrainte physique}
 \label{sec:physcf}
 
-L'implémentation retenue, désignée \physcf{}, a été conçue au cours de ces travaux et fait
-l'objet d'un article séparé (section~\ref{sec:travaux-perso}). Elle traduit ces exigences en
-renonçant à perturber les entrées valeur par valeur, et ne règle que sept paramètres décrivant un régime climatique : un facteur de pluie par
+L'implémentation retenue, désignée \physcf{}, a été conçue au cours de ces travaux ; un
+prototype séparé, décrit en section~\ref{sec:travaux-perso}, sert à l'éprouver hors de
+l'application. Elle traduit ces exigences en renonçant à perturber les entrées valeur par
+valeur, et ne règle que sept paramètres décrivant un régime climatique : un facteur de pluie par
 saison, un décalage de température, un décalage du calendrier, et un résidu d'évaporation
 étroitement borné. L'évapotranspiration n'est pas libre, elle est calculée à partir de la
 température au taux d'environ \SI{7}{\percent} par degré, ordre de grandeur tiré de la relation
@@ -245,7 +246,7 @@ deux ont donné lieu à un développement séparé, mené à titre personnel dan
 travaux. Elles figurent ici parce qu'elles éclairent des choix décrits plus haut, et parce qu'un
 repreneur qui ignorerait la seconde referait une erreur qu'elle documente.
 
-\subsection{Le prototype de contrefactuels sous contrainte physique}
+\subsection{Éprouver la méthode contrefactuelle hors de l'application}
 
 La méthode décrite en section~\ref{sec:physcf} devait être évaluée, et la plateforme ne s'y
 prête pas : elle mêle l'instrument et le cas, alors qu'une évaluation demande un petit nombre de
@@ -262,10 +263,10 @@ construction. Chaque scénario est confronté à un modèle métier calibré ind
 
 Ce qui est acquis est le dispositif complet : les opérateurs de perturbation, l'optimisation par
 gradient et par recherche bayésienne, la validation croisée par le modèle métier, les cibles
-définies sur les classes de l'indicateur piézométrique, et la suite de tests qui les couvre.
-L'article est rédigé, jusqu'au protocole expérimental inclus. Sa section de résultats attend la
-campagne : elle n'a pas été conduite, et le chapitre~\ref{ch:bilan} dit ce qu'il faut pour la
-mener.
+définies sur les classes de l'indicateur piézométrique, et la suite de tests qui les couvre. Le
+protocole d'évaluation est écrit lui aussi, jusqu'aux mesures à relever et aux tableaux qui
+doivent les recevoir. Ces tableaux sont vides : la campagne n'a pas été conduite, et le
+chapitre~\ref{ch:bilan} dit ce qu'elle demande d'abord.
 
 \subsection{Un banc d'essai des représentations de chroniques piézométriques}
 
@@ -276,8 +277,9 @@ hydrogéologiques. La question s'est révélée plus large que son motif : elle 
 compression apprise retient d'une chronique piézométrique.
 
 Sept encodeurs ont été comparés sur \num{5116} stations, avec un partage de validation croisée
-par département qui interdit à une station de se retrouver du même côté que ses voisines
-immédiates. Le protocole principal est \textbf{univarié} : chaque encodeur ne reçoit que le
+qui tient chaque département entier du même côté : aucune station n'est ainsi évaluée par un
+modèle qui aurait appris sur ses voisines immédiates, dont la chronique lui ressemble par le
+seul effet de la proximité. Le protocole principal est \textbf{univarié} : chaque encodeur ne reçoit que le
 niveau. Une variante y ajoute les trois covariables climatiques, non comme un raffinement mais
 comme une expérience de contrôle.
 
@@ -305,11 +307,15 @@ Bruit gaussien           & \num{0,148} & \num{-0,012} & référence basse \\
 Trois résultats en sortent. Le premier est que \textbf{vingt-neuf descripteurs écrits à la main
 devancent l'apprentissage contrastif} sur le signal endogène, avec un écart statistiquement
 significatif contre les deux encodeurs contrastifs et un écart non significatif contre les deux
-jeux de descripteurs génériques. Une recherche d'hyperparamètres dédiée à l'un des encodeurs
-contrastifs n'en comble que \numrange{0,015}{0,020}, le reste étant structurel plutôt qu'un
-défaut de réglage. Les mêmes descripteurs prédisent les signatures physiques d'une chronique
-avec un coefficient de détermination proche de \num{0,89}, contre \numrange{0,08}{0,19} pour les
-représentations apprises.
+méthodes génériques restantes, Catch22 et MultiRocket. Une recherche d'hyperparamètres dédiée à
+l'un des encodeurs contrastifs n'en comble que \numrange{0,015}{0,020}, le reste étant structurel
+plutôt qu'un défaut de réglage. Les mêmes descripteurs prédisent les signatures physiques d'une
+chronique avec un coefficient de détermination proche de \num{0,89}, contre
+\numrange{0,08}{0,19} pour les représentations apprises. Cet avantage tient cependant à la tâche
+et ne se transporte pas : sur une régression de tendance longue, ce sont les descripteurs
+génériques qui l'emportent, tandis que les descripteurs métier retombent au niveau d'une
+prédiction faite à partir de la seule position géographique. Aucun encodeur ne domine partout,
+et le choix suit l'usage qu'on veut en faire.
 
 Le deuxième porte sur la validation. Une validation croisée qui ignore la structure spatiale
 porte la valeur de \num{0,303} à \num{0,376} pour le même encodeur : l'autocorrélation
@@ -336,17 +342,27 @@ Le banc explique enfin pourquoi l'étage de dérive de représentation reste ine
 plateforme : les encodeurs qu'il attend ne se sont pas montrés supérieurs, sur le signal
 endogène, à des descripteurs que la bibliothèque métier calcule déjà.
 
+Une précision s'impose sur l'état du dépôt, puisqu'il est public et que le tableau ci-dessus
+invite à s'y reporter. Les campagnes multivariées, la régression de tendance et les recherches
+d'hyperparamètres y sont versionnées avec leurs métriques ; la campagne univariée dont ce
+tableau est tiré ne l'est pas, et les carnets de vérification n'ont pas été exécutés. Les
+valeurs rapportées ici ont été recoupées avec les artefacts disponibles, mais les rendre
+rejouables d'un bout à l'autre reste à faire, et figure au chapitre~\ref{ch:bilan}.
+
 \section{Ce qui est établi, et ce qui ne l'est pas}
 
-\textbf{Ce qui est acquis} est le dispositif : un banc d'expérimentation instrumenté, traçable,
-qui rend les comparaisons possibles et rejouables, accessible à des utilisateurs de niveaux
-d'expertise différents, et dont le cœur est réutilisable hors de l'application.
+\textbf{Ce qui est acquis} est le dispositif : un environnement d'expérimentation instrumenté,
+traçable, qui rend les comparaisons possibles et rejouables, accessible à des utilisateurs de
+niveaux d'expertise différents, et dont le cœur est réutilisable hors de l'application.
 
-\textbf{Ce qui n'est pas établi dans ce rapport} est le classement des architectures sur le cas
-hydrogéologique. Les campagnes d'entraînement conduites au cours des travaux ont servi à
-valider le dispositif et à orienter les développements ; les jeux de données préparés et les
-points de sauvegarde ont été purgés des dépôts lors de la passation. Reconstituer a posteriori
-un tableau de performances à partir de souvenirs ne serait pas un résultat scientifique. La
+\textbf{Ce qui n'est pas établi dans ce rapport} est le classement des architectures \emph{de
+prévision} sur le cas hydrogéologique. La section précédente compare des encodeurs de
+représentation, question distincte traitée par un dispositif distinct ; sur la prévision
+elle-même, ce rapport ne produit aucun classement. Les campagnes d'entraînement conduites au
+cours des travaux ont servi à valider le dispositif et à orienter les développements ; les jeux
+de données préparés et les points de sauvegarde ont été purgés des dépôts lors de la passation.
+Reconstituer a posteriori un tableau de performances de prévision à partir de souvenirs ne
+serait pas un résultat scientifique. La
 campagne d'évaluation comparative, qui opposerait les modèles appris aux modèles métier du
 chapitre~\ref{ch:metier} sur un échantillon représentatif de stations et de familles
 d'aquifères, reste donc à conduire, et l'outillage nécessaire est en place pour la mener.
