@@ -225,11 +225,20 @@ c'est ce qui reste à faire.}
 \begin{frame}{Expliquer : que faudrait-il pour que la situation change ?}
 \framesubtitle{Le module que la tâche 3.2 vise, sur le même ouvrage}
 
-\vue{scenario-preselections}
+\vuepleine{scenario-preselections}
 \vspace{0.1cm}
-{\scriptsize\color{grisardoise} Les scénarios préconfigurés, dont les débits sont proposés
-d'après la famille d'aquifère de la station : forage d'eau potable, irrigation saisonnière,
-pompage industriel, sécheresses, tendance climatique.\par}
+{\tiny\color{grisardoise} Les six scénarios préconfigurés, dont les débits sont proposés
+d'après la famille d'aquifère de la station :\par}
+\vspace{0.15em}
+{\scriptsize
+\begin{tabularx}{\linewidth}{@{}YYY@{}}
+\textbf{Forage d'eau potable} & \textbf{Irrigation saisonnière} & \textbf{Pompage industriel} \\
+constant, \num{200}~m\textsuperscript{3}/j & \num{300}~m\textsuperscript{3}/j, avril à septembre &
+constant, \num{150}~m\textsuperscript{3}/j \\[0.35em]
+\textbf{Sécheresse estivale} & \textbf{Sécheresse prolongée} & \textbf{Tendance climatique} \\
+\SI{-30}{\percent} de pluie, juin à septembre & \SI{-20}{\percent} de pluie, \SI{+10}{\percent}
+d'ETP & \num{-2}~cm/an de baisse, \SI{+5}{\percent} d'ETP \\
+\end{tabularx}\par}
 
 \vspace{0.35cm}
 \begin{columns}[T]

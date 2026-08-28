@@ -94,6 +94,18 @@
    \fcolorbox{black!30}{white}{\includegraphics[width=\dimexpr#1\linewidth-2\fboxrule\relax]%
      {../figures/vues/#2.png}}}}
 
+% Variante qui deborde les marges, pour une vue tres allongee dont la hauteur
+% rendue decoule du seul rapport de forme : elle est deja a 100 % du bloc de
+% texte, et retrecir ce qui l'entoure ne lui rend aucune place. Passer du bloc
+% de texte (14,0 cm) a la largeur du papier (16,0 cm) gagne 14 %, ce qui est
+% tout ce qu'on peut lui donner sans redecouper la source.
+% Usage : \vuepleine{nom-de-vue}
+\newcommand{\vuepleine}[1]{%
+  \hspace*{-\dimexpr(\paperwidth-\textwidth)/2\relax}%
+  {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.4pt}%
+   \fcolorbox{black!30}{white}{\includegraphics[width=\dimexpr\paperwidth-2\fboxrule\relax]%
+     {../figures/vues/#1.png}}}}
+
 % Variante bornee en largeur ET en hauteur : sur une diapositive, c'est la
 % hauteur qui manque, et une vue large deborde sous le pied de page sans que
 % LaTeX ne signale autre chose qu'une \vbox trop haute.
