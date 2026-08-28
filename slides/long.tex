@@ -412,6 +412,20 @@ sécheresse là où il n'y a qu'un choix de bornes.
 \end{frame}
 
 % ===========================================================================
+\begin{frame}{L'Observatoire en images : la couverture nationale et le contexte climatique}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\capture[0.95]{observatoire-carte-nappes-rivieres-animation.png}{Vue nationale des nappes et
+rivières, animation temporelle saisonnière 2000--2026.}
+\end{column}
+\begin{column}{0.48\textwidth}
+\capture[0.95]{observatoire-chronique-niveau-contexte-climatique.png}{Chronique piézométrique
+d'une station croisée avec ses indicateurs climatiques (SPI, cumuls vs normale 1991--2020).}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
 \begin{frame}{Le laboratoire de modèles métier : construire la référence}
 \framesubtitle{Sans référence, une performance ne signifie rien}
 
@@ -434,6 +448,20 @@ intégrale de combien le niveau varie pour une sollicitation donnée.
 Une grille de configurations est calibrée puis classée sur quatre critères normalisés, dont un
 qui écarte les modèles dont la mémoire excède les données disponibles.
 \end{apport}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Pastas Lab : comparer les structures avant de choisir}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\capture[0.95]{pastas-lab-galerie-modeles-tfn-nse-evp.png}{Galerie des modèles calés par
+piézomètre : chaque structure (réponse Gamma/Exponentielle, bruit) comparée sur NSE, EVP et AIC.}
+\end{column}
+\begin{column}{0.48\textwidth}
+\capture[0.95]{pastas-lab-calibration-automatique-resultats.png}{Calibration automatique : huit
+configurations testées et classées sur les critères STOWA, validation 70/30.}
 \end{column}
 \end{columns}
 \end{frame}
@@ -508,6 +536,18 @@ cela, comparer deux expériences séparées de quelques semaines n'est pas défe
 \end{frame}
 
 % ===========================================================================
+\begin{frame}{Prévision : la fenêtre glissante sur le jeu de test}
+\capture[0.85]{lab-ia-prevision-nhits-fenetre-glissante.png}{Prévision à 30 jours d'un modèle
+NHITS multivarié sur le jeu de test, avec les prédicteurs climatiques en entrée.}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Prévision : la fenêtre à 30 jours, de près}
+\capture[0.95]{prevision-piezometrie-evaluation-30j.png}{Fenêtre de prévision comparée aux
+observations : métriques MAE, RMSE, biais et précision directionnelle.}
+\end{frame}
+
+% ===========================================================================
 \begin{frame}{Expliquer : sur quoi le modèle s'appuie}
 
 \begin{columns}[T]
@@ -577,6 +617,24 @@ degré. »}
 \vspace{0.1em}
 {\footnotesize\color{grisardoise} Chaque scénario est rejoué dans un modèle métier indépendant :
 s'il fait diverger les deux modèles bien plus que sur l'observé, il est rejeté.\par}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Un scénario contrefactuel en pratique}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\capture[0.95]{scenario-pompage-industriel-impulsion.png}{Configuration d'un scénario : stress
+de pompage industriel en impulsion, appliqué à un modèle calé.}
+\end{column}
+\begin{column}{0.48\textwidth}
+\small
+\begin{apport}{Un stress, pas une entrée libre}
+Le scénario se construit sur des \emph{stress} physiques (pompage, sécheresse, tendance
+climatique) et une fonction de réponse calibrée, plutôt que par perturbation libre des entrées.
+La plausibilité est contrainte par construction.
+\end{apport}
 \end{column}
 \end{columns}
 \end{frame}
