@@ -221,6 +221,14 @@ Une règle de conception a structuré ce module et mérite d'être rapportée, p
 
 L'Observatoire recalcule par ailleurs le moins possible : ses points d'accès lisent les tables analytiques de l'entrepôt plutôt que de refaire le calcul, de sorte que la valeur affichée est exactement celle qui a été validée en amont.
 
+\begin{figure}[H]
+\centering
+\vue[0.97]{carte-nationale}
+\caption{Le volet nappes et rivières de l'Observatoire, à l'échelle du pays. Chaque pastille agrège les stations d'un secteur et porte la classe de l'indicateur standardisé ; le compteur du bas donne l'assiette réellement classée, distincte du nombre de stations recensées. \lecas}
+\label{fig:st32-observatoire}
+\end{figure}
+
+
 \subsubsection{Le laboratoire de modèles mécanistiques : construire la référence}
 \label{sec:labo-metier}
 
@@ -254,6 +262,14 @@ Composite & Quatre paramètres & ARMA & Milieu hétérogène, modèle flexible \
 
 Le modèle calibré n'est enfin pas seulement descriptif : il permet de répondre à des questions de la forme \emph{que se passerait-il si}, qui sont précisément celles des gestionnaires et celles auxquelles QR2 s'adresse. Quatre types de modification sont outillés, l'ajout d'un prélèvement synthétique suivant des profils réalistes par type d'usage, l'import d'une chronique de prélèvement réelle, une tendance climatique et une mise à l'échelle d'un forçage existant. Un mécanisme de bornes adaptatives estime le rabattement attendu à partir de la réponse indicielle du modèle lui-même et en dérive des bornes physiquement plausibles pour guider la saisie, de sorte que l'utilisateur n'est ni laissé libre de simuler un pompage qui viderait la nappe en un mois, ni contraint par une borne arbitraire identique partout. Ce mécanisme préfigure, dans le cadre mécanistique, la contrainte de plausibilité que la section~\ref{sec:xai} impose aux contrefactuels appris.
 
+\begin{figure}[H]
+\centering
+\vue[0.97]{pastas-ajustement}
+\caption{Un modèle mécanistique calibré sur une station. Le niveau observé et le niveau simulé se superposent sur trois décennies ; le trait vertical marque la bascule vers la période réservée, sur laquelle les métriques sont recalculées séparément. C'est ce modèle qui sert de référence indépendante à la validation croisée des contrefactuels. \lecas}
+\label{fig:st32-metier}
+\end{figure}
+
+
 \subsubsection{Le laboratoire d'apprentissage profond}
 
 Prévoir un niveau de nappe est un problème de série temporelle multivariée avec covariables exogènes, la cible étant le niveau et les entrées la précipitation, la température et l'évapotranspiration. Les difficultés propres au domaine sont connues : inertie très variable d'un aquifère à l'autre, non-stationnarité liée aux prélèvements, lacunes d'observation, événements extrêmes rares donc sous-représentés dans l'apprentissage. La littérature propose de nombreuses architectures~\cite{petropoulos2022forecasting, kong2025deep, wang2024deep} et aucune ne s'impose a priori ; la question pratique n'est donc pas quel modèle choisir mais comment mettre en place un dispositif permettant de trancher, et de rejouer la comparaison quand les données changent.
@@ -265,6 +281,14 @@ La plateforme donne accès à une douzaine d'architectures issues de la biblioth
 Le protocole vise trois propriétés. La traçabilité d'abord : chaque exécution d'entraînement est enregistrée dans MLflow~\cite{mlflow} avec ses paramètres, ses métriques, ses artefacts et le modèle produit, les jeux de données préparés et les modèles entraînés faisant l'objet de registres distincts, de sorte qu'un résultat puisse être rattaché sans ambiguïté au couple exact qui l'a produit. Sans ce mécanisme, une comparaison entre deux expériences menées à quelques semaines d'intervalle n'est pas défendable, et l'évaluation comparative envisagée en section~\ref{sec:methodo} en dépend entièrement. La séparation entre l'entraînement et l'interface ensuite : le code d'entraînement n'a aucune connaissance de l'interface qui l'observe, il écrit son avancement dans un fichier d'état que la couche de présentation lit indépendamment, ce qui permet de suivre dans l'interface un entraînement lancé depuis un script. La conduite d'expériences longues enfin, appuyée sur PyTorch Lightning~\cite{pytorch_lightning} avec arrêt anticipé et suivi de l'évolution des pertes.
 
 La comparaison d'architectures n'ayant de sens que si chacune est évaluée dans une configuration raisonnable, Optuna~\cite{optuna} est intégré pour la recherche automatisée d'hyperparamètres, avec un échantillonnage guidé par les essais déjà évalués. Des configurations prêtes à l'emploi ont par ailleurs été définies par cas d'usage métier plutôt que par architecture, prévision piézométrique à sept, trente et quatre-vingt-dix jours et prévision de débit à quatorze jours, chacune fixant une architecture et un jeu d'hyperparamètres cohérents. Ces configurations sont des points de départ raisonnables et non des réglages optimisés pour une station donnée, ce que la documentation énonce explicitement. Les échanges avec les hydrogéologues ont montré que cette réserve n'est pas de pure forme : la réponse d'un aquifère à la pluie varie fortement selon sa nature, les cycles observés allant de l'annuel au pluriannuel, de sorte que la profondeur d'historique en entrée, l'horizon de prévision pertinent et le pas d'agrégation devraient être choisis par famille d'aquifère, comme le sont déjà les configurations mécanistiques. Cette adaptation n'a pas été faite pour les modèles appris et constitue vraisemblablement le premier gain à aller chercher.
+
+\begin{figure}[H]
+\centering
+\vue[0.97]{ia-modele}
+\caption{Un modèle appris, tel que la plateforme le présente une fois l'entraînement terminé : architecture, station, horizon, fenêtre d'entrée et jeu de test sont attachés au modèle, de sorte qu'une prévision ne puisse être comparée qu'à une autre produite dans les mêmes conditions. \lecas}
+\label{fig:st32-apprentissage}
+\end{figure}
+
 
 \subsubsection{Les modules d'explication}
 \label{sec:xai}

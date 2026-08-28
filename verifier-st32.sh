@@ -27,5 +27,31 @@ nd=$(grep -c '^@' references.bib)
 nu=$(for k in $(grep -o '^@[a-zA-Z]*{[^,]*' references.bib | sed 's/.*{//'); do
        grep -qF "$k" sections/*.tex || echo "$k"; done | wc -l)
 [ "$nu" -eq 0 ] || { echo "ECHEC $nu entree(s) de references.bib non citee(s)"; ok=1; }
-[ "$ok" -eq 0 ] && echo "OK  $(pdfinfo st32.pdf | awk '/Pages/{print $2}') pages, $(wc -w $corps | tail -1 | awk '{print $1}') mots, $nf tableaux, $nd references propres"
+
+# Les images reellement incluses sont lues dans le .fls, non devinees dans le
+# .tex : une vue passee en argument d'une macro echappe a toute regex ligne a
+# ligne, et un controle qui ne voit rien passe sans rien verifier.
+images=$(awk '/^INPUT .*\.png$/{print $2}' st32.fls | sed 's|^\./||' | sort -u)
+
+# 1. Aucune capture d'origine n'est incluse telle quelle : une fenetre de
+#    3840 px reproduite en entier a un texte d'interface d'environ 1 mm. Seuls
+#    les deux logos de couverture echappent a la regle.
+brut=$(echo "$images" | grep -c '\.\./figures/[a-z0-9-]*\.png$')
+logos=$(echo "$images" | grep -c '\.\./figures/logo-')
+[ "$brut" -eq "$logos" ] || {
+  echo "ECHEC capture d'origine incluse hors figures/vues/ :"
+  echo "$images" | grep '\.\./figures/[a-z0-9-]*\.png$' | grep -v 'logo-' | sed 's/^/       /'
+  ok=1; }
+
+# 2. Toute vue employee est derivable : figures/recadrer.sh doit la produire.
+#    Sans ce controle, un PNG depose a la main dans figures/vues/ survivrait a
+#    une regeneration et le recadrage ne serait plus reproductible.
+nv=0
+for v in $(echo "$images" | grep '/vues/' | sed 's|.*/vues/||;s|\.png$||'); do
+  nv=$((nv + 1))
+  grep -q "^recadre $v " ../figures/recadrer.sh || {
+    echo "ECHEC vue $v absente de figures/recadrer.sh"; ok=1; }
+done
+
+[ "$ok" -eq 0 ] && echo "OK  $(pdfinfo st32.pdf | awk '/Pages/{print $2}') pages, $(wc -w $corps | tail -1 | awk '{print $1}') mots, $nf tableaux, $nv vues, $nd references propres"
 exit $ok

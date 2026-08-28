@@ -8,7 +8,7 @@ Le dépôt porte deux documents, qui se lisent séparément.
 
 | Document | Lequel lire |
 |---|---|
-| **[Livrable ST3.2 (PDF, 46 p.)](st32/st32.pdf)** — *Explicabilité et interprétabilité dans les modèles prédictifs profonds de séries temporelles*, co-signé N. Labroche, N. Ringuet, E. Doumard, M. Gol Pour | Pour les **questions de recherche** : ce que sont les explications contrefactuelles en prévision, où en est la littérature, et selon quel protocole comparer les méthodes sur le cas hydrogéologique. Il décrit le socle en une section. |
+| **[Livrable ST3.2 (PDF, 48 p.)](st32/st32.pdf)** — *Explicabilité et interprétabilité dans les modèles prédictifs profonds de séries temporelles*, co-signé N. Labroche, N. Ringuet, E. Doumard, M. Gol Pour | Pour les **questions de recherche** : ce que sont les explications contrefactuelles en prévision, où en est la littérature, et selon quel protocole comparer les méthodes sur le cas hydrogéologique. Il décrit le socle en une section. |
 | **[Rapport de clôture (PDF, 65 p.)](main.pdf)** — *De la donnée hydrologique dispersée à la prévision explicable*, N. Ringuet | Pour la **construction** : la chaîne source par source, les arbitrages qui engagent la validité des résultats, les procédures d'exploitation, l'inventaire des limites et ce qu'il faut reprendre. C'est le rapport technique du socle que le ST3.2 décrit. |
 
 ## De quoi il s'agit
@@ -68,8 +68,8 @@ pdflatex main && biber main && pdflatex main && pdflatex main
 partagées par les deux documents. Une
 version antérieure du plan est figée dans `versions/plan-v2/`, sous le tag `plan-v2`.
 
-`slides/` porte deux jeux de diapositives tirés du rapport, `court.tex` (6 diapositives de
-contenu) et `long.tex` (23, réparties en six parties signalées par un bandeau), sur un préambule
+`slides/` porte deux jeux de diapositives tirés du rapport, `court.tex` (7 diapositives de
+contenu) et `long.tex` (25, réparties en six parties signalées par un bandeau), sur un préambule
 commun.
 
 `figures/` porte les captures d'écran de la plateforme et les deux logos. Les captures sont des

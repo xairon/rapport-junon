@@ -133,3 +133,18 @@
 \newcommand{\code}[1]{\texttt{\small #1}}
 \newcommand{\hubeaudepot}{\code{hubeau\_data\_integration}}
 \newcommand{\plateforme}{\code{time-serie-explo}}
+
+% --- CAPTURES DE LA PLATEFORME ---
+% Les originaux de ../figures/ sont des fenetres de 3840 px : reproduites en
+% entier, leur texte d'interface ne se lit pas. Les vues de ../figures/vues/
+% cadrent la zone qui porte le propos (voir ../figures/recadrer.sh). Un filet
+% clair detache la capture, sombre, du fond de la page. Le filet compte dans la
+% largeur : sans le \dimexpr, une vue pleine largeur deborde de 2\fboxrule.
+\newcommand{\vue}[2][1.0]{%
+  {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.4pt}%
+   \fcolorbox{black!30}{white}{\includegraphics[width=\dimexpr#1\linewidth-2\fboxrule\relax]%
+     {../figures/vues/#2.png}}}}
+
+% Ce qu'une capture montre est un cas d'usage, non un resultat d'evaluation.
+\newcommand{\lecas}{\emph{Valeurs lues sur la capture : elles illustrent
+l'instrument, elles ne constituent pas un résultat d'évaluation.}}
