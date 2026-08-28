@@ -9,7 +9,7 @@ Le dépôt porte deux documents, qui se lisent séparément.
 | Document | Lequel lire |
 |---|---|
 | **[Livrable ST3.2 (PDF, 46 p.)](st32/st32.pdf)** — *Explicabilité et interprétabilité dans les modèles prédictifs profonds de séries temporelles*, co-signé N. Labroche, N. Ringuet, E. Doumard, M. Gol Pour | Pour les **questions de recherche** : ce que sont les explications contrefactuelles en prévision, où en est la littérature, et selon quel protocole comparer les méthodes sur le cas hydrogéologique. Il décrit le socle en une section. |
-| **[Rapport de clôture (PDF, 63 p.)](main.pdf)** — *De la donnée hydrologique dispersée à la prévision explicable*, N. Ringuet | Pour la **construction** : la chaîne source par source, les arbitrages qui engagent la validité des résultats, les procédures d'exploitation, l'inventaire des limites et ce qu'il faut reprendre. C'est le rapport technique du socle que le ST3.2 décrit. |
+| **[Rapport de clôture (PDF, 65 p.)](main.pdf)** — *De la donnée hydrologique dispersée à la prévision explicable*, N. Ringuet | Pour la **construction** : la chaîne source par source, les arbitrages qui engagent la validité des résultats, les procédures d'exploitation, l'inventaire des limites et ce qu'il faut reprendre. C'est le rapport technique du socle que le ST3.2 décrit. |
 
 ## De quoi il s'agit
 

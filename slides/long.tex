@@ -671,6 +671,7 @@ l'interface ne les sollicite.\par}
 % ===========================================================================
 \begin{frame}{Expliquer : que se passerait-il dans d'autres conditions}
 \framesubtitle{Le contrefactuel doit rester physiquement possible, sinon il ne vaut rien}
+\vspace{-4pt}
 
 \begin{columns}[T]
 \begin{column}{0.49\textwidth}
@@ -691,9 +692,9 @@ recevabilité.
 \begin{column}{0.47\textwidth}
 \small
 \begin{apport}{Deux réponses de natures différentes}
-\textbf{PhysCF} change d'espace de recherche : sept paramètres de régime climatique,
-l'évapotranspiration étant calculée depuis la température. Plausibilité garantie \emph{par
-construction}.
+\textbf{PhysCF}, conçue au cours de ces travaux, change d'espace de recherche : sept paramètres
+de régime climatique, l'évapotranspiration étant calculée depuis la température. Plausibilité
+garantie \emph{par construction}.
 
 \vspace{0.25em}
 \textbf{CoMTE} cherche dans l'historique une période réellement observée. Plausibilité garantie
@@ -706,8 +707,8 @@ degré. »}
 \end{apport}
 
 \vspace{0.1em}
-{\footnotesize\color{grisardoise} Chaque scénario est rejoué dans un modèle métier indépendant :
-s'il fait diverger les deux modèles bien plus que sur l'observé, il est rejeté.\par}
+{\footnotesize\color{grisardoise} Chaque scénario est rejoué dans un modèle métier indépendant,
+et rejeté s'il fait trop diverger les deux.\par}
 \end{column}
 \end{columns}
 \end{frame}
@@ -739,6 +740,54 @@ plutôt que par perturbation libre des entrées.
 \numrange{30}{400}~m\textsuperscript{3}/j pour cet ouvrage, est estimée depuis la réponse
 indicielle du modèle lui-même.
 \end{apport}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Deux travaux personnels menés en marge}
+\framesubtitle{Deux questions que la plateforme posait sans pouvoir y répondre}
+
+\begin{columns}[T]
+\begin{column}{0.44\textwidth}
+\small
+\begin{apport}{\code{physcf} : évaluer la méthode hors de l'application}
+La plateforme mêle l'instrument et le cas. Un prototype séparé isole PhysCF sur quatre stations
+couvrant le gradient réactif vers inertiel, avec sa méthode de référence et ses mesures.
+\end{apport}
+{\footnotesize Cadre, opérateurs, optimisation et validation croisée acquis. Article rédigé
+jusqu'au protocole.\par}
+\vspace{0.15em}
+{\footnotesize\color{rougesobre} La campagne n'a pas été conduite, et corriger le forçage
+d'évapotranspiration la précède.\par}
+\end{column}
+
+\begin{column}{0.53\textwidth}
+\small
+\begin{apport}{\code{aida\_embedding\_benchmark} : que retient-on d'une chronique ?}
+Sept encodeurs, \num{5116} stations, validation croisée par département. Vingt-neuf descripteurs
+métier devancent l'apprentissage contrastif sur le seul niveau.
+\end{apport}
+
+\vspace{0.1em}
+{\footnotesize\color{bleuprofond}\bfseries Le résultat qui engage la plateforme\par}
+\vspace{0.15em}
+\footnotesize
+Ajouter les covariables climatiques brutes améliore la classification, et pour la mauvaise raison :
+
+\vspace{0.2em}
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Gain de précision équilibrée & \numrange{+0,059}{+0,146} \\
+Gain de $R^2$ sur la latitude & \numrange{+0,488}{+0,633} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.15em}
+Deux stations voisines partagent leur maille : le forçage inscrit de la géographie dans la
+représentation. Mesuré au quart de degré, l'entrepôt produit au dixième.
 \end{column}
 \end{columns}
 \end{frame}
