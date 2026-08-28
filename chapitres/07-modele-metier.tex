@@ -87,21 +87,37 @@ gestion des eaux souterraines :
 Cette démarche recoupe la méthode de travail des hydrogéologues telle qu'ils l'ont décrite :
 partir du modèle le plus simple, examiner les résidus pour identifier ce qu'il ne capte pas,
 puis enrichir la structure en conséquence. La calibration automatique outille cet enchaînement,
-et les diagnostics de résidus présentés plus loin en fournissent la seconde étape.
+et les diagnostics de résidus présentés plus loin en fournissent la seconde étape. Les modèles
+calés sont conservés (figure~\ref{fig:pastas-galerie}), sans quoi l'enchaînement demanderait de
+refaire à chaque itération ce qui a déjà été calculé.
 
 Le troisième critère capture une erreur fréquente et discrète :
 un modèle peut afficher une excellente variance expliquée tout en ayant ajusté une dynamique
 lente que la période d'observation ne permet pas de contraindre. Le critère l'écarte. C'est
 pourquoi le verdict STOWA figure à part de l'erreur dans le classement, comme le montre la
 figure~\ref{fig:pastas-calibration-auto} : un bon critère de Nash-Sutcliffe ne suffit pas à
-rendre un modèle identifiable.
+rendre un modèle identifiable. Le classement place d'abord les configurations qui satisfont les
+quatre critères, puis les trie entre elles sur la variance expliquée.
+
+Deux mécanismes distincts portent ici le nombre soixante-dix, et les confondre changerait la
+lecture du tableau. Le premier est le seuil du critère STOWA rappelé ci-dessus : la variance
+expliquée doit atteindre \SI{70}{\percent}, c'est une exigence de qualité, et elle est évaluée
+\textbf{sur la période de calibration}. Le second est le partage optionnel entre une période
+d'apprentissage et une période réservée, réglable dans l'interface et laissé par défaut à
+\SI{70}{\percent} contre \SI{30}{\percent}, qui transpose aux modèles métier le protocole
+d'entraînement et de test des modèles appris (chapitre~\ref{ch:apprentissage}). Il sert à
+mesurer ce que vaut le modèle hors de ce sur quoi il a été ajusté ; il n'entre ni dans le calcul
+des critères STOWA, ni dans le tri des configurations.
 
 \begin{figure}[htbp]
 \centering
 \vue{pastas-calibration-auto}
-\caption{Le classement produit par la calibration automatique sur une station. Les configurations
-sont calibrées, évaluées sur une période réservée, puis triées ; le verdict STOWA est porté dans
-sa propre colonne. Le temps indiqué par configuration rend le coût de l'exploration explicite,
+\caption{Le classement produit par la calibration automatique sur une station. Les métriques
+affichées et le verdict STOWA portent sur la période de calibration ; les configurations qui
+satisfont les quatre critères passent en tête, puis sont triées entre elles sur la variance
+expliquée. Le verdict occupe sa propre colonne parce qu'il ne se déduit pas de l'erreur : ici
+aucune configuration ne le satisfait entièrement, alors que la meilleure atteint un critère de
+Nash-Sutcliffe de \num{0,589}. Le temps par configuration rend le coût de l'exploration explicite,
 ce qui compte quand elle doit être répétée sur un échantillon de stations. \lecas}
 \label{fig:pastas-calibration-auto}
 \end{figure}
