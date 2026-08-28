@@ -99,16 +99,16 @@ ERA5-Land (climat), BDLISA (référentiel hydrogéologique).}
 \vspace{0.2cm}
 \begin{center}
 \begin{tikzpicture}[font=\footnotesize\sffamily,
-  couche/.style={draw=black!75, fill=white, minimum width=5.2cm, minimum height=0.95cm,
+  couche/.style={draw=black!75, fill=white, minimum width=4.5cm, minimum height=0.95cm,
                  align=left, inner xsep=8pt},
   fl/.style={-{Stealth[length=2mm]}, draw=black!75, thick}]
   \node[font=\footnotesize\sffamily\itshape, color=black!60] (s) {Hub'Eau \textbullet{} ERA5-Land \textbullet{} BDLISA};
   \node[couche, below=0.4cm of s] (b) {\textbf{Bronze}\\[1pt] \tiny reçu tel quel, colonnes texte};
   \node[couche, below=0.35cm of b] (a) {\textbf{Silver}\\[1pt] \tiny typé, dédupliqué, rejets tracés};
   \node[couche, below=0.35cm of a] (g) {\textbf{Gold}\\[1pt] \tiny joint au climat, indicateurs};
-  \node[draw=black!55, fill=grisclair, minimum width=5.2cm, minimum height=0.6cm,
+  \node[draw=black!55, fill=grisclair, minimum width=4.5cm, minimum height=0.6cm,
         below=0.4cm of g, font=\footnotesize\sffamily] (c) {consommable en SQL};
-  \node[draw=black!55, fill=black!4, right=0.35cm of a, minimum width=2.2cm,
+  \node[draw=black!55, fill=black!4, right=0.3cm of a, minimum width=1.8cm,
         minimum height=0.95cm, align=center, font=\tiny] (r) {Rejets\\motif conservé};
   \draw[fl] (s) -- (b);
   \draw[fl] (b) -- node[right=2pt,font=\tiny\itshape]{dbt} (a);
@@ -582,10 +582,9 @@ et rejeté s'il fait trop diverger les deux.\par}
 % ===========================================================================
 \begin{frame}{Un scénario prospectif en pratique}
 
-\vuepleine{scenario-preselections}
 \vspace{0.1cm}
-{\tiny\color{grisardoise} Les six scénarios préconfigurés, dont les débits sont proposés
-d'après la famille d'aquifère de la station :\par}
+{\footnotesize Les \textbf{six scénarios préconfigurés} de l'interface, dont les débits sont
+proposés d'après la famille d'aquifère de la station :\par}
 \vspace{0.15em}
 {\scriptsize
 \begin{tabularx}{\linewidth}{@{}YYY@{}}
